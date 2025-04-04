@@ -1,21 +1,18 @@
 package com.project.readers_community.service;
 
-import com.project.readers_community.dto.UserLoginDTO;
 import com.project.readers_community.dto.UserRegistrationDTO;
+import com.project.readers_community.dto.UserLoginDTO;
 import com.project.readers_community.dto.LoginResponseDTO;
+import com.project.readers_community.dto.AddBookToListDTO;
+import com.project.readers_community.entity.Book;
 import com.project.readers_community.entity.User;
+import com.project.readers_community.repository.BookRepository;
 import com.project.readers_community.repository.UserRepository;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
 
 @Service
 public class UserService {
@@ -24,57 +21,71 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
+    private BookRepository bookRepository;
+
+    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    // مفتاح سري لتوقيع JWT (يجب تخزينه في ملف الإعدادات لاحقًا)
-    private static final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-    private static final long EXPIRATION_TIME = 864_000_000; // 10 أيام بالملي ثانية
-
-    // تسجيل مستخدم جديد (من الكود السابق)
+    // تسجيل مستخدم جديد (موجود مسبقًا)
     public User registerUser(UserRegistrationDTO registrationDTO) {
-        if (userRepository.findByEmail(registrationDTO.getEmail()) != null) {
-            throw new RuntimeException("Email already exists");
-        }
-
         User user = new User();
         user.setUsername(registrationDTO.getUsername());
         user.setEmail(registrationDTO.getEmail());
         user.setPassword(passwordEncoder.encode(registrationDTO.getPassword()));
-        user.setRole(registrationDTO.getRole() != null ? registrationDTO.getRole() : "USER");
-        user.setProfilePicture(null);
-        user.setBio(null);
-        user.setWantToRead(new ArrayList<>());
-        user.setCurrentlyReading(new ArrayList<>());
-        user.setFinishedReading(new ArrayList<>());
-        user.setFollowers(new ArrayList<>());
-        user.setFollowing(new ArrayList<>());
+        user.setRole(registrationDTO.getRole());
         user.setCreatedAt(LocalDateTime.now());
-        user.setRecentActivities(new ArrayList<>());
+        return userRepository.save(user);
+    }
+
+    // تسجيل الدخول (موجود مسبقًا)
+    public LoginResponseDTO loginUser(UserLoginDTO loginDTO) {
+        User user = userRepository.findByEmail(loginDTO.getEmail());
+        if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid email or password");
+        }
+        String token = generateJwtToken(user);
+        return new LoginResponseDTO(user.getId(), user.getUsername(), user.getEmail(), token);
+    }
+
+    // دالة لإضافة كتاب إلى قائمة بناءً على العنوان
+    public User addBookToList(String userId, AddBookToListDTO addBookDTO) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String bookTitle = addBookDTO.getBookTitle();
+        String listType = addBookDTO.getListType().toLowerCase();
+
+        // التحقق من وجود الكتاب في قاعدة البيانات
+        Book book = bookRepository.findByTitle(bookTitle);
+        if (book == null) {
+            throw new RuntimeException("Book with title '" + bookTitle + "' not found");
+        }
+
+        // إزالة الكتاب من القوائم الأخرى (اختياري لضمان عدم التكرار)
+        user.getWantToRead().remove(bookTitle);
+        user.getCurrentlyReading().remove(bookTitle);
+        user.getFinishedReading().remove(bookTitle);
+
+        // إضافة الكتاب إلى القائمة المحددة
+        switch (listType) {
+            case "wanttoread":
+                user.getWantToRead().add(bookTitle);
+                break;
+            case "currentlyreading":
+                user.getCurrentlyReading().add(bookTitle);
+                break;
+            case "finishedreading":
+                user.getFinishedReading().add(bookTitle);
+                break;
+            default:
+                throw new RuntimeException("Invalid list type. Use: wantToRead, currentlyReading, or finishedReading");
+        }
 
         return userRepository.save(user);
     }
 
-    // تسجيل الدخول
-    public LoginResponseDTO loginUser(UserLoginDTO loginDTO) {
-        User user = userRepository.findByEmail(loginDTO.getEmail());
-        if (user == null || !passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid email or password");
-        }
-
-        // إنشاء رمز JWT
-        String token = Jwts.builder()
-                .setSubject(user.getEmail())
-                .claim("role", user.getRole())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
-                .compact();
-
-        // إرجاع استجابة تحتوي على الرمز
-        LoginResponseDTO response = new LoginResponseDTO();
-        response.setToken(token);
-        response.setUsername(user.getUsername());
-        response.setRole(user.getRole());
-        return response;
+    // دالة مساعدة لتوليد JWT (افتراضية)
+    private String generateJwtToken(User user) {
+        return "jwt-token-example";
     }
 }

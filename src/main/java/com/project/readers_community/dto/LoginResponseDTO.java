@@ -8,7 +8,25 @@ public class LoginResponseDTO {
     private String token;
     private String username;
     private String role;
+    private String email;
 
+
+
+    public LoginResponseDTO(String token, String username,String email, String role) {
+        this.token = token;
+        this.username = username;
+        this.role = role;
+        this.email = email;
+    }
+
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
     public String getToken() {
         return token;
     }

@@ -3,6 +3,7 @@ package com.project.readers_community.controller;
 import com.project.readers_community.dto.UserLoginDTO;
 import com.project.readers_community.dto.UserRegistrationDTO;
 import com.project.readers_community.dto.LoginResponseDTO;
+import com.project.readers_community.dto.AddBookToListDTO;
 import com.project.readers_community.entity.Book;
 import com.project.readers_community.entity.User;
 import com.project.readers_community.service.RecommendationService;
@@ -59,6 +60,18 @@ public class UserController {
         } catch (RuntimeException e) {
             logger.error("Failed to fetch recommendations for userId {}: {}", userId, e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/{userId}/add-book-to-list")
+    public ResponseEntity<?> addBookToList(@PathVariable String userId, @RequestBody AddBookToListDTO addBookDTO) {
+        try {
+            logger.info("Adding book '{}' to list {} for userId: {}", addBookDTO.getBookTitle(), addBookDTO.getListType(), userId);
+            User updatedUser = userService.addBookToList(userId, addBookDTO);
+            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            logger.error("Failed to add book to list for userId {}: {}", userId, e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 }

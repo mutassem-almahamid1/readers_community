@@ -11,8 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Document(collection = "users")
-@AllArgsConstructor
-@NoArgsConstructor
+
 @Data
 public class User {
 
@@ -142,6 +141,26 @@ public class User {
     }
 
     public void setRecentActivities(List<String> recentActivities) {
+        this.recentActivities = recentActivities;
+    }
+
+    public User() {
+    }
+
+    public User(String id, String username, String email, String password, String role, String profilePicture, String bio, List<String> wantToRead, List<String> currentlyReading, List<String> finishedReading, List<String> followers, List<String> following, LocalDateTime createdAt, List<String> recentActivities) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.profilePicture = profilePicture;
+        this.bio = bio;
+        this.wantToRead = wantToRead;
+        this.currentlyReading = currentlyReading;
+        this.finishedReading = finishedReading;
+        this.followers = followers;
+        this.following = following;
+        this.createdAt = createdAt;
         this.recentActivities = recentActivities;
     }
 }

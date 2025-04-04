@@ -9,7 +9,7 @@ import java.util.Set;
 
 public interface BookRepository extends MongoRepository<Book, String> {
     Book findByIsbn(String isbn);
-    Book findByTitle(String title);
+    Book findByTitle(String title);  // دالة للبحث حسب العنوان
 
     @Query("{ 'categories': { $in: ?0 } }")
     List<Book> findByCategoriesIn(Set<String> categories);
