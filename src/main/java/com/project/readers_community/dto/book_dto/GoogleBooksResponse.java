@@ -1,7 +1,10 @@
-package com.project.readers_community.dto;
+package com.project.readers_community.dto.book_dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.project.readers_community.util.CustomLocalDateDeserializer;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -11,7 +14,6 @@ public class GoogleBooksResponse {
     @Data
     public static class Item {
         private VolumeInfo volumeInfo;
-
         public VolumeInfo getVolumeInfo() {
             return volumeInfo;
         }
@@ -35,7 +37,10 @@ public class GoogleBooksResponse {
         private String description;
         private List<String> categories;
         private String publisher;
-        private String publishedDate;
+        
+        @JsonDeserialize(using = CustomLocalDateDeserializer.class)
+        private LocalDate publishedDate;
+        
         private ImageLinks imageLinks;
         private List<IndustryIdentifier> industryIdentifiers;
 
@@ -79,11 +84,11 @@ public class GoogleBooksResponse {
             this.publisher = publisher;
         }
 
-        public String getPublishedDate() {
+        public LocalDate getPublishedDate() {
             return publishedDate;
         }
 
-        public void setPublishedDate(String publishedDate) {
+        public void setPublishedDate(LocalDate publishedDate) {
             this.publishedDate = publishedDate;
         }
 
@@ -119,19 +124,21 @@ public class GoogleBooksResponse {
 
     @Data
     public static class IndustryIdentifier {
-        private String type; // مثل "ISBN_13" أو "ISBN_10"
+        private String type;
         private String identifier;
-
 
         public String getType() {
             return type;
         }
+
         public void setType(String type) {
             this.type = type;
         }
+
         public String getIdentifier() {
             return identifier;
         }
+
         public void setIdentifier(String identifier) {
             this.identifier = identifier;
         }

@@ -1,76 +1,56 @@
-package com.project.readers_community.entity;
+package com.project.readers_community.dto.review_dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Review {
-    private String id;
+public class ReviewDTO {
     private String userId;
     private String username;
-    private String bookId; // Added bookId property to match repository method
+    private String bookId;
     private int rating;
     private String comment;
-    private LocalDateTime createdAt = LocalDateTime.now();
-    
-    public String getId() {
-        return id;
-    }
-    
-    public void setId(String id) {
-        this.id = id;
-    }
-    
+
     public String getUserId() {
         return userId;
     }
-    
+
     public void setUserId(String userId) {
         this.userId = userId;
     }
-    
+
     public String getUsername() {
         return username;
     }
-    
+
     public void setUsername(String username) {
         this.username = username;
     }
-    
+
     public String getBookId() {
         return bookId;
     }
-    
+
     public void setBookId(String bookId) {
         this.bookId = bookId;
     }
-    
+
     public int getRating() {
         return rating;
     }
-    
+
     public void setRating(int rating) {
         this.rating = rating;
     }
-    
+
     public String getComment() {
         return comment;
     }
-    
+
     public void setComment(String comment) {
         this.comment = comment;
-    }
-    
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
     }
 }

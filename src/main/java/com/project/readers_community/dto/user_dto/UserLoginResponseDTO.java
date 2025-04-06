@@ -1,40 +1,30 @@
-package com.project.readers_community.dto;
+package com.project.readers_community.dto.user_dto;
 
 
 import lombok.Data;
 
 @Data
-public class LoginResponseDTO {
-    private String token;
+public class UserLoginResponseDTO {
+
     private String username;
     private String role;
     private String email;
 
 
 
-    public LoginResponseDTO(String token, String username,String email, String role) {
-        this.token = token;
+    public UserLoginResponseDTO(String username, String email, String role) {
+
         this.username = username;
         this.role = role;
         this.email = email;
     }
 
-
     public String getEmail() {
         return email;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
     public String getUsername() {
         return username;
     }

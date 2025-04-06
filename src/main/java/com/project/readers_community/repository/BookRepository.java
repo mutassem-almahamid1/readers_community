@@ -2,18 +2,13 @@ package com.project.readers_community.repository;
 
 import com.project.readers_community.entity.Book;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 
+@Repository
 public interface BookRepository extends MongoRepository<Book, String> {
-    Book findByIsbn(String isbn);
-    Book findByTitle(String title);  // دالة للبحث حسب العنوان
-
-    @Query("{ 'categories': { $in: ?0 } }")
-    List<Book> findByCategoriesIn(Set<String> categories);
-
-    @Query("{ 'title': { $in: ?0 } }")
-    List<Book> findByTitleIn(Set<String> titles);
+    Optional<Book> findByTitle(String title);
+    Optional<Book> findByIsbn(String isbn);
+    boolean existsBy();
 }

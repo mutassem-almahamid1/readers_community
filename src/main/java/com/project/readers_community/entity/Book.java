@@ -28,15 +28,13 @@ public class Book {
     private List<String> categories = new ArrayList<>(); // قائمة التصنيفات
     private String publisher;
     private LocalDate publishedDate;
-    @Indexed(unique = true)
-    private String isbn;
     private String coverImage;
     private String addedBy; // معرف المستخدم الذي أضاف الكتاب
     private List<Review> reviews = new ArrayList<>(); // قائمة المراجعات
     private int reviewCount; // عدد المراجعات
     private double avgRating; // متوسط التقييم
     private LocalDateTime createdAt = LocalDateTime.now();
-
+    private String isbn; // ISBN identifier for the book
 
     public String getId() {
         return id;
@@ -102,14 +100,6 @@ public class Book {
         this.publishedDate = publishedDate;
     }
 
-    public String getIsbn() {
-        return isbn;
-    }
-
-    public void setIsbn(String isbn) {
-        this.isbn = isbn;
-    }
-
     public String getCoverImage() {
         return coverImage;
     }
@@ -156,5 +146,13 @@ public class Book {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
     }
 }
