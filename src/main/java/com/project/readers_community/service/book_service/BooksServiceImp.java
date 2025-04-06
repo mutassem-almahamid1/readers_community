@@ -38,7 +38,6 @@ public class BooksServiceImp {
             if (response.getItems() != null) {
                 GoogleBooksResponse.VolumeInfo volumeInfo = response.getItems().get(0).getVolumeInfo();
 
-                // Extracting ISBN from industry identifiers
                 String isbn = null;
                 if (volumeInfo.getIndustryIdentifiers() != null) {
                     for (GoogleBooksResponse.IndustryIdentifier identifier : volumeInfo.getIndustryIdentifiers()) {
@@ -51,7 +50,6 @@ public class BooksServiceImp {
                     }
                 }
                 
-                // Check if book already exists by ISBN if available
                 if (isbn != null) {
                     Optional<Book> existingBookByIsbn = bookRepository.findByIsbn(isbn);
                     if (existingBookByIsbn.isPresent()) {
@@ -59,12 +57,10 @@ public class BooksServiceImp {
                     }
                 }
                 
-                // Check if book already exists by title
                 String title = volumeInfo.getTitle();
                 Optional<Book> existingBook = bookRepository.findByTitle(title);
                 
                 if (existingBook.isPresent()) {
-                    // Update ISBN if it was missing
                     Book book = existingBook.get();
                     if (book.getIsbn() == null && isbn != null) {
                         book.setIsbn(isbn);
@@ -73,7 +69,6 @@ public class BooksServiceImp {
                     return book;
                 }
 
-                // Create new Book if it doesn't exist
                 Book book = new Book();
                 book.setTitle(title);
                 book.setAuthor(volumeInfo.getAuthors() != null ? String.join(", ", volumeInfo.getAuthors()) : "غير معروف");
