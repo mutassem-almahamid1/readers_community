@@ -22,6 +22,11 @@ public interface UserService {
     boolean addBookToCurrentlyReading(String userId, String bookId);
     boolean removeBookFromCurrentlyReading(String userId, String bookId);
     List<Book> getCurrentlyReadingBooks(String userId);
+    
+    // Methods for "Finished Books" list
+    boolean addBookToFinishedBooks(String userId, String bookId);
+    boolean removeBookFromFinishedBooks(String userId, String bookId);
+    List<Book> getFinishedBooks(String userId);
 
     List<User> getAllUsers();
 

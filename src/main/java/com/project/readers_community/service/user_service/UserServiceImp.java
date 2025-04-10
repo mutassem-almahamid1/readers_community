@@ -46,6 +46,7 @@ public class UserServiceImp implements UserService {
         user.setCreatedAt(LocalDateTime.now());
         user.setWantToReadBooks(new ArrayList<>()); // تهيئة القائمة عند الإنشاء
         user.setCurrentlyReadingBooks(new ArrayList<>()); // تهيئة القائمة عند الإنشاء
+        user.setFinishedBooks(new ArrayList<>()); // تهيئة قائمة الكتب المنتهية
         return userRepository.save(user);
     }
 
@@ -63,149 +64,151 @@ public class UserServiceImp implements UserService {
     @Override
     @Transactional
     public boolean addBookToWantToRead(String userId, String bookId) {
-        System.out.println("Attempting to add book " + bookId + " to user " + userId);
+        System.out.println("Attempting to add book " + bookId + " to user " + userId + " 'Want to Read' list");
         Optional<User> userOptional = userRepository.findById(userId);
         Optional<Book> bookOptional = bookRepository.findById(bookId);
-
-        if (userOptional.isEmpty()) {
-            System.out.println("User not found: " + userId);
-            return false;
-        }
-        if (bookOptional.isEmpty()) {
-            System.out.println("Book not found: " + bookId);
-            return false;
-        }
-
-        User user = userOptional.get();
-        Book book = bookOptional.get();
-
-        if (user.getWantToReadBooks() == null) {
-            user.setWantToReadBooks(new ArrayList<>());
-            System.out.println("Initialized wantToReadBooks for user " + userId);
-        }
-
-        boolean bookExists = user.getWantToReadBooks().stream()
-                .anyMatch(b -> b.getId().equals(bookId));
-        System.out.println("Book exists in list: " + bookExists);
-
-        if (!bookExists) {
+        
+        if (userOptional.isPresent() && bookOptional.isPresent()) {
+            User user = userOptional.get();
+            Book book = bookOptional.get();
+            
+            // Check if book is already in the list
+            if (user.getWantToReadBooks().stream().anyMatch(b -> b.getId().equals(bookId))) {
+                return false; // Book already in the list
+            }
+            
             user.getWantToReadBooks().add(book);
             userRepository.save(user);
-            System.out.println("Book added and user saved");
             return true;
         }
-        System.out.println("Book already exists in the list");
         return false;
     }
-
+    
     @Override
     @Transactional
     public boolean removeBookFromWantToRead(String userId, String bookId) {
-        System.out.println("Attempting to remove book " + bookId + " from user " + userId);
         Optional<User> userOptional = userRepository.findById(userId);
-
-        if (userOptional.isEmpty()) {
-            System.out.println("User not found: " + userId);
-            return false;
+        
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            boolean removed = user.getWantToReadBooks().removeIf(book -> book.getId().equals(bookId));
+            if (removed) {
+                userRepository.save(user);
+                return true;
+            }
         }
-
-        User user = userOptional.get();
-        if (user.getWantToReadBooks() == null || user.getWantToReadBooks().isEmpty()) {
-            System.out.println("No books in wantToReadBooks for user: " + userId);
-            return false;
-        }
-
-        System.out.println("Current books in wantToReadBooks: " + user.getWantToReadBooks());
-        boolean removed = user.getWantToReadBooks().removeIf(book -> {
-            boolean match = book.getId().equals(bookId);
-            System.out.println("Comparing book ID " + book.getId() + " with " + bookId + ": " + match);
-            return match;
-        });
-
-        if (removed) {
-            userRepository.save(user);
-            System.out.println("Book removed and user saved");
-            return true;
-        } else {
-            System.out.println("Book not found in the list or removal failed");
-            return false;
-        }
+        return false;
     }
-
+    
     @Override
     public List<Book> getWantToReadBooks(String userId) {
         Optional<User> userOptional = userRepository.findById(userId);
-
-        if (userOptional.isEmpty()) {
-            throw new RuntimeException("User not found with ID: " + userId);
+        if (userOptional.isPresent()) {
+            return userOptional.get().getWantToReadBooks();
         }
-
-        User user = userOptional.get();
-        return user.getWantToReadBooks() != null ? user.getWantToReadBooks() : new ArrayList<>();
+        throw new RuntimeException("User not found with ID: " + userId);
     }
-
+    
     @Override
     @Transactional
     public boolean addBookToCurrentlyReading(String userId, String bookId) {
         Optional<User> userOptional = userRepository.findById(userId);
         Optional<Book> bookOptional = bookRepository.findById(bookId);
-
-        if (userOptional.isEmpty() || bookOptional.isEmpty()) {
-            return false;
-        }
-
-        User user = userOptional.get();
-        Book book = bookOptional.get();
-
-        // تهيئة القائمة لو null
-        if (user.getCurrentlyReadingBooks() == null) {
-            user.setCurrentlyReadingBooks(new ArrayList<>());
-        }
-
-        // التحقق من التكرار
-        boolean bookExists = user.getCurrentlyReadingBooks().stream()
-                .anyMatch(b -> b.getId().equals(bookId));
-
-        if (!bookExists) {
+        
+        if (userOptional.isPresent() && bookOptional.isPresent()) {
+            User user = userOptional.get();
+            Book book = bookOptional.get();
+            
+            // Check if book is already in the list
+            if (user.getCurrentlyReadingBooks().stream().anyMatch(b -> b.getId().equals(bookId))) {
+                return false; // Book already in the list
+            }
+            
+            // If the book is in "Want to Read" list, remove it
+            user.getWantToReadBooks().removeIf(b -> b.getId().equals(bookId));
+            
             user.getCurrentlyReadingBooks().add(book);
             userRepository.save(user);
             return true;
         }
-        return false; // الكتاب موجود بالفعل
+        return false;
     }
-
+    
     @Override
     @Transactional
     public boolean removeBookFromCurrentlyReading(String userId, String bookId) {
         Optional<User> userOptional = userRepository.findById(userId);
-
-        if (userOptional.isEmpty()) {
-            return false;
+        
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            boolean removed = user.getCurrentlyReadingBooks().removeIf(book -> book.getId().equals(bookId));
+            if (removed) {
+                userRepository.save(user);
+                return true;
+            }
         }
-
-        User user = userOptional.get();
-        if (user.getCurrentlyReadingBooks() == null || user.getCurrentlyReadingBooks().isEmpty()) {
-            return false;
-        }
-
-        boolean removed = user.getCurrentlyReadingBooks().removeIf(book -> book.getId().equals(bookId));
-        if (removed) {
-            userRepository.save(user);
-            return true;
-        }
-        return false; // الكتاب غير موجود في القائمة
+        return false;
     }
-
+    
     @Override
     public List<Book> getCurrentlyReadingBooks(String userId) {
         Optional<User> userOptional = userRepository.findById(userId);
-
-        if (userOptional.isEmpty()) {
-            throw new RuntimeException("User not found with ID: " + userId);
+        if (userOptional.isPresent()) {
+            return userOptional.get().getCurrentlyReadingBooks();
         }
-
-        User user = userOptional.get();
-        return user.getCurrentlyReadingBooks() != null ? user.getCurrentlyReadingBooks() : new ArrayList<>();
+        throw new RuntimeException("User not found with ID: " + userId);
+    }
+    
+    @Override
+    @Transactional
+    public boolean addBookToFinishedBooks(String userId, String bookId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        Optional<Book> bookOptional = bookRepository.findById(bookId);
+        
+        if (userOptional.isPresent() && bookOptional.isPresent()) {
+            User user = userOptional.get();
+            Book book = bookOptional.get();
+            
+            // Check if book is already in the list
+            if (user.getFinishedBooks().stream().anyMatch(b -> b.getId().equals(bookId))) {
+                return false; // Book already in the list
+            }
+            
+            // If the book is in "Currently Reading" list, remove it
+            user.getCurrentlyReadingBooks().removeIf(b -> b.getId().equals(bookId));
+            // If the book is in "Want to Read" list, remove it
+            user.getWantToReadBooks().removeIf(b -> b.getId().equals(bookId));
+            
+            user.getFinishedBooks().add(book);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
+    
+    @Override
+    @Transactional
+    public boolean removeBookFromFinishedBooks(String userId, String bookId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            boolean removed = user.getFinishedBooks().removeIf(book -> book.getId().equals(bookId));
+            if (removed) {
+                userRepository.save(user);
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    @Override
+    public List<Book> getFinishedBooks(String userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            return userOptional.get().getFinishedBooks();
+        }
+        throw new RuntimeException("User not found with ID: " + userId);
     }
 
     @Override
@@ -215,8 +218,10 @@ public class UserServiceImp implements UserService {
 
     @Override
     public User getUserById(String userId) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        return userOptional.get();
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isPresent()) {
+            return user.get();
+        }
+        throw new RuntimeException("User not found with ID: " + userId);
     }
-
 }

@@ -109,6 +109,38 @@ public class UserController {
         }
     }
 
+    @PostMapping("/{userId}/finished-books/{bookId}")
+    public ResponseEntity<?> addBookToFinishedBooks(@PathVariable String userId, @PathVariable String bookId) {
+        boolean success = userService.addBookToFinishedBooks(userId, bookId);
+        if (success) {
+            return ResponseEntity.ok(Map.of("message", "Book added to Finished Books list"));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Failed to add book to Finished Books list"));
+        }
+    }
+    
+    @DeleteMapping("/{userId}/finished-books/{bookId}")
+    public ResponseEntity<?> removeBookFromFinishedBooks(@PathVariable String userId, @PathVariable String bookId) {
+        boolean success = userService.removeBookFromFinishedBooks(userId, bookId);
+        if (success) {
+            return ResponseEntity.ok(Map.of("message", "Book removed from Finished Books list"));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Failed to remove book from Finished Books list"));
+        }
+    }
+    
+    @GetMapping("/{userId}/finished-books")
+    public ResponseEntity<?> getFinishedBooks(@PathVariable String userId) {
+        try {
+            List<Book> books = userService.getFinishedBooks(userId);
+            return ResponseEntity.ok(books);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
 
     @GetMapping("GetAllUsers")
     public ResponseEntity<List<User>> getAllUsers() {
@@ -117,16 +149,13 @@ public class UserController {
     }
 
     @GetMapping("GetUserById/{userId}")
-    public ResponseEntity<User> getUserById(@PathVariable String userId) {
-        User user = userService.getUserById(userId);
-        if (user != null) {
+    public ResponseEntity<?> getUserById(@PathVariable String userId) {
+        try {
+            User user = userService.getUserById(userId);
             return ResponseEntity.ok(user);
-        } else {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(null);
+                    .body(Map.of("error", "User not found with ID: " + userId));
         }
     }
-
-
 }
-
