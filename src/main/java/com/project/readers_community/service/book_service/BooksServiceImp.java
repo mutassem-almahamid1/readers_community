@@ -123,8 +123,5 @@ public class BooksServiceImp {
         return book.orElse(null);
     }
 
-    public Book findBookById(String bookId) {
-        Optional<Book> book = bookRepository.findById(bookId);
-        return book.orElse(null);
-    }
+
 }

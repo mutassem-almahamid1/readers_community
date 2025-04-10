@@ -17,9 +17,10 @@ public class UserServiceImp {
     private UserRepository userRepository;
 
 
-    // تسجيل مستخدم جديد (موجود مسبقًا)
+    // تسجيل مستخدم جديد
     public User registerUser(UserRegistrationDTO registrationDTO) {
 
+        //  الأيميل موجود مسبقًا
         if (userRepository.findByEmail(registrationDTO.getEmail()) != null) {
             throw new RuntimeException("Email already exists");
         }
@@ -34,21 +35,26 @@ public class UserServiceImp {
         }
     }
 
-    // تسجيل الدخول (موجود مسبقًا)
+    // تسجيل الدخول
     public UserLoginResponseDTO loginUser(UserLoginDTO loginDTO) {
         User user = userRepository.findByEmail(loginDTO.getEmail());
+
         if (user != null) {
 
             if (loginDTO.getPassword().equals(user.getPassword())) {
-                return new UserLoginResponseDTO(user.getId(), user.getUsername(), user.getEmail());
+                return new UserLoginResponseDTO(user.getUsername(), user.getEmail(),user.getRole());
             } else {
                 throw new RuntimeException("Invalid email or password");
             }
+
         }
         else{
             throw new RuntimeException("Invalid email or password");
             }
     }
+
+
+
 
 }
 

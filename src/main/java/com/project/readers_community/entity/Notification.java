@@ -20,5 +20,4 @@ public class Notification {
     private String content; // محتوى الإشعار
     private boolean read; // هل تم قراءته أم لا
     private LocalDateTime createdAt = LocalDateTime.now();
-    // Getters and Setters
 }

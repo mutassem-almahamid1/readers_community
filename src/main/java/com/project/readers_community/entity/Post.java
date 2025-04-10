@@ -20,5 +20,4 @@ public class Post {
     private List<String> likes; // قائمة بمعرفات المستخدمين الذين أعجبوا بالمنشور
     private List<String> comments; // قائمة بمعرفات التعليقات
 
-    // Getters and Setters
 }

@@ -21,5 +21,4 @@ public class Group {
     private List<String> members; // قائمة بمعرفات المستخدمين
     private List<String> posts; // قائمة بمعرفات المنشورات
 
-    // Getters and Setters
 }
