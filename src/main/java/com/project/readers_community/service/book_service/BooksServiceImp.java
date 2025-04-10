@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class BooksServiceImp {
+public class BooksServiceImp implements BookService {
 
     @Autowired
     private BookRepository bookRepository;
@@ -28,7 +28,7 @@ public class BooksServiceImp {
     @Value("${google.books.api.key}")
     private String apiKey;
 
-
+    @Override
     public Book fetchBookFromGoogle(String query, String addedBy) {
         String url = "https://www.googleapis.com/books/v1/volumes?q=" + query + "&key=" + apiKey;
         String jsonResponse = restTemplate.getForObject(url, String.class);
@@ -92,7 +92,7 @@ public class BooksServiceImp {
         return null;
     }
 
-
+    @Override
     public void deleteBookById(String bookId) {
         Optional<Book> book = bookRepository.findById(bookId);
         if (book.isPresent()) {
@@ -102,7 +102,7 @@ public class BooksServiceImp {
         }
     }
 
-
+    @Override
     public long deleteAllBooks() {
         if (!bookRepository.existsBy()) {
             throw new RuntimeException("لا توجد كتب للحذف");
@@ -113,15 +113,16 @@ public class BooksServiceImp {
         return count;
     }
 
-
+    @Override
     public List<Book> getAllBooks() {
         return bookRepository.findAll();
     }
     
+    @Override
     public Book findBookByIsbn(String isbn) {
         Optional<Book> book = bookRepository.findByIsbn(isbn);
         return book.orElse(null);
     }
 
-
 }
+

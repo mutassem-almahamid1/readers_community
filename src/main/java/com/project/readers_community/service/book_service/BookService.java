@@ -1,5 +1,12 @@
 package com.project.readers_community.service.book_service;
 
-public interface BookService {
+import com.project.readers_community.entity.Book;
+import java.util.List;
 
+public interface BookService {
+    Book fetchBookFromGoogle(String query, String addedBy);
+    void deleteBookById(String bookId);
+    long deleteAllBooks();
+    List<Book> getAllBooks();
+    Book findBookByIsbn(String isbn);
 }

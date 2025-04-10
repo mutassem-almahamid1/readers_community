@@ -5,9 +5,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.ArrayList;
 
 @Document(collection = "users")
 @Data
@@ -24,9 +26,12 @@ public class User {
         private String role;
         private String profilePicture;
         private String bio;
-        private List<String> wantToRead; // معرفات الكتب
-        private List<String> currentlyReading;
-        private List<String> finishedReading;
+        @DBRef
+        private List<Book> wantToReadBooks=new ArrayList<>(); // Book objects
+        @DBRef
+        private List<Book> currentlyReadingBooks = new ArrayList<>(); // Book objects being currently read
+        @DBRef
+        private List<Book> finishedBooks = new ArrayList<>(); // Book objects that have been finished
         private List<String> followers; // User IDs
         private List<String> following; // User IDs
         private LocalDateTime createdAt;
