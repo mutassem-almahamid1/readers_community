@@ -2,65 +2,111 @@ package com.project.readers_community.controller;
 
 import com.project.readers_community.entity.Book;
 import com.project.readers_community.service.book_service.BooksServiceImp;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import java.util.Map;
 import java.util.List;
+import java.util.HashMap;
 
 @RestController
+@RequestMapping("/api/books")
 public class BookController {
 
     @Autowired
     private BooksServiceImp booksServiceImp;
 
-    @GetMapping("/api/books/search-and-save")
-    public ResponseEntity<?> SearchAndSaveBook(@RequestParam String query, @RequestParam String userId) {
+    @GetMapping("/search")
+    public ResponseEntity<?> searchAndSaveBook(@RequestParam String query, @RequestParam String userId) {
         try {
-            Book book = booksServiceImp.fetchBookFromGoogle(query, userId);
-            if (book != null) {
-                return ResponseEntity.ok(book);
+            List<Book> books = booksServiceImp.fetchBookFromGoogle(query, userId);
+            if (books != null && !books.isEmpty()) {
+                return ResponseEntity.ok(books);
             } else {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "No books found for query: " + query));
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error processing request: " + e.getMessage());
+                .body(Map.of("error", "Error processing request: " + e.getMessage()));
         }
     }
 
-    @DeleteMapping("/api/DeleteBooksById/{bookId}")
+    @DeleteMapping("/{bookId}")
     public ResponseEntity<?> deleteBook(@PathVariable String bookId) {
         try {
             booksServiceImp.deleteBookById(bookId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Book deleted successfully"
+            ));
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+                ));
         }
     }
 
-    @GetMapping("/api/GetAllbooks")
-    public ResponseEntity<List<Book>> getAllBooks() {
+    @GetMapping
+    public ResponseEntity<Map<String, Object>> getAllBooks() {
         List<Book> books = booksServiceImp.getAllBooks();
-        return ResponseEntity.ok(books);
+        Map<String, Object> response = new HashMap<>();
+        response.put("books", books);
+        response.put("count", books.size());
+        return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/api/DeleteAllBooks")
+    @DeleteMapping
     public ResponseEntity<?> deleteAllBooks() {
         try {
             long deletedCount = booksServiceImp.deleteAllBooks();
-            return ResponseEntity.ok(Map.of("message", "Successfully deleted " + deletedCount + " books"));
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Successfully deleted " + deletedCount + " books"
+            ));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("No books to delete: " + e.getMessage());
+                .body(Map.of(
+                    "success", false,
+                    "message", "No books to delete: " + e.getMessage()
+                ));
         }
     }
-
+    
+    @GetMapping("/isbn/{isbn}")
+    public ResponseEntity<?> getBookByIsbn(@PathVariable String isbn) {
+        Book book = booksServiceImp.findBookByIsbn(isbn);
+        if (book != null) {
+            return ResponseEntity.ok(book);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of(
+                    "success", false,
+                    "message", "No book found with ISBN: " + isbn
+                ));
+        }
+    }
+    
+    // Example of additional API endpoints that could be implemented:
+    
+    @GetMapping("/popular")
+    public ResponseEntity<?> getPopularBooks() {
+        // This is just an example showing the format of the API
+        return ResponseEntity.ok(Map.of(
+            "message", "This would return popular books based on ratings",
+            "endpoint", "/api/books/popular"
+        ));
+    }
+    
+    @GetMapping("/category/{categoryName}")
+    public ResponseEntity<?> getBooksByCategory(@PathVariable String categoryName) {
+        // This is just an example showing the format of the API
+        return ResponseEntity.ok(Map.of(
+            "message", "This would return books filtered by category: " + categoryName,
+            "endpoint", "/api/books/category/" + categoryName
+        ));
+    }
 }

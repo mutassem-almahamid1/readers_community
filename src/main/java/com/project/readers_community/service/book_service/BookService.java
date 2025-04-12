@@ -4,7 +4,7 @@ import com.project.readers_community.entity.Book;
 import java.util.List;
 
 public interface BookService {
-    Book fetchBookFromGoogle(String query, String addedBy);
+    List<Book> fetchBookFromGoogle(String query, String addedBy);
     void deleteBookById(String bookId);
     long deleteAllBooks();
     List<Book> getAllBooks();
