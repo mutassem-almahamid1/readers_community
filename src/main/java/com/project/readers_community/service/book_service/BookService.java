@@ -9,4 +9,8 @@ public interface BookService {
     long deleteAllBooks();
     List<Book> getAllBooks();
     Book findBookByIsbn(String isbn);
+    Book findBookById(String id);
+    Book findBookByTitle(String title);
+    Book saveBook(Book book);
+
 }

@@ -89,4 +89,51 @@ public class BookController {
                 ));
         }
     }
+
+    @PutMapping("/savebook")
+    public ResponseEntity<?> saveBook(@RequestBody Book book) {
+        try {
+            Book savedBook = booksServiceImp.saveBook(book);
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Book saved successfully",
+                "book", savedBook
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+                ));
+        }
+    }
+
+    @GetMapping("/title/{title}")
+    public ResponseEntity<?> getBookByTitle(@PathVariable String title) {
+        Book book = booksServiceImp.findBookByTitle(title);
+        if (book != null) {
+            return ResponseEntity.ok(book);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of(
+                    "success", false,
+                    "message", "No book found with title: " + title
+                ));
+        }
+    }
+    @GetMapping("/id/{id}")
+    public ResponseEntity<?> getBookById(@PathVariable String id) {
+        Book book = booksServiceImp.findBookById(id);
+        if (book != null) {
+            return ResponseEntity.ok(book);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of(
+                    "success", false,
+                    "message", "No book found with ID: " + id
+                ));
+        }
+    }
+
+
 }

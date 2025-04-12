@@ -155,4 +155,31 @@ public class BooksServiceImp implements BookService {
         return bookRepository.findByIsbn(isbn)
                 .orElseThrow(() -> new RuntimeException("Book with ISBN " + isbn + " not found"));
     }
+
+    @Override
+    public Book findBookById(String id) {
+        return bookRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Book with ID " + id + " not found"));
+    }
+
+    @Override
+    public Book findBookByTitle(String title) {
+        return bookRepository.findByTitle(title)
+                .orElseThrow(() -> new RuntimeException("Book with title " + title + " not found"));
+    }
+
+    @Override
+    public Book saveBook(Book book) {
+        if (book.getTitle() != null && !book.getTitle().trim().isEmpty()) {
+            Optional<Book> existingBook = bookRepository.findByTitle(book.getTitle());
+            if (existingBook.isEmpty()) {
+                return bookRepository.save(book);
+            } else {
+                throw new RuntimeException("Book with title '" + book.getTitle() + "' already exists");
+            }
+        } else {
+            throw new IllegalArgumentException("Book title cannot be null or empty");
+        }
+    }
+
 }
