@@ -50,7 +50,7 @@ public class BookController {
         }
     }
 
-    @GetMapping
+    @GetMapping("/GetAllbooks")
     public ResponseEntity<Map<String, Object>> getAllBooks() {
         List<Book> books = booksServiceImp.getAllBooks();
         Map<String, Object> response = new HashMap<>();
@@ -59,7 +59,7 @@ public class BookController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/DeleteAllBooks")
     public ResponseEntity<?> deleteAllBooks() {
         try {
             long deletedCount = booksServiceImp.deleteAllBooks();
@@ -88,25 +88,5 @@ public class BookController {
                     "message", "No book found with ISBN: " + isbn
                 ));
         }
-    }
-    
-    // Example of additional API endpoints that could be implemented:
-    
-    @GetMapping("/popular")
-    public ResponseEntity<?> getPopularBooks() {
-        // This is just an example showing the format of the API
-        return ResponseEntity.ok(Map.of(
-            "message", "This would return popular books based on ratings",
-            "endpoint", "/api/books/popular"
-        ));
-    }
-    
-    @GetMapping("/category/{categoryName}")
-    public ResponseEntity<?> getBooksByCategory(@PathVariable String categoryName) {
-        // This is just an example showing the format of the API
-        return ResponseEntity.ok(Map.of(
-            "message", "This would return books filtered by category: " + categoryName,
-            "endpoint", "/api/books/category/" + categoryName
-        ));
     }
 }
