@@ -2,6 +2,7 @@ package com.project.readers_community.entity;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,5 +31,4 @@ public class Book {
     private double avgRating; // متوسط التقييم
     private LocalDateTime createdAt = LocalDateTime.now();
     private String isbn; // ISBN identifier for the book
-
 }

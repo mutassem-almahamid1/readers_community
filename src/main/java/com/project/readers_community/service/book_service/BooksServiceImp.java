@@ -2,15 +2,20 @@ package com.project.readers_community.service.book_service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.readers_community.entity.Book;
+import com.project.readers_community.dto.book_dto.BookDTORequest;
 import com.project.readers_community.dto.book_dto.GoogleBooksResponse;
 import com.project.readers_community.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.reflect.Field;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -124,6 +129,9 @@ public class BooksServiceImp implements BookService {
 
         return savedBooks;
     }
+    
+    
+    
 
     @Override
     public void deleteBookById(String bookId) {
@@ -168,18 +176,56 @@ public class BooksServiceImp implements BookService {
                 .orElseThrow(() -> new RuntimeException("Book with title " + title + " not found"));
     }
 
+
+
     @Override
-    public Book saveBook(Book book) {
-        if (book.getTitle() != null && !book.getTitle().trim().isEmpty()) {
-            Optional<Book> existingBook = bookRepository.findByTitle(book.getTitle());
+    public Book saveBookFromDTO(BookDTORequest bookDTO) {
+        if (bookDTO.getTitle() != null && !bookDTO.getTitle().trim().isEmpty()) {
+            Optional<Book> existingBook = bookRepository.findByTitle(bookDTO.getTitle());
             if (existingBook.isEmpty()) {
+                // Convert DTO to Entity
+                Book book = new Book();
+                book.setTitle(bookDTO.getTitle());
+                book.setAuthor(bookDTO.getAuthor());
+                book.setCategory(bookDTO.getCategory());
+                book.setDescription(bookDTO.getDescription());
+                book.setCategories(bookDTO.getCategories() != null ? bookDTO.getCategories() : new ArrayList<>());
+                book.setPublisher(bookDTO.getPublisher());
+                book.setPublishedDate(bookDTO.getPublishedDate());
+                book.setCoverImage(bookDTO.getCoverImage());
+                book.setAddedBy(bookDTO.getAddedBy());
+                book.setReviewCount(0);
+                book.setAvgRating(0.0);
+                book.setIsbn(bookDTO.getIsbn());
+                
                 return bookRepository.save(book);
             } else {
-                throw new RuntimeException("Book with title '" + book.getTitle() + "' already exists");
+                throw new RuntimeException("Book with title '" + bookDTO.getTitle() + "' already exists");
             }
         } else {
             throw new IllegalArgumentException("Book title cannot be null or empty");
         }
     }
 
+    @Override
+    public Book updateBookByTitle(String title, Map<String, Object> updates) {
+        Book book = bookRepository.findByTitle(title)
+                .orElseThrow(() -> new RuntimeException("Book with title " + title + " not found"));
+
+        // Apply updates to book using reflection
+        updates.forEach((key, value) -> {
+            // Skip updating title as it's used for lookup
+            if (!key.equals("title")) {
+                Field field = ReflectionUtils.findField(Book.class, key);
+                if (field != null) {
+                    field.setAccessible(true);
+                    ReflectionUtils.setField(field, book, value);
+                }
+            }
+        });
+
+        return bookRepository.save(book);
+    }
+
 }
+

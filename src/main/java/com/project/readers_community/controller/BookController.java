@@ -1,6 +1,7 @@
 package com.project.readers_community.controller;
 
 import com.project.readers_community.entity.Book;
+import com.project.readers_community.dto.book_dto.BookDTORequest;
 import com.project.readers_community.service.book_service.BooksServiceImp;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,13 +91,15 @@ public class BookController {
         }
     }
 
-    @PutMapping("/savebook")
-    public ResponseEntity<?> saveBook(@RequestBody Book book) {
+
+    
+    @PostMapping("/create")
+    public ResponseEntity<?> createBook(@RequestBody BookDTORequest bookDTO) {
         try {
-            Book savedBook = booksServiceImp.saveBook(book);
-            return ResponseEntity.ok(Map.of(
+            Book savedBook = booksServiceImp.saveBookFromDTO(bookDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                 "success", true,
-                "message", "Book saved successfully",
+                "message", "Book created successfully",
                 "book", savedBook
             ));
         } catch (RuntimeException e) {
@@ -134,6 +137,30 @@ public class BookController {
                 ));
         }
     }
-
+    
+    @PatchMapping("/update/{title}")
+    public ResponseEntity<?> updateBookByTitle(@PathVariable String title, @RequestBody Map<String, Object> updates) {
+        try {
+            Book updatedBook = booksServiceImp.updateBookByTitle(title, updates);
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Book updated successfully",
+                "book", updatedBook
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+                ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of(
+                    "success", false,
+                    "message", "Error updating book: " + e.getMessage()
+                ));
+        }
+    }
 
 }
+
