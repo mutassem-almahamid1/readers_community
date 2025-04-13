@@ -15,20 +15,19 @@ import java.util.ArrayList;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Book {
+
     @Id
     private String id;
     private String title;
     private String author;
-    private String category; // حقل واحد للتصنيف الرئيسي
+    private String categoryId;
     private String description;
-    private List<String> categories = new ArrayList<>(); // قائمة التصنيفات
-    private String publisher;
     private LocalDate publishedDate;
     private String coverImage;
-    private String addedBy; // معرف المستخدم الذي أضاف الكتاب
-    private List<Review> reviews = new ArrayList<>(); // قائمة المراجعات
+    private String addByUserId; // معرف المستخدم الذي أضاف الكتاب
     private int reviewCount; // عدد المراجعات
     private double avgRating; // متوسط التقييم
-    private LocalDateTime createdAt = LocalDateTime.now();
-    private String isbn; // ISBN identifier for the book
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
 }

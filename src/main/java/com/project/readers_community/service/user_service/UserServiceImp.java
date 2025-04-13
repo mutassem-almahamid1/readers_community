@@ -4,7 +4,6 @@ import com.project.readers_community.dto.user_dto.UserRegistrationDTO;
 import com.project.readers_community.dto.user_dto.UserLoginDTO;
 import com.project.readers_community.dto.user_dto.UserLoginResponseDTO;
 import com.project.readers_community.entity.Book;
-import com.project.readers_community.entity.Role;
 import com.project.readers_community.entity.User;
 import com.project.readers_community.repository.BookRepository;
 import com.project.readers_community.repository.RoleRepository;

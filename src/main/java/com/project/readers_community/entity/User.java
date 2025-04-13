@@ -24,55 +24,23 @@ import java.util.stream.Collectors;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User implements Principal, UserDetails {
+public class User  {
 
         @Id
         private String id;
         @Indexed(unique = true)
         private String username;
-        @Indexed(unique = true)
-        private String email;
         private String password;
-        @DBRef
-        private List<Role> roles = new ArrayList<>();
         private String profilePicture;
         private String bio;
-        private List<Book> wantToReadBooks=new ArrayList<>(); // Book objects
-        private List<Book> currentlyReadingBooks = new ArrayList<>(); // Book objects being currently read
-        private List<Book> finishedBooks = new ArrayList<>(); // Book objects that have been finished
+        private Roles role;
+        private List<String> wantToReadBooks=new ArrayList<>(); // Book objects
+        private List<String> currentlyReadingBooks = new ArrayList<>(); // Book objects being currently read
+        private List<String> finishedBooks = new ArrayList<>(); // Book objects that have been finished
         private List<String> followers = new ArrayList<>(); // User IDs
         private List<String> following = new ArrayList<>(); // User IDs
+        private Status status;
         private LocalDateTime createdAt;
-        private List<String> recentActivities = new ArrayList<>();
-        private List<Review> reviews = new ArrayList<>();
-
-        // Add a role to user and update role's users list
-        public void addRole(Role role) {
-            if (this.roles == null) {
-                this.roles = new ArrayList<>();
-            }
-            if (!this.roles.contains(role)) {
-                this.roles.add(role);
-                role.addUser(this);
-            }
-        }
-
-        @Override
-        public String getName() {
-                return username;
-        }
-
-        @Override
-        public boolean implies(Subject subject) {
-                return Principal.super.implies(subject);
-        }
-
-        @Override
-        public Collection<? extends GrantedAuthority> getAuthorities() {
-                return this.roles
-                        .stream()
-                        .map(r -> new SimpleGrantedAuthority(r.getRoleName()))
-                        .collect(Collectors.toList());
-        }
-
+        private LocalDateTime updatedAt;
+        private LocalDateTime deletedAt;
 }

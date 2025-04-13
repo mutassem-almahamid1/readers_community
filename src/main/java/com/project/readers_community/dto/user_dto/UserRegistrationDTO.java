@@ -1,5 +1,4 @@
 package com.project.readers_community.dto.user_dto;
-import com.project.readers_community.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
