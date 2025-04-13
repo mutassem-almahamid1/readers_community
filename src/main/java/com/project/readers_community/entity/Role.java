@@ -21,7 +21,7 @@ public class Role {
     
     @Id
     private String id;
-    private String name;
+    private String roleName;
 
     @JsonIgnore
     @DBRef
@@ -31,13 +31,13 @@ public class Role {
     private LocalDateTime createdDate = LocalDateTime.now();
     
     // Additional constructor for creating a role with just a name
-    public Role(String name) {
-        this.name = name;
+    public Role(String roleName) {
+        this.roleName = roleName;
     }
     
     // Constructor with name and user
-    public Role(String name, User user) {
-        this.name = name;
+    public Role(String roleName, User user) {
+        this.roleName = roleName;
         this.users = new ArrayList<>();
         if (user != null) {
             this.users.add(user);
