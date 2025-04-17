@@ -21,4 +21,5 @@ public class CategoryRequest {
     @NotEmpty(message = "description must be not empty.")
     @NotBlank(message = "description must be not blank.")
     private String description;
+
 }

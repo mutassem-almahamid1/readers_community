@@ -3,8 +3,6 @@ package com.project.readers_community.handelException.handler;
 import com.project.readers_community.handelException.ApiBaseException;
 import com.project.readers_community.handelException.classes.ErrorDetails;
 import com.project.readers_community.handelException.classes.ValidationError;
-import com.project.readers_community.handelException.exception.BadReqException;
-import com.project.readers_community.handelException.exception.NotFoundException;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

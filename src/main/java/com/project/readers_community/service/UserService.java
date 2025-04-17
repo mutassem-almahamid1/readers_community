@@ -1,0 +1,30 @@
+package com.project.readers_community.service;
+
+import com.project.readers_community.model.common.MessageResponse;
+import com.project.readers_community.model.document.User;
+import com.project.readers_community.model.dto.request.UserRequest;
+import com.project.readers_community.model.dto.response.UserResponse;
+import org.springframework.data.domain.Page;
+
+import java.util.List;
+
+public interface UserService {
+
+    UserResponse create(UserRequest request);
+
+    UserResponse getById(String id);
+
+    List<UserResponse> getByAll();
+
+    Page<UserResponse> getByAllPage(int page, int size);
+
+    UserResponse update(String id, UserRequest request);
+
+    UserResponse softDeleteById(String id);
+
+    MessageResponse hardDeleteById(String id);
+
+    List<String> getWantToReadBooks(String userId);
+
+    UserResponse getByUsername(String username);
+}
