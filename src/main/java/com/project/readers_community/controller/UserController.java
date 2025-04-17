@@ -20,12 +20,23 @@ public class UserController {
 
     @PostMapping("/sign-up")
     public ResponseEntity<UserResponse> sign_up(@Valid @RequestBody UserRequest request) {
-        return ResponseEntity.ok(this.service.create(request));
+        return ResponseEntity.ok(this.service.signUp(request));
+    }
+
+
+    @PostMapping("/login")
+    public ResponseEntity<UserResponse> login(@Valid @RequestBody UserRequest request) {
+        return ResponseEntity.ok(this.service.login(request));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getById(@PathVariable String id) {
         return ResponseEntity.ok(this.service.getById(id));
+    }
+
+    @GetMapping("/users/{username}")
+    public ResponseEntity<UserResponse> getByUsername(@PathVariable String username) {
+        return ResponseEntity.ok(this.service.getByUsername(username));
     }
 
     @GetMapping
@@ -57,4 +68,15 @@ public class UserController {
     public ResponseEntity<List<String>> getWantToReadBooks(@PathVariable String userId) {
         return ResponseEntity.ok(this.service.getWantToReadBooks(userId));
     }
+
+    @GetMapping("/{userId}/finished")
+    public ResponseEntity<List<String>> getFinishedBooks(@PathVariable String userId) {
+        return ResponseEntity.ok(this.service.getFinishedBooks(userId));
+    }
+
+    @GetMapping("/{userId}/currently-reading")
+    public ResponseEntity<List<String>> getCurrentlyReadingBooks(@PathVariable String userId) {
+        return ResponseEntity.ok(this.service.getCurrentlyReadingBooks(userId));
+    }
+
 }

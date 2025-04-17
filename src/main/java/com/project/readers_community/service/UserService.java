@@ -10,7 +10,9 @@ import java.util.List;
 
 public interface UserService {
 
-    UserResponse create(UserRequest request);
+    UserResponse signUp(UserRequest request);
+
+    UserResponse login(UserRequest request);
 
     UserResponse getById(String id);
 
@@ -25,6 +27,10 @@ public interface UserService {
     MessageResponse hardDeleteById(String id);
 
     List<String> getWantToReadBooks(String userId);
+
+    List<String> getFinishedBooks(String userId);
+
+    List<String> getCurrentlyReadingBooks(String userId);
 
     UserResponse getByUsername(String username);
 }
