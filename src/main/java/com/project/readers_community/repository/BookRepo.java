@@ -11,7 +11,7 @@ public interface BookRepo {
     Book save(Book book);
     List<Book> saveAll(List<Book> books);
     Optional<Book> getByIdIfPresent(String id);
-    Optional<Book> getByNameIfPresent(String name);
+    Optional<Book> getByTitleIfPresent(String name);
     Book getById(String id);
     Book getByName(String name);
     List<Book> getAll();

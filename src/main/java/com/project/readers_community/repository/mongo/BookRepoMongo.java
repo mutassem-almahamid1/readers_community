@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface BookRepoMongo extends MongoRepository<Book, String> {
     Optional<Book> findByIdAndStatus(String id, Status status);
-    Optional<Book> findByNameAndStatus(String name, Status status);
+    Optional<Book> findByTitleAndStatus(String name, Status status);
     List<Book> findAllByStatus(Status status);
     Page<Book> findAllByStatus(Status status, PageRequest pageRequest);
     Optional<Book> findAllByCategory(String category);

@@ -89,14 +89,7 @@ public class ReviewController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/{reviewId}/comment")
-    public ResponseEntity<CommentResponse> addCommentToReview(
-            @PathVariable String reviewId,
-            @RequestBody CommentRequest request,
-            @RequestParam String userId) {
-        CommentResponse response = reviewService.addCommentToReview(reviewId, request, userId);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<ReviewResponse> updateReview(

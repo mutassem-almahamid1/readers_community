@@ -34,8 +34,8 @@ public class BookRepoImpl implements BookRepo {
     }
 
     @Override
-    public Optional<Book> getByNameIfPresent(String name) {
-        return repoMongo.findByNameAndStatus(name, Status.ACTIVE);
+    public Optional<Book> getByTitleIfPresent(String name) {
+        return repoMongo.findByTitleAndStatus(name, Status.ACTIVE);
     }
 
     @Override
