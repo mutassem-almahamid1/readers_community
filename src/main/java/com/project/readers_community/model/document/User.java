@@ -27,13 +27,13 @@ public class User {
     private String password;
     private String profilePicture;
     private String bio;
-    private Roles role = Roles.USER; // Default role is USER
-    private List<String> wantToReadBooks = new ArrayList<>(); //Book IDs
-    private List<String> currentlyReadingBooks = new ArrayList<>(); // Book IDs
-    private List<String> finishedBooks = new ArrayList<>(); // Book IDs
-    private List<String> followers = new ArrayList<>(); // User IDs
-    private List<String> following = new ArrayList<>(); // User IDs
-    private Status status= Status.ACTIVE; // Default status is ACTIVE
+    private Roles role = Roles.USER;
+    private List<String> wantToReadBooks = new ArrayList<>();
+    private List<String> currentlyReadingBooks = new ArrayList<>();
+    private List<String> finishedBooks = new ArrayList<>();
+    private List<String> followers = new ArrayList<>();
+    private List<String> following = new ArrayList<>();
+    private Status status= Status.ACTIVE;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;

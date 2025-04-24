@@ -12,6 +12,8 @@ public interface CategoryService {
 
     CategoryResponse getById(String id);
 
+    CategoryResponse getByName(String name);
+
     List<CategoryResponse> getByAll();
 
     Page<CategoryResponse> getByAllPage(int page, int size);

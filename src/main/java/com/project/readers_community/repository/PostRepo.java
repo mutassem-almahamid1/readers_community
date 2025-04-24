@@ -8,14 +8,29 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PostRepo {
+
+
     Post save(Post post);
-    List<Post> saveAll(List<Post> posts);
+
     Optional<Post> getByIdIfPresent(String id);
+
     Post getById(String id);
+
     List<Post> getAll();
+
     Page<Post> getAllPage(PageRequest pageRequest);
+
+    Page<Post> getAllPageByUser(String id, PageRequest pageRequest);
+
+    Page<Post> getAllPageByReview(String id, PageRequest pageRequest);
+
     void deleteById(String id);
+
     void delete(Post post);
-    List<Post> findByUserId(String userId);
+
     List<Post> findByReviewId(String reviewId);
+
+    List<Post> findByUserId(String userId);
+
 }
+

@@ -4,7 +4,8 @@ import com.project.readers_community.mapper.UserMapper;
 import com.project.readers_community.model.common.MessageResponse;
 import com.project.readers_community.model.document.Status;
 import com.project.readers_community.model.document.User;
-import com.project.readers_community.model.dto.request.UserRequest;
+import com.project.readers_community.model.dto.request.UserRequestLogin;
+import com.project.readers_community.model.dto.request.UserRequestSignIn;
 import com.project.readers_community.model.dto.response.UserResponse;
 import com.project.readers_community.repository.UserRepo;
 import com.project.readers_community.service.UserService;
@@ -27,7 +28,7 @@ public class UserServiceImpl implements UserService {
 
 
 @Override
-public UserResponse signUp(UserRequest request) {
+public UserResponse signUp(UserRequestSignIn request) {
     // التحقق من وجود مستخدم بنفس اسم المستخدم باستخدام UserRepo
     if (userRepo.getByUsername(request.getUsername().trim()).isPresent()) {
         throw new RuntimeException("Username is already in use");
@@ -43,7 +44,7 @@ public UserResponse signUp(UserRequest request) {
 }
 
     @Override
-    public UserResponse login(UserRequest request) {
+    public UserResponse login(UserRequestLogin request) {
         Optional<User> userOptional = userRepo.getByUsername(request.getUsername());
         if (userOptional.isPresent()) {
             User user = userOptional.get();
@@ -61,6 +62,20 @@ public UserResponse signUp(UserRequest request) {
     public UserResponse getById(String id) {
        User user = userRepo.getById(id);
         return userMapper.mapToResponse(user);
+    }
+
+    @Override
+    public UserResponse getByIdIfPresent(String id) {
+        Optional<User> user = userRepo.getByIdIfPresent(id);
+        return user.map(userMapper::mapToResponse)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    @Override
+    public UserResponse getByUsernameIfPresent(String username) {
+        Optional<User> user = userRepo.getByUsernameIfPresent(username);
+        return user.map(userMapper::mapToResponse)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
 
@@ -91,7 +106,7 @@ public UserResponse signUp(UserRequest request) {
     }
 
     @Override
-    public UserResponse update(String id, UserRequest request) {
+    public UserResponse update(String id, UserRequestSignIn request) {
         User user = userRepo.getById(id);
         user.setUsername(request.getUsername());
         user.setPassword(request.getPassword());

@@ -50,6 +50,12 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public BookResponse getByName(String name) {
+        Book book = bookRepo.getByName(name);
+        return bookMapper.mapToResponse(book);
+    }
+
+    @Override
     public List<BookResponse> getByAll() {
         List<Book> books = bookRepo.getAll();
         return books.stream()

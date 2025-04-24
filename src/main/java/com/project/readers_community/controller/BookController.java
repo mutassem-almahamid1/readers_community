@@ -22,44 +22,49 @@ public class BookController {
     private BookService service;
 
     @PostMapping
-    public ResponseEntity<BookResponse> create(@Valid @RequestBody BookRequest request, @RequestParam String addedByUserName) {
+    public ResponseEntity<BookResponse> createBook(@Valid @RequestBody BookRequest request, @RequestParam String addedByUserName) {
         return ResponseEntity.ok(service.createByUserName(request, addedByUserName));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BookResponse> getById(@PathVariable String id) {
+    public ResponseEntity<BookResponse> getBookById(@PathVariable String id) {
         return ResponseEntity.ok(service.getById(id));
     }
 
+    @GetMapping("/name")
+    public ResponseEntity<BookResponse> getBookByName(@RequestParam String name) {
+        return ResponseEntity.ok(service.getByName(name));
+    }
+
     @GetMapping
-    public ResponseEntity<List<BookResponse>> getByAll() {
+    public ResponseEntity<List<BookResponse>> getAllBook() {
         return ResponseEntity.ok(service.getByAll());
     }
 
     @GetMapping("/category")
-    public ResponseEntity<List<BookResponse>> getByCategory(@RequestParam String category) {
+    public ResponseEntity<List<BookResponse>> getBookByCategory(@RequestParam String category) {
         return ResponseEntity.ok(service.getByCategory(category));
     }
 
 
 
     @GetMapping("/page")
-    public ResponseEntity<Page<BookResponse>> getByAllPage(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<BookResponse>> getAllBookByPage(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(service.getByAllPage(page, size));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BookResponse> update(@PathVariable String id, @Valid @RequestBody BookRequest request) {
+    public ResponseEntity<BookResponse> updateBook(@PathVariable String id, @Valid @RequestBody BookRequest request) {
         return ResponseEntity.ok(service.update(id, request));
     }
 
     @DeleteMapping("/soft/{id}")
-    public ResponseEntity<BookResponse> softDeleteById(@PathVariable String id) {
+    public ResponseEntity<BookResponse> softDeleteBookById(@PathVariable String id) {
         return ResponseEntity.ok(service.softDeleteById(id));
     }
 
     @DeleteMapping("/hard/{id}")
-    public ResponseEntity<MessageResponse> hardDeleteById(@PathVariable String id) {
+    public ResponseEntity<MessageResponse> hardDeleteBookById(@PathVariable String id) {
         return ResponseEntity.ok(service.hardDeleteById(id));
     }
 }

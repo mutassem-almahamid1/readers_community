@@ -1,22 +1,30 @@
 package com.project.readers_community.service.impl;
 
+import com.project.readers_community.handelException.exception.NotFoundException;
 import com.project.readers_community.model.common.MessageResponse;
 import com.project.readers_community.model.document.Book;
+import com.project.readers_community.model.document.Comment;
 import com.project.readers_community.model.document.Review;
 import com.project.readers_community.model.document.Status;
 import com.project.readers_community.model.document.User;
+import com.project.readers_community.model.dto.request.CommentRequest;
 import com.project.readers_community.model.dto.request.ReviewRequest;
+import com.project.readers_community.model.dto.response.CommentResponse;
 import com.project.readers_community.model.dto.response.ReviewResponse;
+import com.project.readers_community.model.document.NotificationType;
 import com.project.readers_community.repository.BookRepo;
 import com.project.readers_community.repository.ReviewRepo;
 import com.project.readers_community.repository.UserRepo;
+import com.project.readers_community.service.NotificationService;
 import com.project.readers_community.mapper.ReviewMapper;
 import com.project.readers_community.service.ReviewService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,34 +37,62 @@ public class ReviewServiceImpl implements ReviewService {
     @Autowired
     private UserRepo userRepo;
     @Autowired
+    private NotificationService notificationService;
+    @Autowired
     private ReviewMapper reviewMapper;
 
     @Override
     public ReviewResponse create(ReviewRequest request, String userId) {
         User user = userRepo.getById(userId);
-
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
         Book book = bookRepo.getById(request.getBookId());
+        if (book == null) {
+            throw new NotFoundException("Book not found");
+        }
 
         Review review = reviewMapper.mapToDocument(request, user, book);
-
         Review savedReview = reviewRepo.save(review);
 
         updateBookReviewStats(book);
 
-        return reviewMapper.mapToResponse(savedReview);
+
+        // إنشاء إشعار إذا كان المستخدم مختلفًا عن صاحب الكتاب
+        if (!book.getAddedBy().getId().equals(userId)) {
+            String message = user.getUsername() + "Reviewed your book.";
+            String bookId = review.getBook() != null ? review.getBook().getId() : null; // استرجاع bookId من المراجعة
+            notificationService.createNotificationAsync(
+                    review.getUser().getId(),  // Recipient: review owner
+                    userId,                    // Trigger: commenter
+                    NotificationType.REVIEW_ON_BOOK,
+                    message,
+                    review.getId(),
+                    null,
+                    bookId,
+                    null
+            );
+        }
+
+
+        return reviewMapper.mapToResponse(savedReview, userId);
     }
 
     @Override
     public ReviewResponse getById(String id) {
         Review review = reviewRepo.getById(id);
-        return reviewMapper.mapToResponse(review);
+        if (review == null || review.getStatus() != Status.ACTIVE) {
+            throw new NotFoundException("Review not found");
+        }
+        return reviewMapper.mapToResponse(review, null); // userId غير مطلوب هنا، يمكن تمريره إذا لزم الأمر
     }
 
     @Override
     public List<ReviewResponse> getAll() {
         List<Review> reviews = reviewRepo.getAll();
         return reviews.stream()
-                .map(reviewMapper::mapToResponse)
+                .filter(review -> review.getStatus() == Status.ACTIVE)
+                .map(review -> reviewMapper.mapToResponse(review, null))
                 .collect(Collectors.toList());
     }
 
@@ -64,65 +100,136 @@ public class ReviewServiceImpl implements ReviewService {
     public Page<ReviewResponse> getAllPage(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<Review> reviews = reviewRepo.getAllPage(pageRequest);
-        return reviews.map(reviewMapper::mapToResponse);
+        return reviews.map(review -> {
+            if (review.getStatus() == Status.ACTIVE) {
+                return reviewMapper.mapToResponse(review, null);
+            }
+            return null; // سيتم تجاهل المراجعات غير النشطة
+        });
     }
 
     @Override
     public List<ReviewResponse> getByBookId(String bookId) {
         List<Review> reviews = reviewRepo.findByBookId(bookId);
         return reviews.stream()
-                .map(reviewMapper::mapToResponse)
+                .filter(review -> review.getStatus() == Status.ACTIVE)
+                .map(review -> reviewMapper.mapToResponse(review, null))
                 .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public Page<ReviewResponse> getByBookIdPage(String bookId, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Review> reviews = reviewRepo.findByBookIdPage(bookId, pageRequest);
+        return reviews.map(review -> {
+            if (review.getStatus() == Status.ACTIVE) {
+                return reviewMapper.mapToResponse(review, null);
+            }
+            return null;
+        });
     }
 
     @Override
     public List<ReviewResponse> getByUserId(String userId) {
         List<Review> reviews = reviewRepo.findByUserId(userId);
         return reviews.stream()
-                .map(reviewMapper::mapToResponse)
+                .filter(review -> review.getStatus() == Status.ACTIVE)
+                .map(review -> reviewMapper.mapToResponse(review, userId))
                 .collect(Collectors.toList());
     }
 
+
+    @Override
+    public Page<ReviewResponse> getByUserIdPage(String userId, int page, int size) {
+      PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Review> reviews = reviewRepo.findByUserIdPage(userId, pageRequest);
+        return reviews.map(review -> {
+            if (review.getStatus() == Status.ACTIVE) {
+                return reviewMapper.mapToResponse(review, userId);
+            }
+            return null;
+        });
+    }
+
+    @Override
+    public ReviewResponse likeReview(String id, String userId) {
+        Review review = reviewRepo.getByIdIfPresent(id)
+                .orElseThrow(() -> new NotFoundException("Review not found"));
+
+        User user = userRepo.getById(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
+
+        review.getLikedBy().add(user);
+        Review updatedReview = reviewRepo.save(review);
+
+        if (!review.getUser().getId().equals(userId)) {
+            String message = user.getUsername() + " liked your review.";
+            String bookId = review.getBook() != null ? review.getBook().getId() : null;
+            notificationService.createNotificationAsync(
+                    review.getUser().getId(),
+                    userId,
+                    NotificationType.LIKE_REVIEW,
+                    message,
+                    review.getId(),
+                    null,
+                    bookId,
+                    null
+            );
+        }
+
+        return reviewMapper.mapToResponse(updatedReview, userId);
+    }
+
+
+
     @Override
     public ReviewResponse update(String id, ReviewRequest request, String userId) {
-        Review review = reviewRepo.getById(id);
+        Review review = reviewRepo.getByIdIfPresent(id)
+                .orElseThrow(() -> new NotFoundException("Review not found"));
 
         if (!review.getUser().getId().equals(userId)) {
             throw new RuntimeException("You can only update your own reviews");
         }
 
         Book book = bookRepo.getById(request.getBookId());
+        if (book == null) {
+            throw new NotFoundException("Book not found");
+        }
 
         reviewMapper.updateDocument(review, request, book);
-
         Review updatedReview = reviewRepo.save(review);
 
         updateBookReviewStats(book);
 
-        return reviewMapper.mapToResponse(updatedReview);
+        return reviewMapper.mapToResponse(updatedReview, userId);
     }
 
     @Override
     public ReviewResponse softDeleteById(String id, String userId) {
-        Review review = reviewRepo.getById(id);
+        Review review = reviewRepo.getByIdIfPresent(id)
+                .orElseThrow(() -> new NotFoundException("Review not found"));
 
         if (!review.getUser().getId().equals(userId)) {
             throw new RuntimeException("You can only delete your own reviews");
         }
 
         review.setStatus(Status.DELETED);
-        review.setDeletedAt(java.time.LocalDateTime.now());
+        review.setDeletedAt(LocalDateTime.now());
 
         Review updatedReview = reviewRepo.save(review);
 
         updateBookReviewStats(review.getBook());
 
-        return reviewMapper.mapToResponse(updatedReview);
+        return reviewMapper.mapToResponse(updatedReview, userId);
     }
 
     @Override
     public MessageResponse hardDeleteById(String id, String userId) {
-        Review review = reviewRepo.getById(id);
+        Review review = reviewRepo.getByIdIfPresent(id)
+                .orElseThrow(() -> new NotFoundException("Review not found"));
 
         if (!review.getUser().getId().equals(userId)) {
             throw new RuntimeException("You can only delete your own reviews");
@@ -136,13 +243,16 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     private void updateBookReviewStats(Book book) {
-        List<Review> activeReviews = reviewRepo.findByBookId(book.getId());
+        List<Review> activeReviews = reviewRepo.findByBookId(book.getId())
+                .stream()
+                .filter(review -> review.getStatus() == Status.ACTIVE)
+                .collect(Collectors.toList());
 
         int reviewCount = activeReviews.size();
         book.setReviewCount(reviewCount);
 
         double avgRating = reviewCount > 0
-                ? activeReviews.stream().mapToInt(Review::getRating).average().orElse(0.0)
+                ? activeReviews.stream().mapToDouble(Review::getRating).average().orElse(0.0)
                 : 0.0;
         book.setAvgRating(avgRating);
 

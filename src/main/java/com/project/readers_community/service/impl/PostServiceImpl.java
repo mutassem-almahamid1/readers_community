@@ -1,9 +1,11 @@
 package com.project.readers_community.service.impl;
 
+import com.project.readers_community.handelException.exception.NotFoundException;
 import com.project.readers_community.model.common.MessageResponse;
 import com.project.readers_community.model.document.Post;
 import com.project.readers_community.model.document.Review;
 import com.project.readers_community.model.document.Status;
+import com.project.readers_community.model.document.User;
 import com.project.readers_community.model.dto.request.PostRequest;
 import com.project.readers_community.model.dto.response.PostResponse;
 import com.project.readers_community.repository.PostRepo;
@@ -33,32 +35,35 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponse create(PostRequest request, String userId) {
+        User user = userRepo.getById(userId);
 
         Review review = reviewRepo.getById(request.getReviewId());
 
-
         if (!review.getUser().getId().equals(userId)) {
-            throw new RuntimeException("You can only create a post from your own review");
+            throw new RuntimeException("You can only create a post for your own review");
         }
 
-
-        Post post = postMapper.mapToDocument(request, review);
+        Post post = postMapper.mapToDocument(request, user, review);
         Post savedPost = postRepo.save(post);
 
-        return postMapper.mapToResponse(savedPost);
+        return postMapper.mapToResponse(savedPost, userId);
     }
 
     @Override
     public PostResponse getById(String id) {
         Post post = postRepo.getById(id);
-        return postMapper.mapToResponse(post);
+        if (post == null || post.getStatus() != Status.ACTIVE) {
+            throw new NotFoundException("Post not found");
+        }
+        return postMapper.mapToResponse(post, null);
     }
 
     @Override
     public List<PostResponse> getAll() {
         List<Post> posts = postRepo.getAll();
         return posts.stream()
-                .map(postMapper::mapToResponse)
+                .filter(post -> post.getStatus() == Status.ACTIVE)
+                .map(post -> postMapper.mapToResponse(post, null))
                 .collect(Collectors.toList());
     }
 
@@ -66,86 +71,126 @@ public class PostServiceImpl implements PostService {
     public Page<PostResponse> getAllPage(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<Post> posts = postRepo.getAllPage(pageRequest);
-        return posts.map(postMapper::mapToResponse);
+        return posts.map(post -> {
+            if (post.getStatus() == Status.ACTIVE) {
+                return postMapper.mapToResponse(post, null);
+            }
+            return null;
+        });
+    }
+
+    @Override
+    public Page<PostResponse> getAllPageByUser(String userId, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Post> posts = postRepo.getAllPageByUser(userId, pageRequest);
+        return posts.map(post -> {
+            if (post.getStatus() == Status.ACTIVE) {
+                return postMapper.mapToResponse(post, null);
+            }
+            return null;
+        });
+
+    }
+
+    @Override
+    public Page<PostResponse> getAllPageByReview(String reviewId, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Post> posts = postRepo.getAllPageByReview(reviewId, pageRequest);
+        return posts.map(post -> {
+            if (post.getStatus() == Status.ACTIVE) {
+                return postMapper.mapToResponse(post, null);
+            }
+            return null;
+        });
+    }
+
+
+    @Override
+    public List<PostResponse> getByReviewId(String reviewId) {
+        List<Post> posts = postRepo.findByReviewId(reviewId);
+        return posts.stream()
+                .filter(post -> post.getStatus() == Status.ACTIVE)
+                .map(post -> postMapper.mapToResponse(post, null))
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<PostResponse> getByUserId(String userId) {
         List<Post> posts = postRepo.findByUserId(userId);
         return posts.stream()
-                .map(postMapper::mapToResponse)
+                .filter(post -> post.getStatus() == Status.ACTIVE)
+                .map(post -> postMapper.mapToResponse(post, userId))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<PostResponse> getByReviewId(String reviewId) {
-        List<Post> posts = postRepo.findByReviewId(reviewId);
-        return posts.stream()
-                .map(postMapper::mapToResponse)
-                .collect(Collectors.toList());
+    public PostResponse likePost(String id, String userId) {
+        Post post = postRepo.getByIdIfPresent(id)
+                .orElseThrow(() -> new NotFoundException("Post not found"));
+        if (post.getStatus() != Status.ACTIVE) {
+            throw new NotFoundException("Post not found");
+        }
+        User user = userRepo.getById(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
+
+        post.getLikedBy().add(user);
+        Post updatedPost = postRepo.save(post);
+
+        return postMapper.mapToResponse(updatedPost, userId);
     }
 
     @Override
     public PostResponse update(String id, PostRequest request, String userId) {
-
-        Post post = postRepo.getById(id);
-
+        Post post = postRepo.getByIdIfPresent(id)
+                .orElseThrow(() -> new NotFoundException("Post not found"));
 
         if (!post.getUser().getId().equals(userId)) {
             throw new RuntimeException("You can only update your own posts");
         }
 
+        Review newReview = reviewRepo.getById(request.getReviewId());
 
-        Review review = reviewRepo.getById(request.getReviewId());
-
-
-        if (!review.getUser().getId().equals(userId)) {
-            throw new RuntimeException("You can only update a post with your own review");
+        if (!newReview.getUser().getId().equals(userId)) {
+            throw new RuntimeException("You can only link a post to your own review");
         }
 
-
-        String content = review.getContent() != null
-                ? review.getContent().trim()
-                : "Rated the book with " + review.getRating() + " stars";
-        post.setReview(review);
-        post.setContent(content);
-        post.setRating(review.getRating());
-        post.setUpdatedAt(LocalDateTime.now());
-
-
+        postMapper.updateDocument(post, request, newReview);
         Post updatedPost = postRepo.save(post);
 
-        return postMapper.mapToResponse(updatedPost);
+        return postMapper.mapToResponse(updatedPost, userId);
     }
 
     @Override
     public PostResponse softDeleteById(String id, String userId) {
-
-        Post post = postRepo.getById(id);
-
-
+        Post post = postRepo.getByIdIfPresent(id)
+                .orElseThrow(() -> new NotFoundException("Post not found"));
+        if (post.getStatus() != Status.ACTIVE) {
+            throw new NotFoundException("Post not found");
+        }
         if (!post.getUser().getId().equals(userId)) {
             throw new RuntimeException("You can only delete your own posts");
         }
-
 
         post.setStatus(Status.DELETED);
         post.setDeletedAt(LocalDateTime.now());
 
         Post updatedPost = postRepo.save(post);
 
-        return postMapper.mapToResponse(updatedPost);
+        return postMapper.mapToResponse(updatedPost, userId);
     }
 
     @Override
     public MessageResponse hardDeleteById(String id, String userId) {
-
-        Post post = postRepo.getById(id);
-
+        Post post = postRepo.getByIdIfPresent(id)
+                .orElseThrow(() -> new NotFoundException("Post not found"));
+        if (post.getStatus() != Status.ACTIVE) {
+            throw new NotFoundException("Post not found");
+        }
         if (!post.getUser().getId().equals(userId)) {
             throw new RuntimeException("You can only delete your own posts");
         }
-
 
         postRepo.deleteById(id);
 

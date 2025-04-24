@@ -20,37 +20,42 @@ public class CategoryController {
     private CategoryService service;
 
     @PostMapping
-    public ResponseEntity<CategoryResponse> create(@Valid @RequestBody CategoryRequest request) {
+    public ResponseEntity<CategoryResponse> createCategory(@Valid @RequestBody CategoryRequest request) {
         return ResponseEntity.ok(this.service.create(request));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponse> getById(@PathVariable String id) {
+    public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable String id) {
         return ResponseEntity.ok(this.service.getById(id));
     }
 
+    @GetMapping("{name}")
+    public ResponseEntity<CategoryResponse> getCategoryByName(@PathVariable String name) {
+        return ResponseEntity.ok(this.service.getByName(name));
+    }
+
     @GetMapping
-    public ResponseEntity<List<CategoryResponse>> getByAll() {
+    public ResponseEntity<List<CategoryResponse>> getAllCategory() {
         return ResponseEntity.ok(this.service.getByAll());
     }
 
     @GetMapping("/page")
-    public ResponseEntity<Page<CategoryResponse>> getByAllPage(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<CategoryResponse>> getAllCategoryPage(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(this.service.getByAllPage(page, size));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CategoryResponse> update(@PathVariable String id, @Valid @RequestBody CategoryRequest request) {
+    public ResponseEntity<CategoryResponse> updateCategory(@PathVariable String id, @Valid @RequestBody CategoryRequest request) {
         return ResponseEntity.ok(this.service.update(id, request));
     }
 
     @DeleteMapping("/soft/{id}")
-    public ResponseEntity<CategoryResponse> softDeleteById(@PathVariable String id) {
+    public ResponseEntity<CategoryResponse> softDeleteCategoryById(@PathVariable String id) {
         return ResponseEntity.ok(this.service.softDeleteById(id));
     }
 
     @DeleteMapping("/hard/{id}")
-    public ResponseEntity<MessageResponse> hardDeleteById(@PathVariable String id) {
+    public ResponseEntity<MessageResponse> hardDeleteCategoryById(@PathVariable String id) {
         return ResponseEntity.ok(this.service.hardDeleteById(id));
     }
 }

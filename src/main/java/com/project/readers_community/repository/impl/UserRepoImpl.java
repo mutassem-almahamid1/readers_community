@@ -43,8 +43,18 @@ public class UserRepoImpl implements UserRepo {
     }
 
     @Override
+    public Optional<User> getByUsernameIfPresent(String username) {
+        return repoMongo.findByUsernameAndStatus(username, Status.ACTIVE).or(() -> {;
+            throw new NotFoundException("User not found");
+        });
+    }
+
+
+    @Override
     public Optional<User> getByUsername(String username) {
-        return repoMongo.findByUsername(username);
+        return repoMongo.findByUsername(username).or(() -> {;
+            throw new NotFoundException("User not found");
+        });
     }
 
     @Override

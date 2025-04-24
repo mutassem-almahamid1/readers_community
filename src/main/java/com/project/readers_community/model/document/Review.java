@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.*;
 
 @Document(collection = "reviews")
 @Data
@@ -36,4 +37,15 @@ public class Review {
     private LocalDateTime updatedAt;
 
     private LocalDateTime deletedAt;
+
+
+    // حقول جديدة لدعم الإعجابات والتعليقات
+    @Builder.Default
+    private Set<User> likedBy = new HashSet<>(); // المستخدمون الذين أعجبوا بالمراجعة
+    @Builder.Default
+    private List<Comment> comments = new ArrayList<>(); // قائمة التعليقات على المراجعة
 }
+
+
+
+

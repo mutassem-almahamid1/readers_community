@@ -10,6 +10,7 @@ import java.util.List;
 public interface BookService {
     BookResponse createByUserName(BookRequest request, String addedById);
     BookResponse getById(String id);
+    BookResponse getByName(String name);
     List<BookResponse> getByAll();
     Page<BookResponse> getByAllPage(int page, int size);
     BookResponse update(String id, BookRequest request);

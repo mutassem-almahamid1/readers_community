@@ -2,6 +2,7 @@ package com.project.readers_community.model.dto.response;
 
 
 import com.project.readers_community.model.document.Roles;
+import com.project.readers_community.model.document.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,5 +20,6 @@ public class UserResponse {
     private String profilePicture;
     private String bio;
     private Roles role;
+    private Status status;
     private LocalDateTime createdAt;
 }

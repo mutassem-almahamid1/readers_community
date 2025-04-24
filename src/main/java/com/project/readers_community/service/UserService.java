@@ -1,8 +1,8 @@
 package com.project.readers_community.service;
 
 import com.project.readers_community.model.common.MessageResponse;
-import com.project.readers_community.model.document.User;
-import com.project.readers_community.model.dto.request.UserRequest;
+import com.project.readers_community.model.dto.request.UserRequestLogin;
+import com.project.readers_community.model.dto.request.UserRequestSignIn;
 import com.project.readers_community.model.dto.response.UserResponse;
 import org.springframework.data.domain.Page;
 
@@ -10,17 +10,21 @@ import java.util.List;
 
 public interface UserService {
 
-    UserResponse signUp(UserRequest request);
+    UserResponse signUp(UserRequestSignIn request);
 
-    UserResponse login(UserRequest request);
+    UserResponse login(UserRequestLogin request);
 
     UserResponse getById(String id);
+
+    UserResponse getByIdIfPresent(String id);
+
+    UserResponse getByUsernameIfPresent(String username);
 
     List<UserResponse> getByAll();
 
     Page<UserResponse> getByAllPage(int page, int size);
 
-    UserResponse update(String id, UserRequest request);
+    UserResponse update(String id, UserRequestSignIn request);
 
     UserResponse softDeleteById(String id);
 

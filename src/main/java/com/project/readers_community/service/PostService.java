@@ -13,7 +13,13 @@ public interface PostService {
     List<PostResponse> getAll();
     Page<PostResponse> getAllPage(int page, int size);
     List<PostResponse> getByUserId(String userId);
+
+    Page<PostResponse> getAllPageByUser(String userId, int page, int size);
+
+    Page<PostResponse> getAllPageByReview(String reviewId, int page, int size);
+
     List<PostResponse> getByReviewId(String reviewId);
+    PostResponse likePost(String id, String userId);
     PostResponse update(String id, PostRequest request, String userId);
     PostResponse softDeleteById(String id, String userId);
     MessageResponse hardDeleteById(String id, String userId);

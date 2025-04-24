@@ -5,10 +5,14 @@ import com.project.readers_community.model.document.Review;
 import com.project.readers_community.model.document.Status;
 import com.project.readers_community.model.document.User;
 import com.project.readers_community.model.dto.request.ReviewRequest;
+import com.project.readers_community.model.dto.response.CommentResponse;
 import com.project.readers_community.model.dto.response.ReviewResponse;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 
 @Component
 public class ReviewMapper {
@@ -21,20 +25,33 @@ public class ReviewMapper {
                 .rating(request.getRating())
                 .status(Status.ACTIVE)
                 .createdAt(LocalDateTime.now())
+                .comments(new ArrayList<>())
+                .likedBy(new HashSet<>())
                 .build();
     }
 
-    public ReviewResponse mapToResponse(Review review) {
+    public ReviewResponse mapToResponse(Review review, String userId) {
+        boolean likedByCurrentUser = review.getLikedBy() != null && userId != null &&
+                review.getLikedBy().stream().anyMatch(user -> user.getId().equals(userId));
+
+
         return ReviewResponse.builder()
                 .id(review.getId())
-                .userId(review.getUser() != null ? review.getUser().getId() : null)
-                .username(review.getUser() != null ? review.getUser().getUsername() : null)
-                .bookId(review.getBook() != null ? review.getBook().getId() : null)
-                .bookTitle(review.getBook() != null ? review.getBook().getTitle() : null)
                 .content(review.getContent())
                 .rating(review.getRating())
-                .status(review.getStatus())
+                .username(review.getUser() != null ? review.getUser().getUsername() : null)
+                .bookId(review.getBook() != null ? review.getBook().getId() : null)
                 .createdAt(review.getCreatedAt())
+                .likeCount(review.getLikedBy() != null ? review.getLikedBy().size() : 0)
+                .likedByCurrentUser(likedByCurrentUser)
+                .comments(review.getComments() != null ? review.getComments().stream()
+                        .map(comment -> CommentResponse.builder()
+                                .id(comment.getId())
+                                .content(comment.getContent())
+                                .username(comment.getUser() != null ? comment.getUser().getUsername() : null)
+                                .createdAt(comment.getCreatedAt())
+                                .build())
+                        .collect(Collectors.toList()) : new ArrayList<>())
                 .build();
     }
 

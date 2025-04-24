@@ -23,10 +23,7 @@ public class PostRepoImpl implements PostRepo {
         return repoMongo.save(post);
     }
 
-    @Override
-    public List<Post> saveAll(List<Post> posts) {
-        return repoMongo.saveAll(posts);
-    }
+
 
     @Override
     public Optional<Post> getByIdIfPresent(String id) {
@@ -47,6 +44,16 @@ public class PostRepoImpl implements PostRepo {
     @Override
     public Page<Post> getAllPage(PageRequest pageRequest) {
         return repoMongo.findAllByStatus(Status.ACTIVE, pageRequest);
+    }
+
+    @Override
+    public Page<Post> getAllPageByUser(String id, PageRequest pageRequest){
+        return repoMongo.findAllByReviewIdAndStatus(id,Status.ACTIVE, pageRequest);
+    }
+
+    @Override
+    public Page<Post> getAllPageByReview(String id, PageRequest pageRequest){
+        return repoMongo.findAllByReviewIdAndStatus(id , Status.ACTIVE,pageRequest);
     }
 
     @Override

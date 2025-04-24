@@ -11,8 +11,6 @@ public interface ReviewRepo {
 
     Review save(Review review);
 
-    List<Review> saveAll(List<Review> reviews);
-
     Optional<Review> getByIdIfPresent(String id);
 
     Review getById(String id);
@@ -27,7 +25,9 @@ public interface ReviewRepo {
 
     List<Review> findByBookId(String bookId);
 
+    Page<Review> findByBookIdPage(String bookId, PageRequest pageRequest);
+
     List<Review> findByUserId(String userId);
 
-
+    Page<Review> findByUserIdPage(String userId, PageRequest pageRequest);
 }

@@ -14,6 +14,8 @@ import java.util.Optional;
 public interface CategoryRepoMongo extends MongoRepository<Category, String> {
     Optional<Category> findByIdAndStatus(String id, Status status);
 
+    Optional<Category> findByNameAndStatus(String name, Status status);
+
     List<Category> findAllByStatus(Status status);
 
     Page<Category> findAllByStatus(Status status, PageRequest pageRequest);

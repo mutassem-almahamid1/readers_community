@@ -41,6 +41,13 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public CategoryResponse getByName(String name) {
+        Category category = this.categoryRepo.getByName(name);
+        CategoryResponse categoryResponse = this.categoryMapper.mapToResponse(category);
+        return categoryResponse;
+    }
+
+    @Override
     public List<CategoryResponse> getByAll() {
         List<Category> categories = this.categoryRepo.getAll();
         List<CategoryResponse> categoryResponses = categories

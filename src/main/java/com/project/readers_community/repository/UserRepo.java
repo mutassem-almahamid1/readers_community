@@ -19,6 +19,8 @@ public interface UserRepo {
 
     Optional<User> getByUsername(String username);
 
+    Optional<User> getByUsernameIfPresent(String username);
+
     List<User> getAll();
 
     Page<User> getAllPage(PageRequest pageRequest);

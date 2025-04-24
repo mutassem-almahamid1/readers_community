@@ -7,23 +7,27 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ReviewResponse {
+public class CommentResponse {
+
     private String id;
     private String userId;
     private String username;
-    private String bookId;
-    private String bookTitle;
+    private String userProfilePicture;
+    private String reviewId;
+    private String postId;
     private String content;
-    private int rating;
+    private Set<String> likedByUserIds;
     private int likeCount;
-    private boolean likedByCurrentUser; // هل المستخدم الحالي أعجب بالمراجعة
-    private List<CommentResponse> comments;
+    private boolean likedByCurrentUser;
     private Status status;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
+
 }

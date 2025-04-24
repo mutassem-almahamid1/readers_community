@@ -1,89 +1,125 @@
 package com.project.readers_community.controller;
 
 import com.project.readers_community.model.common.MessageResponse;
+import com.project.readers_community.model.dto.request.CommentRequest;
 import com.project.readers_community.model.dto.request.ReviewRequest;
+import com.project.readers_community.model.dto.response.CommentResponse;
 import com.project.readers_community.model.dto.response.ReviewResponse;
 import com.project.readers_community.service.ReviewService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/reviews")
+@RequestMapping("/api/reviews")
 public class ReviewController {
 
     @Autowired
     private ReviewService reviewService;
 
-
-    @PostMapping
-    public ResponseEntity<ReviewResponse> create(
-            @Valid @RequestBody ReviewRequest request,
+    @PostMapping("/create")
+    public ResponseEntity<ReviewResponse> createReview(
+            @RequestBody ReviewRequest request,
             @RequestParam String userId) {
-        return ResponseEntity.ok(reviewService.create(request, userId));
+        ReviewResponse response = reviewService.create(request, userId);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReviewResponse> getById(@PathVariable String id) {
-        return ResponseEntity.ok(reviewService.getById(id));
+    public ResponseEntity<ReviewResponse> getReviewById(@PathVariable String id) {
+        ReviewResponse response = reviewService.getById(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
-    @GetMapping
-    public ResponseEntity<List<ReviewResponse>> getAll() {
-        return ResponseEntity.ok(reviewService.getAll());
+    @GetMapping("/allReviews")
+    public ResponseEntity<List<ReviewResponse>> getAllReviews() {
+        List<ReviewResponse> response = reviewService.getAll();
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
-    @GetMapping("/page")
-    public ResponseEntity<Page<ReviewResponse>> getAllPage(
+    @GetMapping("/paged/allReviews")
+    public ResponseEntity<Page<ReviewResponse>> getAllReviewsPaged(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(reviewService.getAllPage(page, size));
+        Page<ReviewResponse> response = reviewService.getAllPage(page, size);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @GetMapping("/paged/book/{bookId}")
+    public ResponseEntity<Page<ReviewResponse>> getReviewsByBookIdPaged(
+            @PathVariable String bookId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<ReviewResponse> response = reviewService.getByBookIdPage(bookId, page, size);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/paged/user/{userId}")
+    public ResponseEntity<Page<ReviewResponse>> getReviewsByUserIdPaged(
+            @PathVariable String userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<ReviewResponse> response = reviewService.getByUserIdPage(userId, page, size);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 
 
     @GetMapping("/book/{bookId}")
-    public ResponseEntity<List<ReviewResponse>> getByBookId(@PathVariable String bookId) {
-        return ResponseEntity.ok(reviewService.getByBookId(bookId));
+    public ResponseEntity<List<ReviewResponse>> getReviewsByBookId(@PathVariable String bookId) {
+        List<ReviewResponse> response = reviewService.getByBookId(bookId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<ReviewResponse>> getByUserId(@PathVariable String userId) {
-        return ResponseEntity.ok(reviewService.getByUserId(userId));
+    public ResponseEntity<List<ReviewResponse>> getReviewsByUserId(@PathVariable String userId) {
+        List<ReviewResponse> response = reviewService.getByUserId(userId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PostMapping("/{id}/like")
+    public ResponseEntity<ReviewResponse> likeReview(
+            @PathVariable String id,
+            @RequestParam String userId) {
+        ReviewResponse response = reviewService.likeReview(id, userId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/{reviewId}/comment")
+    public ResponseEntity<CommentResponse> addCommentToReview(
+            @PathVariable String reviewId,
+            @RequestBody CommentRequest request,
+            @RequestParam String userId) {
+        CommentResponse response = reviewService.addCommentToReview(reviewId, request, userId);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ReviewResponse> update(
+    public ResponseEntity<ReviewResponse> updateReview(
             @PathVariable String id,
-            @Valid @RequestBody ReviewRequest request,
+            @RequestBody ReviewRequest request,
             @RequestParam String userId) {
-        return ResponseEntity.ok(reviewService.update(id, request, userId));
+        ReviewResponse response = reviewService.update(id, request, userId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
-    @DeleteMapping("/soft/{id}")
-    public ResponseEntity<ReviewResponse> softDelete(
+    @DeleteMapping("/{id}/soft")
+    public ResponseEntity<ReviewResponse> softDeleteReview(
             @PathVariable String id,
             @RequestParam String userId) {
-        return ResponseEntity.ok(reviewService.softDeleteById(id, userId));
+        ReviewResponse response = reviewService.softDeleteById(id, userId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
-    @DeleteMapping("/hard/{id}")
-    public ResponseEntity<MessageResponse> hardDelete(
+    @DeleteMapping("/{id}/hard")
+    public ResponseEntity<MessageResponse> hardDeleteReview(
             @PathVariable String id,
             @RequestParam String userId) {
-        return ResponseEntity.ok(reviewService.hardDeleteById(id, userId));
+        MessageResponse response = reviewService.hardDeleteById(id, userId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

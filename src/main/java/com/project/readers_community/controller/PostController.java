@@ -4,94 +4,110 @@ import com.project.readers_community.model.common.MessageResponse;
 import com.project.readers_community.model.dto.request.PostRequest;
 import com.project.readers_community.model.dto.response.PostResponse;
 import com.project.readers_community.service.PostService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/posts")
+@RequestMapping("/api/posts")
 public class PostController {
 
     @Autowired
     private PostService postService;
 
-
-
     @PostMapping
-    public ResponseEntity<PostResponse> create(
-            @Valid @RequestBody PostRequest request,
+    public ResponseEntity<PostResponse> createPost(
+            @RequestBody PostRequest request,
             @RequestParam String userId) {
-        return ResponseEntity.ok(postService.create(request, userId));
+        PostResponse response = postService.create(request, userId);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-
-
 
     @GetMapping("/{id}")
-    public ResponseEntity<PostResponse> getById(@PathVariable String id) {
-        return ResponseEntity.ok(postService.getById(id));
+    public ResponseEntity<PostResponse> getPostById(@PathVariable String id) {
+        PostResponse response = postService.getById(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
 
     @GetMapping
-    public ResponseEntity<List<PostResponse>> getAll() {
-        return ResponseEntity.ok(postService.getAll());
+    public ResponseEntity<List<PostResponse>> getAllPosts() {
+        List<PostResponse> response = postService.getAll();
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
-
-    @GetMapping("/page")
-    public ResponseEntity<Page<PostResponse>> getAllPage(
+    @GetMapping("/paged")
+    public ResponseEntity<Page<PostResponse>> getAllPostsPaged(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(postService.getAllPage(page, size));
+        Page<PostResponse> response = postService.getAllPage(page, size);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
-
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<PostResponse>> getByUserId(@PathVariable String userId) {
-        return ResponseEntity.ok(postService.getByUserId(userId));
+    @GetMapping("/paged/review/{reviewId}")
+    public ResponseEntity<Page<PostResponse>> getAllPostsPagedByReviewId(
+            @PathVariable String reviewId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<PostResponse> response = postService.getAllPageByReview(reviewId, page, size);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/paged/user/{userId}")
+    public ResponseEntity<Page<PostResponse>> getAllPostsPagedByUserId(
+            @PathVariable String userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<PostResponse> response = postService.getAllPageByUser(userId, page, size);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
 
     @GetMapping("/review/{reviewId}")
-    public ResponseEntity<List<PostResponse>> getByReviewId(@PathVariable String reviewId) {
-        return ResponseEntity.ok(postService.getByReviewId(reviewId));
+    public ResponseEntity<List<PostResponse>> getPostsByReviewId(@PathVariable String reviewId) {
+        List<PostResponse> response = postService.getByReviewId(reviewId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<PostResponse>> getPostsByUserId(@PathVariable String userId) {
+        List<PostResponse> response = postService.getByUserId(userId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
+    @PostMapping("/{id}/like")
+    public ResponseEntity<PostResponse> likePost(
+            @PathVariable String id,
+            @RequestParam String userId) {
+        PostResponse response = postService.likePost(id, userId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PostResponse> update(
+    public ResponseEntity<PostResponse> updatePost(
             @PathVariable String id,
-            @Valid @RequestBody PostRequest request,
+            @RequestBody PostRequest request,
             @RequestParam String userId) {
-        return ResponseEntity.ok(postService.update(id, request, userId));
+        PostResponse response = postService.update(id, request, userId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
-
-    @DeleteMapping("/soft/{id}")
-    public ResponseEntity<PostResponse> softDelete(
+    @DeleteMapping("/{id}/soft")
+    public ResponseEntity<PostResponse> softDeletePost(
             @PathVariable String id,
             @RequestParam String userId) {
-        return ResponseEntity.ok(postService.softDeleteById(id, userId));
+        PostResponse response = postService.softDeleteById(id, userId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
-
-    @DeleteMapping("/hard/{id}")
-    public ResponseEntity<MessageResponse> hardDelete(
+    @DeleteMapping("/{id}/hard")
+    public ResponseEntity<MessageResponse> hardDeletePost(
             @PathVariable String id,
             @RequestParam String userId) {
-        return ResponseEntity.ok(postService.hardDeleteById(id, userId));
+        MessageResponse response = postService.hardDeleteById(id, userId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

@@ -24,10 +24,6 @@ public class ReviewRepoImpl implements ReviewRepo {
         return repoMongo.save(review);
     }
 
-    @Override
-    public List<Review> saveAll(List<Review> reviews) {
-        return repoMongo.saveAll(reviews);
-    }
 
     @Override
     public Optional<Review> getByIdIfPresent(String id) {
@@ -66,7 +62,18 @@ public class ReviewRepoImpl implements ReviewRepo {
     }
 
     @Override
+    public Page<Review> findByBookIdPage(String bookId, PageRequest pageRequest) {
+        return repoMongo.findAllByBookIdAndStatus(bookId, Status.ACTIVE, pageRequest);
+    }
+
+    @Override
     public List<Review> findByUserId(String userId) {
         return repoMongo.findAllByUserIdAndStatus(userId, Status.ACTIVE);
     }
+
+    @Override
+    public Page<Review> findByUserIdPage(String userId, PageRequest pageRequest) {
+        return repoMongo.findAllByUserIdAndStatus(userId, Status.ACTIVE, pageRequest);
+    }
+
 }

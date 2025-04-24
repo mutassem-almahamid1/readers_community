@@ -1,34 +1,48 @@
 package com.project.readers_community.model.document;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-@Document(collection = "posts")
+@Document(collection = "comments")
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class Post {
+public class Comment {
+
     @Id
     private String id;
-    @DBRef
-    private Review review;
+
     @DBRef
     private User user;
-    private Status status;
-    private Set<User> likedBy = new HashSet<>();;
-    private String content;
-    private int rating;
-    private List<Comment> comments = new ArrayList<>();;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime deletedAt;
 
+    @DBRef
+    private Review review;
+
+    @DBRef
+    private Post post;
+
+    private String content;
+
+    @DBRef
+    private Set<User> likedBy = new HashSet<>();
+
+    private int likeCount;
+
+    private Status status;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
+    private LocalDateTime deletedAt;
 }
