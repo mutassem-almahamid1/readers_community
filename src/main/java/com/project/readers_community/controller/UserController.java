@@ -8,6 +8,7 @@ import com.project.readers_community.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -90,4 +91,30 @@ public class UserController {
         return ResponseEntity.ok(this.service.getCurrentlyReadingBooks(userId));
     }
 
+
+    @PostMapping("/{followerId}/follow/{followingId}")
+    public ResponseEntity<MessageResponse> followUser(
+            @PathVariable String followerId,
+            @PathVariable String followingId) {
+        service.followUser(followerId, followingId);
+        return new ResponseEntity<>(new MessageResponse("User followed successfully"), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{followerId}/unfollow/{followingId}")
+    public ResponseEntity<MessageResponse> unfollowUser(
+            @PathVariable String followerId,
+            @PathVariable String followingId) {
+        service.unfollowUser(followerId, followingId);
+        return new ResponseEntity<>(new MessageResponse("User unfollowed successfully"), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/following")
+    public ResponseEntity<List<UserResponse>> getAllFollowingById(@PathVariable String id) {
+        return ResponseEntity.ok(this.service.getAllFollowingById(id));
+    }
+
+    @GetMapping("/{id}/followers")
+    public ResponseEntity<List<UserResponse>> getAllFollowersById(@PathVariable String id) {
+        return ResponseEntity.ok(this.service.getAllFollowersById(id));
+    }
 }

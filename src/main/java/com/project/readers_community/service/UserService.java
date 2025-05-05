@@ -37,4 +37,12 @@ public interface UserService {
     List<String> getCurrentlyReadingBooks(String userId);
 
     UserResponse getByUsername(String username);
+
+    List<UserResponse> getAllFollowingById(String id);
+
+    List<UserResponse> getAllFollowersById(String id);
+
+    void followUser(String followerId, String followingId);
+
+    void unfollowUser(String followerId, String followingId);
 }

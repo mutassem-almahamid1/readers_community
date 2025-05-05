@@ -1,15 +1,14 @@
 package com.project.readers_community.controller;
 
 import com.project.readers_community.model.common.MessageResponse;
+import com.project.readers_community.model.document.Book;
 import com.project.readers_community.model.dto.request.BookRequest;
 import com.project.readers_community.model.dto.response.BookResponse;
 import com.project.readers_community.service.BookService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +19,12 @@ import java.util.List;
 public class BookController {
     @Autowired
     private BookService service;
+
+    @PostMapping("/Category")
+    public ResponseEntity<List<Book>> searchBooksByCategory(@RequestParam String category) {
+        List<Book> book = service.searchBooksByCategory(category);
+        return new ResponseEntity<>(book, HttpStatus.CREATED);
+    }
 
     @PostMapping
     public ResponseEntity<BookResponse> createBook(@Valid @RequestBody BookRequest request, @RequestParam String addedByUserName) {

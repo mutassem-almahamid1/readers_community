@@ -23,5 +23,6 @@ public interface UserRepoMongo extends MongoRepository<User, String> {
 
     Page<User> findAllByStatus(Status status, PageRequest pageRequest);
 
-
+    List<User> findAllFollowingById(String id);
+    List<User> findAllFollowersById(String id);
 }

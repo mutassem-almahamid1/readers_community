@@ -21,6 +21,7 @@ public class Category {
     private String name;
     private String description;
     private Status status;
+    private String imgUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;

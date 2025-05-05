@@ -38,6 +38,8 @@ public class UserMapper {
                 .username(document.getUsername())
                 .profilePicture(document.getProfilePicture())
                 .bio(document.getBio())
+                .followers(document.getFollowers())
+                .following(document.getFollowing())
                 .role(document.getRole())
                 .status(document.getStatus())
                 .createdAt(document.getCreatedAt())

@@ -22,4 +22,8 @@ public class CategoryRequest {
     @NotBlank(message = "description must be not blank.")
     private String description;
 
+    @NotNull(message = "coverImage is required.")
+    @NotEmpty(message = "coverImage must be not empty.")
+    @NotBlank(message = "coverImage must be not blank.")
+    private String coverImage;
 }

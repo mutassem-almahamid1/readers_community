@@ -25,6 +25,10 @@ public interface UserRepo {
 
     Page<User> getAllPage(PageRequest pageRequest);
 
+    List<User> getAllFollowingById(String id);
+
+    List<User> getAllFollowersById(String id);
+
     void deleteById(String id);
 
     void delete(User user);

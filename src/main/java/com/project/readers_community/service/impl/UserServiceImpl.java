@@ -1,13 +1,16 @@
 package com.project.readers_community.service.impl;
 
+import com.project.readers_community.handelException.exception.NotFoundException;
 import com.project.readers_community.mapper.UserMapper;
 import com.project.readers_community.model.common.MessageResponse;
+import com.project.readers_community.model.document.NotificationType;
 import com.project.readers_community.model.document.Status;
 import com.project.readers_community.model.document.User;
 import com.project.readers_community.model.dto.request.UserRequestLogin;
 import com.project.readers_community.model.dto.request.UserRequestSignIn;
 import com.project.readers_community.model.dto.response.UserResponse;
 import com.project.readers_community.repository.UserRepo;
+import com.project.readers_community.service.NotificationService;
 import com.project.readers_community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,6 +28,9 @@ public class UserServiceImpl implements UserService {
     private UserRepo userRepo;
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private NotificationService notificationService;
 
 
 @Override
@@ -84,6 +90,79 @@ public UserResponse signUp(UserRequestSignIn request) {
         Optional<User> user = userRepo.getByUsername(username);
         return user.map(userMapper::mapToResponse)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+
+    @Override
+    public List<UserResponse> getAllFollowingById(String id) {
+        List<User> users = userRepo.getAllFollowingById(id);
+        List<UserResponse> userResponses = users
+                .stream()
+                .map(user->this.userMapper.mapToResponse(user))
+                .collect(Collectors.toList());
+        return userResponses;
+    }
+
+
+    @Override
+    public List<UserResponse> getAllFollowersById(String id) {
+        List<User> users = userRepo.getAllFollowersById(id);
+        List<UserResponse> userResponses = users
+                .stream()
+                .map(user->this.userMapper.mapToResponse(user))
+                .collect(Collectors.toList());
+        return userResponses;
+    }
+
+    @Override
+    public void followUser(String followerId, String followingId) {
+        User follower = userRepo.getById(followerId);
+        User following = userRepo.getById(followingId);
+
+        if (follower == null || following == null) {
+            throw new NotFoundException("User not found");
+        }
+
+        if (!follower.getFollowing().contains(followingId)) {
+            follower.getFollowing().add(followingId);
+            following.getFollowers().add(followerId);
+
+            // Create notification when a user follows another user
+            if (notificationService != null) { // Ensure notificationService is not null
+                String message = follower.getUsername() + " started following you";
+                notificationService.createNotificationAsync(
+                        followingId, // Recipient
+                        followerId,  // Trigger user
+                        NotificationType.FOLLOW,
+                        message,
+                        null, // No review
+                        null, // No comment
+                        null, // No book
+                        null  // No post
+                );
+            }
+
+            userRepo.save(follower);
+            userRepo.save(following);
+        }
+    }
+
+
+    @Override
+    public void unfollowUser(String followerId, String followingId) {
+        User follower = userRepo.getById(followerId);
+        User following = userRepo.getById(followingId);
+
+        if (follower == null || following == null) {
+            throw new NotFoundException("User not found");
+        }
+
+        if (follower.getFollowing().contains(followingId)) {
+            follower.getFollowing().remove(followingId);
+            following.getFollowers().remove(followerId);
+            userRepo.save(follower);
+            userRepo.save(following);
+        }
     }
 
     @Override

@@ -14,7 +14,7 @@ public interface CategoryRepo {
 
     Optional<Category> getByIdIfPresent(String id);
 
-    Optional<Category> getByNameIfPresent(String name);
+    Category getByNameIfPresent(String name);
 
     Category getByName(String name);
 

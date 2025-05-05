@@ -12,12 +12,15 @@ import com.project.readers_community.repository.BookRepo;
 import com.project.readers_community.repository.CategoryRepo;
 import com.project.readers_community.repository.UserRepo;
 import com.project.readers_community.service.BookService;
+import com.project.readers_community.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,7 +35,60 @@ public class BookServiceImpl implements BookService {
     private UserRepo userRepo;
     @Autowired
     private BookMapper bookMapper;
+    private final String apiKey = "AIzaSyCCybPucK-_tphMJf6fowwNaLLFw-FY7sE";
+    private final String baseUrl = "https://www.googleapis.com/books/v1/volumes";
+    @Autowired
+    private RestTemplate restTemplate;
+    @Autowired
+    private CategoryService categoryService;
+    @Autowired
+    private CategoryServiceImpl categoryServiceImpl;
 
+
+    @Override
+    public List<Book> searchBooksByCategory(String category) {
+        String url = baseUrl + "?q=subject:" + category + "&key=" + apiKey + "&maxResults=40";
+        BookApiResponse response = restTemplate.getForObject(url, BookApiResponse.class);
+
+        if (response == null || response.getItems() == null) {
+            return List.of();
+        }
+
+        List<Book> books = Arrays.stream(response.getItems())
+                .map(item -> {
+                    VolumeInfo volumeInfo = item.getVolumeInfo();
+                    return Book.builder()
+                            .id(item.getId())
+                            .title(volumeInfo.getTitle())
+                            .author(Arrays.toString(volumeInfo.getAuthors() != null ? volumeInfo.getAuthors() : new String[]{}))
+                            .description(volumeInfo.getDescription())
+                            .coverImage(volumeInfo.getImageLinks() != null ? volumeInfo.getImageLinks().getThumbnail() : null)
+                            .createdAt(LocalDateTime.now())
+                            .status(Status.ACTIVE)
+                            .category(categoryServiceImpl.getByNameForImport(category))
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        books.forEach(this::save);
+        return books;
+    }
+
+    @Override
+    public Book save(Book book) {
+        if (book.getCreatedAt() == null) book.setCreatedAt(LocalDateTime.now());
+        return bookRepo.save(book);
+    }
+
+    // دالة مساعدة لاستخراج الحقول من النص الخام
+    private String extractField(String json, String field) {
+        if (json.contains(field)) {
+            int start = json.indexOf(field) + field.length() + 1;
+            int end = json.indexOf(",", start) != -1 ? json.indexOf(",", start) : json.indexOf("}", start);
+            return json.substring(start, end).replaceAll("[\"\\[\\]]", "").trim();
+        }
+        return "";
+    }
 
     @Override
     public BookResponse createByUserName(BookRequest request, String addedByUserName) {
@@ -110,5 +166,59 @@ public class BookServiceImpl implements BookService {
                 .collect(Collectors.toList());
     }
 
+    private static class BookApiResponse {
+        private Item[] items;
 
+        public Item[] getItems() {
+            return items;
+        }
+    }
+
+    private static class Item {
+        private String id;
+        private VolumeInfo volumeInfo;
+        private Status status=Status.ACTIVE;
+        private LocalDateTime createdAt;
+
+        public String getId() {
+            return id;
+        }
+
+        public VolumeInfo getVolumeInfo() {
+            return volumeInfo;
+        }
+    }
+
+    private static class VolumeInfo {
+        private String title;
+        private String[] authors;
+        private String description;
+        private ImageLinks imageLinks;
+
+        public String getTitle() {
+            return title;
+        }
+
+
+
+        public String[] getAuthors() {
+            return authors;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public ImageLinks getImageLinks() {
+            return imageLinks;
+        }
+    }
+
+    private static class ImageLinks {
+        private String thumbnail;
+
+        public String getThumbnail() {
+            return thumbnail;
+        }
+    }
 }

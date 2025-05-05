@@ -24,8 +24,9 @@ public class CommentRepoImpl implements CommentRepo {
     }
 
     @Override
-    public Optional<Comment> getById(String id) {
-        return commentRepoMongo.findById(id);
+    public Comment getById(String id) {
+        return commentRepoMongo.findById(id)
+                .orElseThrow(() -> new NotFoundException("Comment not found"));
     }
 
     @Override

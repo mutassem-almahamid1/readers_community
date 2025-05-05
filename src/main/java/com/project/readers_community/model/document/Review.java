@@ -39,7 +39,6 @@ public class Review {
     private LocalDateTime deletedAt;
 
 
-    // حقول جديدة لدعم الإعجابات والتعليقات
     @Builder.Default
     private Set<User> likedBy = new HashSet<>(); // المستخدمون الذين أعجبوا بالمراجعة
     @Builder.Default

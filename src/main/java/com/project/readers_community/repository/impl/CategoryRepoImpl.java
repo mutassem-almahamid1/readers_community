@@ -34,10 +34,9 @@ public class CategoryRepoImpl implements CategoryRepo {
     }
 
     @Override
-    public Optional<Category> getByNameIfPresent(String name) {
-        return repoMongo.findByNameAndStatus(name, Status.ACTIVE);
+    public Category getByNameIfPresent(String name) {
+        return repoMongo.findByNameAndStatus(name, Status.ACTIVE).orElseThrow(() -> new NotFoundException("Category not found"));
     }
-
 
     @Override
     public Category getById(String id) {

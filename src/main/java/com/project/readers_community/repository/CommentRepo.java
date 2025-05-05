@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface CommentRepo {
     Comment save(Comment comment);
-    Optional<Comment> getById(String id);
+    Comment getById(String id);
     Optional<Comment> getByIdAndStatus(String id, Status status);
     List<Comment> getByReviewId(String reviewId);
     Page<Comment> getByReviewIdPaged(String reviewId, PageRequest pageRequest);

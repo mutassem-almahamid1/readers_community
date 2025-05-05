@@ -1,6 +1,7 @@
 package com.project.readers_community.service;
 
 import com.project.readers_community.model.common.MessageResponse;
+import com.project.readers_community.model.document.Book;
 import com.project.readers_community.model.dto.request.BookRequest;
 import com.project.readers_community.model.dto.response.BookResponse;
 import org.springframework.data.domain.Page;
@@ -8,6 +9,8 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface BookService {
+    Book save(Book book);
+
     BookResponse createByUserName(BookRequest request, String addedById);
     BookResponse getById(String id);
     BookResponse getByName(String name);
@@ -17,4 +20,6 @@ public interface BookService {
     BookResponse softDeleteById(String id);
     MessageResponse hardDeleteById(String id);
     List<BookResponse> getByCategory(String category);
+    List<Book> searchBooksByCategory(String category);
+
 }

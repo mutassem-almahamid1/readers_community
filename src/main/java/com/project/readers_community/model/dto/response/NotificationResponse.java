@@ -19,6 +19,7 @@ public class NotificationResponse {
     private String recipientUsername;
     private String triggerUserId;
     private String triggerUsername;
+    private String triggerUserProfilePicture;
     private NotificationType type;
     private String message;
     private String reviewId;

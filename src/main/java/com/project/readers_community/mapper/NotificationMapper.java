@@ -37,6 +37,7 @@ public class NotificationMapper {
                 .recipientUsername(notification.getRecipient() != null ? notification.getRecipient().getUsername() : null)
                 .triggerUserId(notification.getTriggerUser() != null ? notification.getTriggerUser().getId() : null)
                 .triggerUsername(notification.getTriggerUser() != null ? notification.getTriggerUser().getUsername() : null)
+                .triggerUserProfilePicture(notification.getTriggerUser() != null ? notification.getTriggerUser().getProfilePicture() : null)
                 .type(notification.getType())
                 .message(notification.getMessage())
                 .reviewId(notification.getReview() != null ? notification.getReview().getId() : null)

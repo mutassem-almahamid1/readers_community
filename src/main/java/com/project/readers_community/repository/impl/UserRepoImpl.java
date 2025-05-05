@@ -68,6 +68,16 @@ public class UserRepoImpl implements UserRepo {
     }
 
     @Override
+    public List<User> getAllFollowingById(String id) {
+        return repoMongo.findAllFollowingById(id);
+    }
+
+    @Override
+    public List<User> getAllFollowersById(String id) {
+        return repoMongo.findAllFollowersById(id);
+    }
+
+    @Override
     public void deleteById(String id) {
         repoMongo.deleteById(id);
     }

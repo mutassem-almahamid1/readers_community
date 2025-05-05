@@ -47,6 +47,15 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryResponse;
     }
 
+
+
+    @Override
+    public Category getByNameForImport(String name) {
+        Category category = this.categoryRepo.getByName(name);
+        return category;
+    }
+
+
     @Override
     public List<CategoryResponse> getByAll() {
         List<Category> categories = this.categoryRepo.getAll();
@@ -71,6 +80,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = this.categoryRepo.getById(id);
         category.setName(request.getName().trim());
         category.setDescription(request.getDescription().trim());
+        category.setImgUrl(request.getCoverImage());
         category.setUpdatedAt(LocalDateTime.now());
         Category categorySaved = this.categoryRepo.save(category);
         CategoryResponse categoryResponse = this.categoryMapper.mapToResponse(categorySaved);

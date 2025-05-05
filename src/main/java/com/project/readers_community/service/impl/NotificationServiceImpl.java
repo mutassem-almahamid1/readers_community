@@ -104,11 +104,11 @@ public class NotificationServiceImpl implements NotificationService {
             throw new NotFoundException("Trigger user not found");
         }
         Review review = request.getReviewId() != null ? reviewRepo.getById(request.getReviewId()) : null;
-        Optional<Comment> comment = request.getCommentId() != null ? commentRepo.getById(request.getCommentId()) : null;
+        Comment comment = request.getCommentId() != null ? commentRepo.getById(request.getCommentId()) : null;
         Book book = request.getBookId() != null ? bookRepo.getById(request.getBookId()) : null;
         Post post = request.getPostId() != null ? postRepo.getById(request.getPostId()) : null;
 
-        notificationMapper.updateDocument(notification, request, recipient, triggerUser, review, comment.orElse(null), book, post);
+        notificationMapper.updateDocument(notification, request, recipient, triggerUser, review, comment, book, post);
         Notification updatedNotification = notificationRepo.save(notification);
         return notificationMapper.mapToResponse(updatedNotification);
     }
@@ -150,12 +150,12 @@ public class NotificationServiceImpl implements NotificationService {
 
         // جلب الكيانات المرتبطة إذا كانت المعرفات موجودة
         Review review = request.getReviewId() != null ? reviewRepo.getById(request.getReviewId()) : null;
-        Optional<Comment> comment = request.getCommentId() != null ? commentRepo.getById(request.getCommentId()) : null;
+        Comment comment = request.getCommentId() != null ? commentRepo.getById(request.getCommentId()) : null;
         Book book = request.getBookId() != null ? bookRepo.getById(request.getBookId()) : null;
         Post post = request.getPostId() != null ? postRepo.getById(request.getPostId()) : null;
 
         // تمرير الكيانات إلى المابير
-        Notification notification = notificationMapper.mapToDocument(request, recipient, triggerUser, review, comment.orElse(null), book, post);
+        Notification notification = notificationMapper.mapToDocument(request, recipient, triggerUser, review, comment, book, post);
         Notification savedNotification = notificationRepo.save(notification);
         return notificationMapper.mapToResponse(savedNotification);
     }

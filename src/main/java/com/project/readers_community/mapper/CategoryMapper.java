@@ -15,6 +15,7 @@ public class CategoryMapper {
                 .name(request.getName().trim())
                 .description(request.getDescription().trim())
                 .status(Status.ACTIVE)
+                .imgUrl(request.getCoverImage())
                 .createdAt(LocalDateTime.now())
                 .build();
     }
@@ -24,6 +25,7 @@ public class CategoryMapper {
                 .id(document.getId())
                 .name(document.getName())
                 .description(document.getDescription())
+                .imgUrl(document.getImgUrl())
                 .createdAt(document.getCreatedAt())
                 .build();
     }
