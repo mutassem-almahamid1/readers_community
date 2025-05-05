@@ -48,16 +48,16 @@ public class CommentServiceImpl implements CommentService {
         // إنشاء إشعار إذا كان المستخدم مختلفًا عن صاحب المراجعة
         if (!review.getUser().getId().equals(userId)) {
             String message = user.getUsername() + " commented on your review.";
-            String bookId = review.getBook() != null ? review.getBook().getId() : null; // استرجاع bookId من المراجعة
+            String bookId = review.getBook() != null ? review.getBook().getId() : null;
             notificationService.createNotificationAsync(
-                    review.getUser().getId(),  // Recipient: review owner
-                    userId,                    // Trigger: commenter
+                    review.getUser().getId(),
+                    userId,
                     NotificationType.COMMENT_ON_REVIEW,
                     message,
-                    review.getId(),            // reviewId (مطلوب)
-                    savedComment.getId(),      // commentId (اختياري ولكنه مفيد)
-                    bookId,                    // bookId (اختياري ولكنه مفيد)
-                    null                       // postId (غير متعلق في هذا السياق)
+                    review.getId(),
+                    savedComment.getId(),
+                    bookId,
+                    null
             );
         }
 
@@ -76,8 +76,8 @@ public class CommentServiceImpl implements CommentService {
         if (!post.getUser().getId().equals(userId)) {
             String message = user.getUsername() + " commented on your post.";
             notificationService.createNotificationAsync(
-                    post.getUser().getId(),  // Recipient: review owner
-                    userId,                    // Trigger: commenter
+                    post.getUser().getId(),
+                    userId,
                     NotificationType.COMMENT_ON_REVIEW,
                     message,
                     post.getId(),
@@ -193,8 +193,8 @@ public class CommentServiceImpl implements CommentService {
             String reviewId = comment.getReview() != null ? comment.getReview().getId() : null;
             String postId = comment.getPost()!= null? comment.getPost().getId() : null;
             notificationService.createNotificationAsync(
-                    comment.getUser().getId(),  // Recipient: comment owner
-                    userId,                     // Trigger: liker
+                    comment.getUser().getId(),
+                    userId,
                     NotificationType.LIKE_COMMENT,
                     message,
                     reviewId,

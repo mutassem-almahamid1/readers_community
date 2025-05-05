@@ -27,4 +27,5 @@ public class BookResponse {
     private String addedByUsername;
     private Status status;
     private LocalDateTime createdAt;
+    private int readerCount;
 }

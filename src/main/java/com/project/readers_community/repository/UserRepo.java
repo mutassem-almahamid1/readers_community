@@ -29,6 +29,14 @@ public interface UserRepo {
 
     List<User> getAllFollowersById(String id);
 
+    void addBookToFinishedList(String userId, String bookId);
+
+    void addBookToWantToReadList(String userId, String bookId);
+
+    void addBookToCurrentlyReadingList(String userId, String bookId);
+
+
+
     void deleteById(String id);
 
     void delete(User user);

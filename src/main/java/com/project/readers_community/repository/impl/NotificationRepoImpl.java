@@ -24,7 +24,9 @@ public class NotificationRepoImpl implements NotificationRepo {
 
     @Override
     public Optional<Notification> getById(String id) {
-        return notificationRepoMongo.findById(id);
+        return notificationRepoMongo.findById(id).or(() -> {;
+            throw new NotFoundException("Notification not found");
+        });
     }
 
     @Override

@@ -51,6 +51,25 @@ public class BookController {
         return ResponseEntity.ok(service.getByCategory(category));
     }
 
+    @GetMapping("/suggestions")
+    public ResponseEntity<List<BookResponse>> getBookSuggestions(
+            @RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(service.getBookSuggestions(limit));
+    }
+
+    @GetMapping("/trending")
+    public ResponseEntity<List<BookResponse>> getTrendingBooks(
+            @RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(service.getTrendingBooks(limit));
+    }
+
+    @GetMapping("/personalized-suggestions")
+    public ResponseEntity<List<BookResponse>> getPersonalizedBookSuggestions(
+            @RequestParam String userId,
+            @RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(service.getPersonalizedBookSuggestions(userId, limit));
+    }
+
 
 
     @GetMapping("/page")
@@ -73,3 +92,4 @@ public class BookController {
         return ResponseEntity.ok(service.hardDeleteById(id));
     }
 }
+

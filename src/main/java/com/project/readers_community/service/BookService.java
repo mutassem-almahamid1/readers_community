@@ -21,5 +21,8 @@ public interface BookService {
     MessageResponse hardDeleteById(String id);
     List<BookResponse> getByCategory(String category);
     List<Book> searchBooksByCategory(String category);
+    List<BookResponse> getBookSuggestions(int limit);
+    List<BookResponse> getTrendingBooks(int limit);
+    List<BookResponse> getPersonalizedBookSuggestions(String userId, int limit);
 
 }

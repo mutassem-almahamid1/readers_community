@@ -8,11 +8,13 @@ import com.project.readers_community.model.document.Review;
 import com.project.readers_community.model.document.Status;
 import com.project.readers_community.model.document.User;
 import com.project.readers_community.model.dto.request.CommentRequest;
+import com.project.readers_community.model.dto.request.PostRequest;
 import com.project.readers_community.model.dto.request.ReviewRequest;
 import com.project.readers_community.model.dto.response.CommentResponse;
 import com.project.readers_community.model.dto.response.ReviewResponse;
 import com.project.readers_community.model.document.NotificationType;
 import com.project.readers_community.repository.BookRepo;
+import com.project.readers_community.repository.PostRepo;
 import com.project.readers_community.repository.ReviewRepo;
 import com.project.readers_community.repository.UserRepo;
 import com.project.readers_community.service.NotificationService;
@@ -37,6 +39,8 @@ public class ReviewServiceImpl implements ReviewService {
     @Autowired
     private UserRepo userRepo;
     @Autowired
+    private PostServiceImpl postServiceImpl;
+    @Autowired
     private NotificationService notificationService;
     @Autowired
     private ReviewMapper reviewMapper;
@@ -56,15 +60,16 @@ public class ReviewServiceImpl implements ReviewService {
         Review savedReview = reviewRepo.save(review);
 
         updateBookReviewStats(book);
-
+        PostRequest postRequest = new PostRequest(review.getId());
+        postServiceImpl.create(postRequest, userId);
 
         // إنشاء إشعار إذا كان المستخدم مختلفًا عن صاحب الكتاب
         if (!book.getAddedBy().getId().equals(userId)) {
             String message = user.getUsername() + "Reviewed your book.";
-            String bookId = review.getBook() != null ? review.getBook().getId() : null; // استرجاع bookId من المراجعة
+            String bookId = review.getBook() != null ? review.getBook().getId() : null;
             notificationService.createNotificationAsync(
-                    review.getUser().getId(),  // Recipient: review owner
-                    userId,                    // Trigger: commenter
+                    review.getUser().getId(),
+                    userId,
                     NotificationType.REVIEW_ON_BOOK,
                     message,
                     review.getId(),
@@ -84,7 +89,7 @@ public class ReviewServiceImpl implements ReviewService {
         if (review == null || review.getStatus() != Status.ACTIVE) {
             throw new NotFoundException("Review not found");
         }
-        return reviewMapper.mapToResponse(review, null); // userId غير مطلوب هنا، يمكن تمريره إذا لزم الأمر
+        return reviewMapper.mapToResponse(review, null);
     }
 
     @Override
@@ -104,7 +109,7 @@ public class ReviewServiceImpl implements ReviewService {
             if (review.getStatus() == Status.ACTIVE) {
                 return reviewMapper.mapToResponse(review, null);
             }
-            return null; // سيتم تجاهل المراجعات غير النشطة
+            return null;
         });
     }
 

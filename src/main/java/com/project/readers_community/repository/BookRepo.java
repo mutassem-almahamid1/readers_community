@@ -19,4 +19,7 @@ public interface BookRepo {
     void deleteById(String id);
     void delete(Book book);
     Optional<Book> getAllByCategory(String category);
+    List<Book> findTopBooksByRatingAndReviews(int limit);
+    List<Book> findTrendingBooksForCurrentMonth(int limit);
+    List<Book> findTopBooksByCategories(List<String> categoryIds, int limit);
 }

@@ -36,11 +36,13 @@ public class BookMapper {
                 .categoryName(document.getCategory() != null ? document.getCategory().getName() : null)
                 .coverImage(document.getCoverImage())
                 .reviewCount(document.getReviewCount())
+                .readerCount(document.getReaderCount())
                 .avgRating(document.getAvgRating())
                 .addedById(document.getAddedBy() != null ? document.getAddedBy().getId() : null)
                 .addedByUsername(document.getAddedBy() != null ? document.getAddedBy().getUsername() : null)
                 .status(document.getStatus())
                 .createdAt(document.getCreatedAt())
+                .readerCount(document.getReaderCount())
                 .build();
     }
 }

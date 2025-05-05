@@ -108,6 +108,37 @@ public class UserController {
         return new ResponseEntity<>(new MessageResponse("User unfollowed successfully"), HttpStatus.OK);
     }
 
+
+
+    @PostMapping("/{userId}/books/finished")
+    public ResponseEntity<MessageResponse> addBookToFinishedList(
+            @PathVariable String userId,
+            @RequestParam String bookId) {
+        service.addBookToFinishedList(userId, bookId);
+        return ResponseEntity.ok(new MessageResponse("Book added to finished list successfully"));
+    }
+
+    @PostMapping("/{userId}/books/want-to-read")
+    public ResponseEntity<MessageResponse> addBookToWantToReadList(
+            @PathVariable String userId,
+            @RequestParam String bookId) {
+        service.addBookToWantToReadList(userId, bookId);
+        return ResponseEntity.ok(new MessageResponse("Book added to want to read list successfully"));
+    }
+
+    @PostMapping("/{userId}/books/currently-reading")
+    public ResponseEntity<MessageResponse> addBookToCurrentlyReadingList(
+            @PathVariable String userId,
+            @RequestParam String bookId) {
+        service.addBookToCurrentlyReadingList(userId, bookId);
+        return ResponseEntity.ok(new MessageResponse("Book added to currently reading list successfully"));
+    }
+
+
+
+
+
+
     @GetMapping("/{id}/following")
     public ResponseEntity<List<UserResponse>> getAllFollowingById(@PathVariable String id) {
         return ResponseEntity.ok(this.service.getAllFollowingById(id));

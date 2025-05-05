@@ -8,8 +8,10 @@ import com.project.readers_community.repository.mongo.BookRepoMongo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,4 +75,23 @@ public class BookRepoImpl implements BookRepo {
     public Optional<Book> getAllByCategory(String category) {
          return repoMongo.findAllByCategory(category);
     }
+
+@Override
+public List<Book> findTopBooksByRatingAndReviews(int limit) {
+    List<Book> books = repoMongo.findTopByStatusOrderByAvgRatingDescReviewCountDesc(Status.ACTIVE);
+    return books.size() > limit ? books.subList(0, limit) : books;
+}
+
+@Override
+public List<Book> findTrendingBooksForCurrentMonth(int limit) {
+    LocalDateTime startOfMonth = LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+    List<Book> books = repoMongo.findByStatusAndCreatedAtAfterOrderByReaderCountDesc(Status.ACTIVE, startOfMonth);
+    return books.size() > limit ? books.subList(0, limit) : books;
+}
+
+@Override
+public List<Book> findTopBooksByCategories(List<String> categoryIds, int limit) {
+    List<Book> books = repoMongo.findTopByStatusAndCategoryIdInOrderByAvgRatingDescReviewCountDesc(Status.ACTIVE, categoryIds);
+    return books.size() > limit ? books.subList(0, limit) : books;
+}
 }

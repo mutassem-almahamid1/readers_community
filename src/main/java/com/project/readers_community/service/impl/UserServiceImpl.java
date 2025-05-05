@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
 
 @Override
 public UserResponse signUp(UserRequestSignIn request) {
-    // التحقق من وجود مستخدم بنفس اسم المستخدم باستخدام UserRepo
+
     if (userRepo.getByUsername(request.getUsername().trim()).isPresent()) {
         throw new RuntimeException("Username is already in use");
     }
@@ -210,6 +210,23 @@ public UserResponse signUp(UserRequestSignIn request) {
         userRepo.delete(user);
         return new MessageResponse("User deleted successfully");
     }
+
+
+    @Override
+    public void addBookToFinishedList(String userId, String bookId) {
+        userRepo.addBookToFinishedList(userId, bookId);
+    }
+
+    @Override
+    public void addBookToWantToReadList(String userId, String bookId) {
+        userRepo.addBookToWantToReadList(userId, bookId);
+    }
+
+    @Override
+    public void addBookToCurrentlyReadingList(String userId, String bookId) {
+        userRepo.addBookToCurrentlyReadingList(userId, bookId);
+    }
+
 
     @Override
     public List<String> getWantToReadBooks(String userId) {

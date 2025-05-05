@@ -80,15 +80,6 @@ public class BookServiceImpl implements BookService {
         return bookRepo.save(book);
     }
 
-    // دالة مساعدة لاستخراج الحقول من النص الخام
-    private String extractField(String json, String field) {
-        if (json.contains(field)) {
-            int start = json.indexOf(field) + field.length() + 1;
-            int end = json.indexOf(",", start) != -1 ? json.indexOf(",", start) : json.indexOf("}", start);
-            return json.substring(start, end).replaceAll("[\"\\[\\]]", "").trim();
-        }
-        return "";
-    }
 
     @Override
     public BookResponse createByUserName(BookRequest request, String addedByUserName) {
@@ -166,6 +157,52 @@ public class BookServiceImpl implements BookService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<BookResponse> getBookSuggestions(int limit) {
+        List<Book> books = bookRepo.findTopBooksByRatingAndReviews(limit);
+        return books.stream()
+                .map(bookMapper::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BookResponse> getTrendingBooks(int limit) {
+        List<Book> books = bookRepo.findTrendingBooksForCurrentMonth(limit);
+        return books.stream()
+                .map(bookMapper::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public List<BookResponse> getPersonalizedBookSuggestions(String userId, int limit) {
+        User user = userRepo.getById(userId);
+        List<String> readCategoryIds = user.getFinishedBooks();
+
+        if (readCategoryIds.isEmpty()) {
+            return getBookSuggestions(limit);
+        }
+
+        List<Book> suggestedBooks = bookRepo.findTopBooksByCategories(readCategoryIds, limit);
+        return suggestedBooks.stream()
+                .map(bookMapper::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /// /// // /////////////////////////////////////////////
+
     private static class BookApiResponse {
         private Item[] items;
 
@@ -173,7 +210,6 @@ public class BookServiceImpl implements BookService {
             return items;
         }
     }
-
     private static class Item {
         private String id;
         private VolumeInfo volumeInfo;

@@ -1,8 +1,10 @@
 package com.project.readers_community.repository.impl;
 
 import com.project.readers_community.handelException.exception.NotFoundException;
+import com.project.readers_community.model.document.Book;
 import com.project.readers_community.model.document.Status;
 import com.project.readers_community.model.document.User;
+import com.project.readers_community.repository.BookRepo;
 import com.project.readers_community.repository.UserRepo;
 import com.project.readers_community.repository.mongo.UserRepoMongo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,9 @@ public class UserRepoImpl implements UserRepo {
 
     @Autowired
     private UserRepoMongo repoMongo;
+
+    @Autowired
+    private BookRepo bookRepo;
 
     @Override
     public User save(User user) {
@@ -44,17 +49,13 @@ public class UserRepoImpl implements UserRepo {
 
     @Override
     public Optional<User> getByUsernameIfPresent(String username) {
-        return repoMongo.findByUsernameAndStatus(username, Status.ACTIVE).or(() -> {;
-            throw new NotFoundException("User not found");
-        });
+        return repoMongo.findByUsernameAndStatus(username, Status.ACTIVE);
     }
 
 
     @Override
     public Optional<User> getByUsername(String username) {
-        return repoMongo.findByUsername(username).or(() -> {;
-            throw new NotFoundException("User not found");
-        });
+        return repoMongo.findByUsername(username);
     }
 
     @Override
@@ -76,6 +77,37 @@ public class UserRepoImpl implements UserRepo {
     public List<User> getAllFollowersById(String id) {
         return repoMongo.findAllFollowersById(id);
     }
+
+
+    @Override
+    public void addBookToFinishedList(String userId, String bookId) {
+        User user = getById(userId);
+        Book book = bookRepo.getById(bookId);
+        if (!user.getFinishedBooks().contains(bookId)) {
+            user.getFinishedBooks().add(bookId);
+            book.setReaderCount(book.getReaderCount() + 1);
+            repoMongo.save(user);
+        }
+    }
+
+    @Override
+    public void addBookToWantToReadList(String userId, String bookId) {
+        User user = getById(userId);
+        if (!user.getWantToReadBooks().contains(bookId)) {
+            user.getWantToReadBooks().add(bookId);
+            repoMongo.save(user);
+        }
+    }
+
+    @Override
+    public void addBookToCurrentlyReadingList(String userId, String bookId) {
+        User user = getById(userId);
+        if (!user.getCurrentlyReadingBooks().contains(bookId)) {
+            user.getCurrentlyReadingBooks().add(bookId);
+            repoMongo.save(user);
+        }
+    }
+
 
     @Override
     public void deleteById(String id) {
