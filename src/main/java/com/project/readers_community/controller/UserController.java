@@ -92,21 +92,20 @@ public class UserController {
     }
 
 
-    @PostMapping("/{followerId}/follow/{followingId}")
+    @PostMapping("/{followerId}/follow-unfollow/{followingId}")
     public ResponseEntity<MessageResponse> followUser(
             @PathVariable String followerId,
             @PathVariable String followingId) {
-        service.followUser(followerId, followingId);
-        return new ResponseEntity<>(new MessageResponse("User followed successfully"), HttpStatus.OK);
+        return new ResponseEntity<>(service.followUser(followerId, followingId), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{followerId}/unfollow/{followingId}")
-    public ResponseEntity<MessageResponse> unfollowUser(
-            @PathVariable String followerId,
-            @PathVariable String followingId) {
-        service.unfollowUser(followerId, followingId);
-        return new ResponseEntity<>(new MessageResponse("User unfollowed successfully"), HttpStatus.OK);
-    }
+//    @DeleteMapping("/{followerId}/unfollow/{followingId}")
+//    public ResponseEntity<MessageResponse> unfollowUser(
+//            @PathVariable String followerId,
+//            @PathVariable String followingId) {
+//        service.unfollowUser(followerId, followingId);
+//        return new ResponseEntity<>(new MessageResponse("User unfollowed successfully"), HttpStatus.OK);
+//    }
 
 
 
@@ -115,7 +114,7 @@ public class UserController {
             @PathVariable String userId,
             @RequestParam String bookId) {
         service.addBookToFinishedList(userId, bookId);
-        return ResponseEntity.ok(new MessageResponse("Book added to finished list successfully"));
+        return ResponseEntity.ok(service.addBookToFinishedList(userId, bookId));
     }
 
     @PostMapping("/{userId}/books/want-to-read")
@@ -133,11 +132,6 @@ public class UserController {
         service.addBookToCurrentlyReadingList(userId, bookId);
         return ResponseEntity.ok(new MessageResponse("Book added to currently reading list successfully"));
     }
-
-
-
-
-
 
     @GetMapping("/{id}/following")
     public ResponseEntity<List<UserResponse>> getAllFollowingById(@PathVariable String id) {

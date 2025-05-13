@@ -1,7 +1,6 @@
 package com.project.readers_community.model.dto.request;
 
-import com.project.readers_community.model.document.Notification;
-import com.project.readers_community.model.document.NotificationType;
+import com.project.readers_community.model.enums.NotificationType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

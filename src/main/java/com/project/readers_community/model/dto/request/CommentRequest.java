@@ -12,13 +12,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CommentRequest {
-
+    @NotBlank(message = "Content is required")
     private String reviewId;
-
-    private String text;
-
-    private String postId;
-
+//    private String text;
+//    private String postId;
     @NotBlank(message = "Content is required")
     @Size(max = 500, message = "Comment content must be 500 characters or less")
     private String content;

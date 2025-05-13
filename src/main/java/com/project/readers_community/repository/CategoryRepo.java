@@ -16,6 +16,8 @@ public interface CategoryRepo {
 
     Category getByNameIfPresent(String name);
 
+    Category getByIdIgnoreStatus(String id);
+
     Category getByName(String name);
 
     Category getById(String id);

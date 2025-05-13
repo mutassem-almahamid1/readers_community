@@ -2,7 +2,7 @@ package com.project.readers_community.repository.impl;
 
 import com.project.readers_community.handelException.exception.NotFoundException;
 import com.project.readers_community.model.document.Comment;
-import com.project.readers_community.model.document.Status;
+import com.project.readers_community.model.enums.Status;
 import com.project.readers_community.repository.CommentRepo;
 import com.project.readers_community.repository.mongo.CommentRepoMongo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +30,14 @@ public class CommentRepoImpl implements CommentRepo {
     }
 
     @Override
-    public Optional<Comment> getByIdAndStatus(String id, Status status) {
+    public Optional<Comment> getByIdAndStatusIfPresent(String id, Status status) {
         return commentRepoMongo.findByIdAndStatus(id, status);
+    }
+
+    @Override
+    public Comment getByIdAndStatus(String id, Status status) {
+        return commentRepoMongo.findByIdAndStatus(id, status)
+                .orElseThrow(() -> new NotFoundException("Comment not found"));
     }
 
     @Override
@@ -44,15 +50,15 @@ public class CommentRepoImpl implements CommentRepo {
         return commentRepoMongo.findAllByReviewAndStatus(reviewId, Status.ACTIVE, pageRequest);
     }
 
-    @Override
-    public List<Comment> getByPostId(String postId) {
-      return commentRepoMongo.findAllByPostAndStatus(postId, Status.ACTIVE);
-    }
-
-    @Override
-    public Page<Comment> getByPostIdPaged(String postId, PageRequest pageRequest) {
-        return commentRepoMongo.findAllByPostAndStatus(postId, Status.ACTIVE, pageRequest);
-    }
+//    @Override
+//    public List<Comment> getByPostId(String postId) {
+//      return commentRepoMongo.findAllByPostAndStatus(postId, Status.ACTIVE);
+//    }
+//
+//    @Override
+//    public Page<Comment> getByPostIdPaged(String postId, PageRequest pageRequest) {
+//        return commentRepoMongo.findAllByPostAndStatus(postId, Status.ACTIVE, pageRequest);
+//    }
 
     @Override
     public List<Comment> getByUserId(String userId) {

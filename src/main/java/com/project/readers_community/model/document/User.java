@@ -1,5 +1,7 @@
 package com.project.readers_community.model.document;
 
+import com.project.readers_community.model.enums.Roles;
+import com.project.readers_community.model.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,13 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Document(collection = "users")
+@Document(collection = "user")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class User {
-
     @Id
     private String id;
     private String fullName;
@@ -29,14 +30,18 @@ public class User {
     private String email;
     private String password;
     private String profilePicture;
+    private String coverPicture;
     private String bio;
-    private Roles role = Roles.USER;
+    private Roles role;
+
     private List<String> wantToReadBooks = new ArrayList<>();
     private List<String> currentlyReadingBooks = new ArrayList<>();
     private List<String> finishedBooks = new ArrayList<>();
     private List<String> followers = new ArrayList<>();
     private List<String> following = new ArrayList<>();
-    private Status status= Status.ACTIVE;
+
+    private Status status;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;

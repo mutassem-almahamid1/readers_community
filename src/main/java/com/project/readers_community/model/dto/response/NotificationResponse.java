@@ -1,7 +1,6 @@
 package com.project.readers_community.model.dto.response;
 
-import com.project.readers_community.model.document.Notification;
-import com.project.readers_community.model.document.NotificationType;
+import com.project.readers_community.model.enums.NotificationType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

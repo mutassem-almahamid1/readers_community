@@ -1,4 +1,4 @@
-package com.project.readers_community.model.document;
+package com.project.readers_community.model.enums;
 
 public enum NotificationType {
     FOLLOW, // متابعة مستخدم

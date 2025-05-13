@@ -1,7 +1,7 @@
 package com.project.readers_community.repository.mongo;
 
 import com.project.readers_community.model.document.Review;
-import com.project.readers_community.model.document.Status;
+import com.project.readers_community.model.enums.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.repository.MongoRepository;

@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/books")
+@RequestMapping("/api/v1/book")
 public class BookController {
     @Autowired
     private BookService service;
 
-    @PostMapping("/Category")
+    @PostMapping("/category")
     public ResponseEntity<List<Book>> searchBooksByCategory(@RequestParam String category) {
         List<Book> book = service.searchBooksByCategory(category);
         return new ResponseEntity<>(book, HttpStatus.CREATED);
@@ -28,7 +28,7 @@ public class BookController {
 
     @PostMapping
     public ResponseEntity<BookResponse> createBook(@Valid @RequestBody BookRequest request, @RequestParam String addedByUserName) {
-        return ResponseEntity.ok(service.createById(request, addedByUserName));
+        return ResponseEntity.ok(service.create(request, addedByUserName));
     }
 
     @GetMapping("/{id}")
@@ -36,9 +36,9 @@ public class BookController {
         return ResponseEntity.ok(service.getById(id));
     }
 
-    @GetMapping("/name")
-    public ResponseEntity<BookResponse> getBookByName(@RequestParam String name) {
-        return ResponseEntity.ok(service.getByName(name));
+    @GetMapping("/title")
+    public ResponseEntity<BookResponse> getByTitle(@RequestParam String name) {
+        return ResponseEntity.ok(service.getByTitle(name));
     }
 
     @GetMapping
@@ -69,8 +69,6 @@ public class BookController {
             @RequestParam(defaultValue = "10") int limit) {
         return ResponseEntity.ok(service.getPersonalizedBookSuggestions(userId, limit));
     }
-
-
 
     @GetMapping("/page")
     public ResponseEntity<Page<BookResponse>> getAllBookByPage(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {

@@ -1,6 +1,6 @@
 package com.project.readers_community.service.impl;
 
-import com.project.readers_community.model.document.Status;
+import com.project.readers_community.model.enums.Status;
 import com.project.readers_community.mapper.CategoryMapper;
 import com.project.readers_community.model.common.MessageResponse;
 import com.project.readers_community.model.document.Category;
@@ -21,58 +21,47 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private CategoryRepo categoryRepo;
-    @Autowired
-    private CategoryMapper categoryMapper;
 
     @Override
     public CategoryResponse create(CategoryRequest request) {
 //        return this.categoryMapper.mapToResponse(this.categoryRepo.save(this.categoryMapper.mapToDocument(request)));
-        Category toDocument = this.categoryMapper.mapToDocument(request);
+        Category toDocument = CategoryMapper.mapToDocument(request);
         Category category = this.categoryRepo.save(toDocument);
-        CategoryResponse categoryResponse = this.categoryMapper.mapToResponse(category);
-        return categoryResponse;
+        return CategoryMapper.mapToResponse(category);
     }
 
     @Override
     public CategoryResponse getById(String id) {
         Category category = this.categoryRepo.getById(id);
-        CategoryResponse categoryResponse = this.categoryMapper.mapToResponse(category);
-        return categoryResponse;
+        return CategoryMapper.mapToResponse(category);
     }
 
     @Override
     public CategoryResponse getByName(String name) {
         Category category = this.categoryRepo.getByName(name);
-        CategoryResponse categoryResponse = this.categoryMapper.mapToResponse(category);
-        return categoryResponse;
+        return CategoryMapper.mapToResponse(category);
     }
-
-
 
     @Override
     public Category getByNameForImport(String name) {
-        Category category = this.categoryRepo.getByName(name);
-        return category;
+        return this.categoryRepo.getByName(name);
     }
-
 
     @Override
     public List<CategoryResponse> getByAll() {
         List<Category> categories = this.categoryRepo.getAll();
-        List<CategoryResponse> categoryResponses = categories
+        return categories
                 .stream()
-                .map(category -> this.categoryMapper.mapToResponse(category))
+                .map(CategoryMapper::mapToResponse)
                 .collect(Collectors.toList());
-        return categoryResponses;
     }
 
     @Override
     public Page<CategoryResponse> getByAllPage(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<Category> categories = this.categoryRepo.getAllPage(pageRequest);
-        Page<CategoryResponse> categoryResponses = categories
-                .map(category -> this.categoryMapper.mapToResponse(category));
-        return categoryResponses;
+        return categories
+                .map(CategoryMapper::mapToResponse);
     }
 
     @Override
@@ -80,11 +69,10 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = this.categoryRepo.getById(id);
         category.setName(request.getName().trim());
         category.setDescription(request.getDescription().trim());
-        category.setImgUrl(request.getCoverImage());
+        category.setImgUrl(request.getImgUrl());
         category.setUpdatedAt(LocalDateTime.now());
         Category categorySaved = this.categoryRepo.save(category);
-        CategoryResponse categoryResponse = this.categoryMapper.mapToResponse(categorySaved);
-        return categoryResponse;
+        return CategoryMapper.mapToResponse(categorySaved);
     }
 
     @Override
@@ -93,8 +81,7 @@ public class CategoryServiceImpl implements CategoryService {
         category.setStatus(Status.DELETED);
         category.setDeletedAt(LocalDateTime.now());
         Category categorySaved = this.categoryRepo.save(category);
-        CategoryResponse categoryResponse = this.categoryMapper.mapToResponse(categorySaved);
-        return categoryResponse;
+        return CategoryMapper.mapToResponse(categorySaved);
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.project.readers_community.repository.impl;
 
 import com.project.readers_community.handelException.exception.NotFoundException;
 import com.project.readers_community.model.document.Review;
-import com.project.readers_community.model.document.Status;
+import com.project.readers_community.model.enums.Status;
 import com.project.readers_community.repository.ReviewRepo;
 import com.project.readers_community.repository.mongo.ReviewRepoMongo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,6 @@ import java.util.Optional;
 
 @Repository
 public class ReviewRepoImpl implements ReviewRepo {
-
     @Autowired
     private ReviewRepoMongo repoMongo;
 

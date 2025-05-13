@@ -2,8 +2,8 @@ package com.project.readers_community.mapper;
 
 import com.project.readers_community.model.document.*;
 import com.project.readers_community.model.dto.request.PostRequest;
-import com.project.readers_community.model.dto.response.CommentResponse;
 import com.project.readers_community.model.dto.response.PostResponse;
+import com.project.readers_community.model.enums.Status;
 import com.project.readers_community.repository.BookRepo;
 import com.project.readers_community.repository.ReviewRepo;
 import com.project.readers_community.repository.UserRepo;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.stream.Collectors;
 
 @Component
 public class PostMapper {

@@ -1,8 +1,73 @@
+## Frontend files and folders
+### -------------------------
+# compiled output
+dist
+tmp
+out-tsc
+# Only exists if Bazel was run
+bazel-out
+
+# dependencies
+node_modules
+
+# profiling files
+chrome-profiler-events*.json
+speed-measure-plugin*.json
+
+# IDEs and editors
+.c9/
+*.launch
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# misc
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+yarn-error.log
+testem.log
+/typings
+
+## -----------------------------------
+
+##  Backend files and folders
+### -------------------------
+## Drawio source files ##
+*.drawio
+
+## Compiled class file
+*.class
+
+## Log file
+*.log
+
+## Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+## virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
 HELP.md
+db/
 target/
 !.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+!**/src/main/**
+!**/src/test/**
 
 ### STS ###
 .apt_generated
@@ -14,7 +79,7 @@ target/
 .sts4-cache
 
 ### IntelliJ IDEA ###
-.idea
+../.idea
 *.iws
 *.iml
 *.ipr
@@ -26,8 +91,16 @@ target/
 /nbdist/
 /.nb-gradle/
 build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
+### macOS & MS Windows related files ###
+.DS_Store
+Thumbs.db
+
+.mvn/
+mvnw
+mvnw.cmd
+
+IDE
+.idea/
 .vscode/
+.iml

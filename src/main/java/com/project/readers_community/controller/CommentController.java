@@ -1,6 +1,8 @@
 package com.project.readers_community.controller;
 
+import com.project.readers_community.model.common.MessageResponse;
 import com.project.readers_community.model.dto.request.CommentRequest;
+import com.project.readers_community.model.dto.request.UpdateCommentRequest;
 import com.project.readers_community.model.dto.response.CommentResponse;
 import com.project.readers_community.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +28,13 @@ public class CommentController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PostMapping("/post")
-    public ResponseEntity<CommentResponse> createCommentOnPost(
-            @RequestBody CommentRequest request,
-            @RequestParam String userId) {
-        CommentResponse response = commentService.createCommentOnPost(request, userId);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
+//    @PostMapping("/post")
+//    public ResponseEntity<CommentResponse> createCommentOnPost(
+//            @RequestBody CommentRequest request,
+//            @RequestParam String userId) {
+//        CommentResponse response = commentService.createCommentOnPost(request, userId);
+//        return new ResponseEntity<>(response, HttpStatus.CREATED);
+//    }
 
     @GetMapping("/{id}")
     public ResponseEntity<CommentResponse> getCommentById(@PathVariable String id) {
@@ -55,20 +57,20 @@ public class CommentController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/post/{postId}")
-    public ResponseEntity<List<CommentResponse>> getCommentsByPostId(@PathVariable String postId) {
-        List<CommentResponse> response = commentService.getCommentsByPostId(postId);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @GetMapping("/post/{postId}/paged")
-    public ResponseEntity<Page<CommentResponse>> getCommentsByPostIdPaged(
-            @PathVariable String postId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<CommentResponse> response = commentService.getCommentsByPostIdPaged(postId, page, size);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+//    @GetMapping("/post/{postId}")
+//    public ResponseEntity<List<CommentResponse>> getCommentsByPostId(@PathVariable String postId) {
+//        List<CommentResponse> response = commentService.getCommentsByPostId(postId);
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
+//
+//    @GetMapping("/post/{postId}/paged")
+//    public ResponseEntity<Page<CommentResponse>> getCommentsByPostIdPaged(
+//            @PathVariable String postId,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//        Page<CommentResponse> response = commentService.getCommentsByPostIdPaged(postId, page, size);
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
 
     @PostMapping("/{id}/like")
     public ResponseEntity<CommentResponse> likeComment(
@@ -81,27 +83,25 @@ public class CommentController {
     @PutMapping("/{id}/edit")
     public ResponseEntity<CommentResponse> editComment(
             @PathVariable String id,
-            @RequestBody CommentRequest request,
+            @RequestBody UpdateCommentRequest request,
             @RequestParam String userId) {
-        CommentResponse response = commentService.update(id,request, userId);
+        CommentResponse response = commentService.update(id, request, userId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 
-    @DeleteMapping("/{id}/softDelet")
-    public ResponseEntity<Void> softDeleteComment(
+    @DeleteMapping("/{id}/soft")
+    public ResponseEntity<MessageResponse> softDeleteComment(
             @PathVariable String id,
             @RequestParam String userId) {
-        commentService.softDeleteById(id, userId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(commentService.softDeleteById(id, userId), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}/hardDelet")
-    public ResponseEntity<Void> hardDeleteComment(
+    @DeleteMapping("/{id}/hard")
+    public ResponseEntity<MessageResponse> hardDeleteComment(
             @PathVariable String id,
             @RequestParam String userId) {
-        commentService.hardDeleteById(id, userId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(commentService.hardDeleteById(id, userId), HttpStatus.OK);
     }
 
 

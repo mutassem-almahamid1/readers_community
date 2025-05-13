@@ -2,7 +2,7 @@ package com.project.readers_community.repository.impl;
 
 import com.project.readers_community.handelException.exception.NotFoundException;
 import com.project.readers_community.model.document.Post;
-import com.project.readers_community.model.document.Status;
+import com.project.readers_community.model.enums.Status;
 import com.project.readers_community.repository.PostRepo;
 import com.project.readers_community.repository.mongo.PostRepoMongo;
 import org.springframework.beans.factory.annotation.Autowired;

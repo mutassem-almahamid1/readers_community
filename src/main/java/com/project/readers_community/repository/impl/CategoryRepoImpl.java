@@ -1,6 +1,6 @@
 package com.project.readers_community.repository.impl;
 
-import com.project.readers_community.model.document.Status;
+import com.project.readers_community.model.enums.Status;
 import com.project.readers_community.handelException.exception.NotFoundException;
 import com.project.readers_community.model.document.Category;
 import com.project.readers_community.repository.CategoryRepo;
@@ -41,6 +41,11 @@ public class CategoryRepoImpl implements CategoryRepo {
     @Override
     public Category getById(String id) {
         return repoMongo.findByIdAndStatus(id, Status.ACTIVE).orElseThrow(() -> new NotFoundException("Category not found"));
+    }
+
+    @Override
+    public Category getByIdIgnoreStatus(String id) {
+        return repoMongo.findById(id).orElseThrow(() -> new NotFoundException("Category not found"));
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.project.readers_community.repository.mongo;
 
-import com.project.readers_community.model.document.Status;
+import com.project.readers_community.model.enums.Status;
 import com.project.readers_community.model.document.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,11 +21,15 @@ public interface UserRepoMongo extends MongoRepository<User, String> {
 
     Optional<User> findByEmailAndStatus(String email, Status status);
 
+    Optional<User> findByEmailAndStatusNot(String email, Status status);
+
     Optional<User> findByUsernameAndStatus(String username, Status status);
 
-    List<User> findAllByStatus(Status status);
+    List<User> findAllByStatusNot(Status status);
 
-    Page<User> findAllByStatus(Status status, PageRequest pageRequest);
+    Page<User> findAllByStatusNot(Status status, PageRequest pageRequest);
+
+    List<User> findByIdInAndStatus(List<String> ids, Status status);
 
     List<User> findAllByIdInAndStatus(List<String> ids, Status status);
 

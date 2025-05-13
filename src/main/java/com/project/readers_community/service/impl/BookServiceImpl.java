@@ -3,13 +3,11 @@ package com.project.readers_community.service.impl;
 import com.project.readers_community.mapper.BookMapper;
 import com.project.readers_community.model.common.MessageResponse;
 import com.project.readers_community.model.document.Book;
-import com.project.readers_community.model.document.Category;
-import com.project.readers_community.model.document.Status;
+import com.project.readers_community.model.enums.Status;
 import com.project.readers_community.model.document.User;
 import com.project.readers_community.model.dto.request.BookRequest;
 import com.project.readers_community.model.dto.response.BookResponse;
 import com.project.readers_community.repository.BookRepo;
-import com.project.readers_community.repository.CategoryRepo;
 import com.project.readers_community.repository.UserRepo;
 import com.project.readers_community.service.BookService;
 import com.project.readers_community.service.CategoryService;
@@ -30,20 +28,14 @@ public class BookServiceImpl implements BookService {
     @Autowired
     private BookRepo bookRepo;
     @Autowired
-    private CategoryRepo categoryRepo;
-    @Autowired
     private UserRepo userRepo;
-    @Autowired
-    private BookMapper bookMapper;
-    private final String apiKey = "AIzaSyCCybPucK-_tphMJf6fowwNaLLFw-FY7sE";
-    private final String baseUrl = "https://www.googleapis.com/books/v1/volumes";
     @Autowired
     private RestTemplate restTemplate;
     @Autowired
     private CategoryService categoryService;
-    @Autowired
-    private CategoryServiceImpl categoryServiceImpl;
 
+    private final String apiKey = "AIzaSyCCybPucK-_tphMJf6fowwNaLLFw-FY7sE";
+    private final String baseUrl = "https://www.googleapis.com/books/v1/volumes";
 
     @Override
     public List<Book> searchBooksByCategory(String category) {
@@ -82,29 +74,30 @@ public class BookServiceImpl implements BookService {
 
 
     @Override
-    public BookResponse createById(BookRequest request, String addedById) {
-        Book book = bookMapper.mapToDocument(request, addedById);
+    public BookResponse create(BookRequest request, String addedById) {
+        Book book = BookMapper.mapToDocument(request, addedById);
+        this.categoryService.getById(book.getCategory());
         Book savedBook = bookRepo.save(book);
-        return bookMapper.mapToResponse(savedBook);
+        return BookMapper.mapToResponse(savedBook);
     }
 
     @Override
     public BookResponse getById(String id) {
         Book book = bookRepo.getById(id);
-        return bookMapper.mapToResponse(book);
+        return BookMapper.mapToResponse(book);
     }
 
     @Override
-    public BookResponse getByName(String name) {
-        Book book = bookRepo.getByName(name);
-        return bookMapper.mapToResponse(book);
+    public BookResponse getByTitle(String name) {
+        Book book = bookRepo.getByTitle(name);
+        return BookMapper.mapToResponse(book);
     }
 
     @Override
     public List<BookResponse> getByAll() {
         List<Book> books = bookRepo.getAll();
         return books.stream()
-                .map(bookMapper::mapToResponse)
+                .map(BookMapper::mapToResponse)
                 .collect(Collectors.toList());
     }
 
@@ -112,7 +105,7 @@ public class BookServiceImpl implements BookService {
     public Page<BookResponse> getByAllPage(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<Book> books = bookRepo.getAllPage(pageRequest);
-        return books.map(bookMapper::mapToResponse);
+        return books.map(BookMapper::mapToResponse);
     }
 
     @Override
@@ -127,7 +120,7 @@ public class BookServiceImpl implements BookService {
         }
         book.setUpdatedAt(LocalDateTime.now());
         Book updatedBook = bookRepo.save(book);
-        return bookMapper.mapToResponse(updatedBook);
+        return BookMapper.mapToResponse(updatedBook);
     }
 
     @Override
@@ -136,7 +129,7 @@ public class BookServiceImpl implements BookService {
         book.setStatus(Status.DELETED);
         book.setDeletedAt(LocalDateTime.now());
         Book updatedBook = bookRepo.save(book);
-        return bookMapper.mapToResponse(updatedBook);
+        return BookMapper.mapToResponse(updatedBook);
     }
 
     @Override
@@ -150,7 +143,7 @@ public class BookServiceImpl implements BookService {
     public List<BookResponse> getByCategory(String category) {
         Optional<Book> books=bookRepo.getAllByCategory(category);
         return books.stream()
-                .map(bookMapper::mapToResponse)
+                .map(BookMapper::mapToResponse)
                 .collect(Collectors.toList());
     }
 
@@ -158,7 +151,7 @@ public class BookServiceImpl implements BookService {
     public List<BookResponse> getBookSuggestions(int limit) {
         List<Book> books = bookRepo.findTopBooksByRatingAndReviews(limit);
         return books.stream()
-                .map(bookMapper::mapToResponse)
+                .map(BookMapper::mapToResponse)
                 .collect(Collectors.toList());
     }
 
@@ -166,7 +159,7 @@ public class BookServiceImpl implements BookService {
     public List<BookResponse> getTrendingBooks(int limit) {
         List<Book> books = bookRepo.findTrendingBooksForCurrentMonth(limit);
         return books.stream()
-                .map(bookMapper::mapToResponse)
+                .map(BookMapper::mapToResponse)
                 .collect(Collectors.toList());
     }
 
@@ -184,8 +177,16 @@ public class BookServiceImpl implements BookService {
 
         List<Book> suggestedBooks = bookRepo.findTopBooksByCategories(readCategories, limit);
         return suggestedBooks.stream()
-                .map(bookMapper::mapToResponse)
+                .map(BookMapper::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateBookReviewAndRating(String bookId, int reviewCount, double ratingTotal) {
+        Book book = bookRepo.getById(bookId);
+        book.setReviewCount(reviewCount);
+        book.setAvgRating(reviewCount > 0 ? (ratingTotal / reviewCount) : 0);
+        bookRepo.save(book);
     }
 
 

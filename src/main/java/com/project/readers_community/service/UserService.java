@@ -9,7 +9,6 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface UserService {
-
     UserResponse signUp(UserRequestSignIn request);
 
     UserResponse login(UserRequestLogin request);
@@ -42,16 +41,13 @@ public interface UserService {
 
     List<UserResponse> getAllFollowersById(String id);
 
-
-    void addBookToFinishedList(String userId, String bookId);
+    MessageResponse addBookToFinishedList(String userId, String bookId);
 
     void addBookToWantToReadList(String userId, String bookId);
 
     void addBookToCurrentlyReadingList(String userId, String bookId);
 
-
-
-    void followUser(String followerId, String followingId);
+    MessageResponse followUser(String followerId, String followingId);
 
     void unfollowUser(String followerId, String followingId);
 }

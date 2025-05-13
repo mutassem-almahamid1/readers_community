@@ -5,6 +5,7 @@ import com.project.readers_community.model.common.MessageResponse;
 import com.project.readers_community.model.document.*;
 import com.project.readers_community.model.dto.request.NotificationRequest;
 import com.project.readers_community.model.dto.response.NotificationResponse;
+import com.project.readers_community.model.enums.NotificationType;
 import com.project.readers_community.repository.NotificationRepo;
 import com.project.readers_community.repository.UserRepo;
 import com.project.readers_community.mapper.NotificationMapper;

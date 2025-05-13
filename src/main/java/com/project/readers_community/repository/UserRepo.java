@@ -17,9 +17,13 @@ public interface UserRepo {
 
     User getById(String id);
 
-    Optional<User> getByUsername(String username);
+    User getByUsername(String username);
 
-    Optional<User> getByEmail(String email);
+    Optional<User> getByUsernameIgnoreStatus(String username);
+
+    Optional<User> getByEmailIgnoreStatus(String email);
+
+    User getByEmail(String email);
 
     Optional<User> getByUsernameIfPresent(String username);
 
@@ -29,15 +33,17 @@ public interface UserRepo {
 
     Page<User> getAllPage(PageRequest pageRequest);
 
-    List<User> getAllFollowingById(String id);
+    List<User> getAllByIdIn(List<String> ids);
 
-    List<User> getAllFollowersById(String id);
-
-    void addBookToFinishedList(String userId, String bookId);
-
-    void addBookToWantToReadList(String userId, String bookId);
-
-    void addBookToCurrentlyReadingList(String userId, String bookId);
+//    List<User> getAllFollowingById(String id);
+//
+//    List<User> getAllFollowersById(String id);
+//
+//    void addBookToFinishedList(String userId, String bookId);
+//
+//    void addBookToWantToReadList(String userId, String bookId);
+//
+//    void addBookToCurrentlyReadingList(String userId, String bookId);
 
     void deleteById(String id);
 

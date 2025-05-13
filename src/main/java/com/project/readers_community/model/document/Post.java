@@ -1,8 +1,8 @@
 package com.project.readers_community.model.document;
 
+import com.project.readers_community.model.enums.Status;
 import lombok.*;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

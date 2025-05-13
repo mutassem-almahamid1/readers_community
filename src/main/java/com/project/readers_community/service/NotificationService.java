@@ -1,7 +1,7 @@
 package com.project.readers_community.service;
 
 import com.project.readers_community.model.common.MessageResponse;
-import com.project.readers_community.model.document.NotificationType;
+import com.project.readers_community.model.enums.NotificationType;
 import com.project.readers_community.model.dto.request.NotificationRequest;
 import com.project.readers_community.model.dto.response.NotificationResponse;
 import org.springframework.data.domain.Page;

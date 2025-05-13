@@ -1,18 +1,21 @@
 package com.project.readers_community.service.impl;
 
+import com.mongodb.DuplicateKeyException;
 import com.project.readers_community.handelException.exception.BadCredentialsException;
 import com.project.readers_community.handelException.exception.BadReqException;
 import com.project.readers_community.handelException.exception.ConflictException;
 import com.project.readers_community.handelException.exception.NotFoundException;
 import com.project.readers_community.mapper.UserMapper;
+import com.project.readers_community.mapper.helper.AssistantHelper;
 import com.project.readers_community.model.common.MessageResponse;
-import com.project.readers_community.model.document.NotificationType;
-import com.project.readers_community.model.document.Status;
+import com.project.readers_community.model.enums.NotificationType;
+import com.project.readers_community.model.enums.Status;
 import com.project.readers_community.model.document.User;
 import com.project.readers_community.model.dto.request.UserRequestLogin;
 import com.project.readers_community.model.dto.request.UserRequestSignIn;
 import com.project.readers_community.model.dto.response.UserResponse;
 import com.project.readers_community.repository.UserRepo;
+import com.project.readers_community.service.BookService;
 import com.project.readers_community.service.NotificationService;
 import com.project.readers_community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +32,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepo userRepo;
+
     @Autowired
-    private UserMapper userMapper;
+    private BookService bookService;
 
     @Autowired
     private NotificationService notificationService;
@@ -38,93 +42,93 @@ public class UserServiceImpl implements UserService {
 
 @Override
 public UserResponse signUp(UserRequestSignIn request) {
-
-    if (userRepo.getByUsername(request.getUsername().trim()).isPresent()) {
-        throw new ConflictException("Username is already in use");
-    }
-
     try {
-        User toDocument = this.userMapper.mapToDocument(request);
+        User toDocument = UserMapper.mapToDocument(request);
         User user = this.userRepo.save(toDocument);
-        return this.userMapper.mapToResponse(user);
+        return UserMapper.mapToResponse(user);
+    } catch (DuplicateKeyException ex) {
+        String message = ex.getMessage();
+
+        if (message.contains("username")) {
+            throw new ConflictException("Username '" + request.getUsername() + "' is already in use");
+        } else if (message.contains("email")) {
+            throw new ConflictException("Email '" + request.getEmail() + "' is already in use");
+        } else {
+            throw new ConflictException("Username or Email is already in use");
+        }
+
     } catch (Exception e) {
-        throw new ConflictException("Username '" + request.getUsername() + "' is already taken");
+        throw new ConflictException("Unexpected error occurred while signing up");
     }
 }
 
     @Override
     public UserResponse login(UserRequestLogin request) {
-        Optional<User> userOptional = userRepo.getByEmail(request.getEmail());
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            if (user.getPassword().equals(request.getPassword())) {
-                return userMapper.mapToResponse(user);
-            } else {
-                throw new BadCredentialsException("Invalid password");
-            }
-        } else {
-            throw new NotFoundException("User not found");
+        User user = userRepo.getByEmail(request.getEmail());
+        if (user.getStatus() == Status.BLOCKED){
+            throw new BadReqException("");
         }
+
+        if (!user.getPassword().equals(request.getPassword().trim())) {
+            throw new BadCredentialsException("Invalid password");
+        }
+
+        return UserMapper.mapToResponse(user);
     }
 
     @Override
     public UserResponse getById(String id) {
        User user = userRepo.getById(id);
-        return userMapper.mapToResponse(user);
+        return UserMapper.mapToResponse(user);
     }
 
     @Override
     public UserResponse getByIdIfPresent(String id) {
         Optional<User> user = userRepo.getByIdIfPresent(id);
-        return user.map(userMapper::mapToResponse)
+        return user.map(UserMapper::mapToResponse)
                 .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
     @Override
     public UserResponse getByUsernameIfPresent(String username) {
         Optional<User> user = userRepo.getByUsernameIfPresent(username);
-        return user.map(userMapper::mapToResponse)
+        return user.map(UserMapper::mapToResponse)
                 .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
 
     @Override
     public UserResponse getByUsername(String username) {
-        Optional<User> user = userRepo.getByUsername(username);
-        return user.map(userMapper::mapToResponse)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+        User user = userRepo.getByUsername(username);
+        return UserMapper.mapToResponse(user);
     }
 
 
     @Override
     public List<UserResponse> getAllFollowingById(String id) {
-        List<User> users = userRepo.getAllFollowingById(id);
-        List<UserResponse> userResponses = users
-                .stream()
-                .map(user->this.userMapper.mapToResponse(user))
-                .collect(Collectors.toList());
-        return userResponses;
+        User user = this.userRepo.getById(id);
+        List<User> users = userRepo.getAllByIdIn(user.getFollowing());
+       return users
+               .stream()
+               .map(UserMapper::mapToResponse)
+               .collect(Collectors.toList());
     }
 
 
     @Override
     public List<UserResponse> getAllFollowersById(String id) {
-        List<User> users = userRepo.getAllFollowersById(id);
-        List<UserResponse> userResponses = users
-                .stream()
-                .map(user->this.userMapper.mapToResponse(user))
-                .collect(Collectors.toList());
-        return userResponses;
+        User user = this.userRepo.getById(id);
+        List<User> users = userRepo.getAllByIdIn(user.getFollowers());
+       return users
+               .stream()
+               .map(UserMapper::mapToResponse)
+               .collect(Collectors.toList());
     }
 
     @Override
-    public void followUser(String followerId, String followingId) {
+    public MessageResponse followUser(String followerId, String followingId) {
         User follower = userRepo.getById(followerId);
         User following = userRepo.getById(followingId);
-
-        if (follower == null || following == null) {
-            throw new NotFoundException("User not found");
-        }
 
         // Don't allow following yourself
         if (followerId.equals(followingId)) {
@@ -135,23 +139,33 @@ public UserResponse signUp(UserRequestSignIn request) {
             follower.getFollowing().add(followingId);
             following.getFollowers().add(followerId);
 
-            if (notificationService != null) {
-                String message = follower.getUsername() + " started following you";
-                notificationService.createNotificationAsync(
-                        followingId,
-                        followerId,
-                        NotificationType.FOLLOW,
-                        message,
-                        null,
-                        null,
-                        null,
-                        null
-                );
-            }
+//            if (notificationService != null) {
+//                String message = follower.getUsername() + " started following you";
+//                notificationService.createNotificationAsync(
+//                        followingId,
+//                        followerId,
+//                        NotificationType.FOLLOW,
+//                        message,
+//                        null,
+//                        null,
+//                        null,
+//                        null
+//                );
+//            }
 
             userRepo.save(follower);
             userRepo.save(following);
+            return AssistantHelper.toMessageResponse("Following Successfully.");
+        } else {
+            follower.getFollowing().remove(followingId);
+            following.getFollowers().remove(followerId);
+
+            userRepo.save(follower);
+            userRepo.save(following);
+            return AssistantHelper.toMessageResponse("Unfollowing Successfully.");
         }
+
+
     }
 
 
@@ -175,20 +189,18 @@ public UserResponse signUp(UserRequestSignIn request) {
     @Override
     public List<UserResponse> getByAll() {
         List<User> users = userRepo.getAll();
-        List<UserResponse> userResponses = users
-                .stream()
-                .map(user->this.userMapper.mapToResponse(user))
-                .collect(Collectors.toList());
-        return userResponses;
+       return users
+               .stream()
+               .map(UserMapper::mapToResponse)
+               .collect(Collectors.toList());
     }
 
     @Override
     public Page<UserResponse> getByAllPage(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<User> userPage = userRepo.getAllPage(pageRequest);
-        Page<UserResponse> userResponsePage = userPage
-                .map(user -> this.userMapper.mapToResponse(user));
-        return userResponsePage;
+       return userPage
+               .map(UserMapper::mapToResponse);
     }
 
     @Override
@@ -198,9 +210,8 @@ public UserResponse signUp(UserRequestSignIn request) {
         user.setPassword(request.getPassword());
         user.setProfilePicture(request.getProfilePicture());
         user.setBio(request.getBio());
-        user.setRole(request.getRole());
         userRepo.save(user);
-        return userMapper.mapToResponse(userRepo.save(user));
+        return UserMapper.mapToResponse(userRepo.save(user));
     }
 
     @Override
@@ -208,7 +219,7 @@ public UserResponse signUp(UserRequestSignIn request) {
         User user = userRepo.getById(id);
         user.setStatus(Status.DELETED);
         userRepo.save(user);
-        return userMapper.mapToResponse(userRepo.save(user));
+        return UserMapper.mapToResponse(userRepo.save(user));
     }
 
     @Override
@@ -220,24 +231,35 @@ public UserResponse signUp(UserRequestSignIn request) {
 
 
     @Override
-    public void addBookToFinishedList(String userId, String bookId) {
-        userRepo.addBookToFinishedList(userId, bookId);
+    public MessageResponse addBookToFinishedList(String userId, String bookId) {
+        User user = this.userRepo.getById(userId);
+        this.bookService.getById(bookId);
+        boolean isAdded = false;
+        if (user.getFinishedBooks().contains(bookId)){
+            user.getFinishedBooks().remove(bookId);
+        } else {
+            isAdded = true;
+            user.getFinishedBooks().add(bookId);
+        }
+        return AssistantHelper.toMessageResponse(isAdded ? "Added Successfully." : "Removed Successfully.");
     }
 
     @Override
     public void addBookToWantToReadList(String userId, String bookId) {
-        userRepo.addBookToWantToReadList(userId, bookId);
+        return;
     }
 
     @Override
     public void addBookToCurrentlyReadingList(String userId, String bookId) {
-        userRepo.addBookToCurrentlyReadingList(userId, bookId);
+        return;
     }
 
 
+    ///  switch to book service ///
     @Override
     public List<String> getWantToReadBooks(String userId) {
        User user = userRepo.getById(userId);
+       user.getWantToReadBooks();
         return user.getWantToReadBooks() != null ? user.getWantToReadBooks() : List.of();
     }
 
@@ -252,6 +274,6 @@ public UserResponse signUp(UserRequestSignIn request) {
         User user = userRepo.getById(userId);
         return user.getCurrentlyReadingBooks() != null ? user.getCurrentlyReadingBooks() : List.of();
     }
-
+    /// end ///
 
 }

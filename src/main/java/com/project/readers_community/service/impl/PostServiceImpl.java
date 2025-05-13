@@ -5,7 +5,7 @@ import com.project.readers_community.handelException.exception.NotFoundException
 import com.project.readers_community.model.common.MessageResponse;
 import com.project.readers_community.model.document.Post;
 import com.project.readers_community.model.document.Review;
-import com.project.readers_community.model.document.Status;
+import com.project.readers_community.model.enums.Status;
 import com.project.readers_community.model.document.User;
 import com.project.readers_community.model.dto.request.PostRequest;
 import com.project.readers_community.model.dto.response.PostResponse;

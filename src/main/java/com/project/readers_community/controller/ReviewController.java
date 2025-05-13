@@ -3,6 +3,7 @@ package com.project.readers_community.controller;
 import com.project.readers_community.model.common.MessageResponse;
 import com.project.readers_community.model.dto.request.CommentRequest;
 import com.project.readers_community.model.dto.request.ReviewRequest;
+import com.project.readers_community.model.dto.request.UpdateReviewRequest;
 import com.project.readers_community.model.dto.response.CommentResponse;
 import com.project.readers_community.model.dto.response.ReviewResponse;
 import com.project.readers_community.service.ReviewService;
@@ -94,17 +95,17 @@ public class ReviewController {
     @PutMapping("/{id}")
     public ResponseEntity<ReviewResponse> updateReview(
             @PathVariable String id,
-            @RequestBody ReviewRequest request,
+            @RequestBody UpdateReviewRequest request,
             @RequestParam String userId) {
         ReviewResponse response = reviewService.update(id, request, userId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}/soft")
-    public ResponseEntity<ReviewResponse> softDeleteReview(
+    public ResponseEntity<MessageResponse> softDeleteReview(
             @PathVariable String id,
             @RequestParam String userId) {
-        ReviewResponse response = reviewService.softDeleteById(id, userId);
+        MessageResponse response = reviewService.softDeleteById(id, userId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

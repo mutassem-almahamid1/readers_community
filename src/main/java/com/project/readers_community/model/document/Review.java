@@ -1,5 +1,6 @@
 package com.project.readers_community.model.document;
 
+import com.project.readers_community.model.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 import java.util.*;
 
-@Document(collection = "reviews")
+@Document(collection = "review")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,30 +20,19 @@ import java.util.*;
 public class Review {
     @Id
     private String id;
-
-    @DBRef
     private String user;
-
-    @DBRef
     private String book;
-
-    private String content;
-
-    private int rating;
+    private String content;  // optional
+    private int rating;  // required
+    private Set<String> likedBy = new HashSet<>(); // المستخدمون الذين أعجبوا بالمراجعة
+    private int likeCount;
 
     private Status status;
 
     private LocalDateTime createdAt;
-
     private LocalDateTime updatedAt;
-
     private LocalDateTime deletedAt;
-
-
-    @Builder.Default
-    private Set<String> likedBy = new HashSet<>(); // المستخدمون الذين أعجبوا بالمراجعة
-    @Builder.Default
-    private List<String> comments = new ArrayList<>(); // قائمة التعليقات على المراجعة
+//    private List<String> comments = new ArrayList<>(); // قائمة التعليقات على المراجعة
 }
 
 

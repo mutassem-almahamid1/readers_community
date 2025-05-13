@@ -1,6 +1,6 @@
 package com.project.readers_community.model.dto.request;
 
-import com.project.readers_community.model.document.Roles;
+import com.project.readers_community.model.enums.Roles;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,9 +31,10 @@ public class UserRequestSignIn {
     private String password;
 
     private String profilePicture;
+    private String coverPicture;
 
     private String bio;
 
-    @NotNull(message = "Role is required")
-    private Roles role;
+//    @NotNull(message = "Role is required")
+//    private Roles role;
 }
