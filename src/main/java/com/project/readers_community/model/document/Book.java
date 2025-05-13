@@ -25,15 +25,15 @@ public class Book {
     private String title;
     private String author;
     private String description;
-    @DBRef
-    private Category category;
+
+    private String category;
     private String coverImage;
-    @DBRef
-    private List<Review> reviews = new ArrayList<>();
+
+    private List<String> reviews = new ArrayList<>();
     private int reviewCount = 0;
     private double avgRating = 0.0;
-    @DBRef
-    private User addedBy;
+
+    private String addedBy;
     private Status status=Status.ACTIVE;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

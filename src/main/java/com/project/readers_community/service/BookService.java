@@ -11,7 +11,7 @@ import java.util.List;
 public interface BookService {
     Book save(Book book);
 
-    BookResponse createByUserName(BookRequest request, String addedById);
+    BookResponse createById(BookRequest request, String addedById);
     BookResponse getById(String id);
     BookResponse getByName(String name);
     List<BookResponse> getByAll();

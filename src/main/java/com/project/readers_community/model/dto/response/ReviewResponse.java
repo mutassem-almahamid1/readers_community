@@ -23,7 +23,7 @@ public class ReviewResponse {
     private int rating;
     private int likeCount;
     private boolean likedByCurrentUser; // هل المستخدم الحالي أعجب بالمراجعة
-    private List<CommentResponse> comments;
+    private List<String> commentsId;
     private Status status;
     private LocalDateTime createdAt;
 }

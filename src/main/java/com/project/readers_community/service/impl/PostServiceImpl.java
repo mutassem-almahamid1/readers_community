@@ -1,5 +1,6 @@
 package com.project.readers_community.service.impl;
 
+import com.project.readers_community.handelException.exception.ForbiddenException;
 import com.project.readers_community.handelException.exception.NotFoundException;
 import com.project.readers_community.model.common.MessageResponse;
 import com.project.readers_community.model.document.Post;
@@ -36,14 +37,21 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostResponse create(PostRequest request, String userId) {
         User user = userRepo.getById(userId);
-
-        Review review = reviewRepo.getById(request.getReviewId());
-
-        if (!review.getUser().getId().equals(userId)) {
-            throw new RuntimeException("You can only create a post for your own review");
+        if (user == null) {
+            throw new NotFoundException("User not found");
         }
 
-        Post post = postMapper.mapToDocument(request, user, review);
+        Review review = reviewRepo.getById(request.getReviewId());
+        if (review == null) {
+            throw new NotFoundException("Review not found");
+        }
+
+
+        if (!review.getUser().equals(userId)) {
+            throw new ForbiddenException("You can only create a post for your own review");
+        }
+
+        Post post = postMapper.mapToDocument(request, userId, review.getId());
         Post savedPost = postRepo.save(post);
 
         return postMapper.mapToResponse(savedPost, userId);
@@ -89,7 +97,6 @@ public class PostServiceImpl implements PostService {
             }
             return null;
         });
-
     }
 
     @Override
@@ -103,7 +110,6 @@ public class PostServiceImpl implements PostService {
             return null;
         });
     }
-
 
     @Override
     public List<PostResponse> getByReviewId(String reviewId) {
@@ -135,7 +141,8 @@ public class PostServiceImpl implements PostService {
             throw new NotFoundException("User not found");
         }
 
-        post.getLikedBy().add(user);
+
+        post.getLikedBy().add(userId);
         Post updatedPost = postRepo.save(post);
 
         return postMapper.mapToResponse(updatedPost, userId);
@@ -146,17 +153,22 @@ public class PostServiceImpl implements PostService {
         Post post = postRepo.getByIdIfPresent(id)
                 .orElseThrow(() -> new NotFoundException("Post not found"));
 
-        if (!post.getUser().getId().equals(userId)) {
-            throw new RuntimeException("You can only update your own posts");
+
+        if (!post.getUser().equals(userId)) {
+            throw new ForbiddenException("You can only update your own posts");
         }
 
         Review newReview = reviewRepo.getById(request.getReviewId());
-
-        if (!newReview.getUser().getId().equals(userId)) {
-            throw new RuntimeException("You can only link a post to your own review");
+        if (newReview == null) {
+            throw new NotFoundException("Review not found");
         }
 
-        postMapper.updateDocument(post, request, newReview);
+
+        if (!newReview.getUser().equals(userId)) {
+            throw new ForbiddenException("You can only link a post to your own review");
+        }
+
+        postMapper.updateDocument(post, newReview.getId());
         Post updatedPost = postRepo.save(post);
 
         return postMapper.mapToResponse(updatedPost, userId);
@@ -169,8 +181,8 @@ public class PostServiceImpl implements PostService {
         if (post.getStatus() != Status.ACTIVE) {
             throw new NotFoundException("Post not found");
         }
-        if (!post.getUser().getId().equals(userId)) {
-            throw new RuntimeException("You can only delete your own posts");
+        if (!post.getUser().equals(userId)) {
+            throw new ForbiddenException("You can only delete your own posts");
         }
 
         post.setStatus(Status.DELETED);
@@ -188,8 +200,8 @@ public class PostServiceImpl implements PostService {
         if (post.getStatus() != Status.ACTIVE) {
             throw new NotFoundException("Post not found");
         }
-        if (!post.getUser().getId().equals(userId)) {
-            throw new RuntimeException("You can only delete your own posts");
+        if (!post.getUser().equals(userId)) {
+            throw new ForbiddenException("You can only delete your own posts");
         }
 
         postRepo.deleteById(id);

@@ -17,12 +17,19 @@ public interface UserRepoMongo extends MongoRepository<User, String> {
 
     Optional<User> findByUsername(String username);
 
+    Optional<User> findByEmail(String email);
+
+    Optional<User> findByEmailAndStatus(String email, Status status);
+
     Optional<User> findByUsernameAndStatus(String username, Status status);
 
     List<User> findAllByStatus(Status status);
 
     Page<User> findAllByStatus(Status status, PageRequest pageRequest);
 
+    List<User> findAllByIdInAndStatus(List<String> ids, Status status);
+
     List<User> findAllFollowingById(String id);
+
     List<User> findAllFollowersById(String id);
 }

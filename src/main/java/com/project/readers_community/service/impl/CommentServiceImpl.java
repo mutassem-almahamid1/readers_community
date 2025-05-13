@@ -1,5 +1,6 @@
 package com.project.readers_community.service.impl;
 
+import com.project.readers_community.handelException.exception.ForbiddenException;
 import com.project.readers_community.handelException.exception.NotFoundException;
 import com.project.readers_community.model.common.MessageResponse;
 import com.project.readers_community.model.document.*;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,18 +41,23 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentResponse createCommentOnReview(CommentRequest request, String userId) {
         User user = userRepo.getById(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
 
         Review review = reviewRepo.getById(request.getReviewId());
+        if (review == null) {
+            throw new NotFoundException("Review not found");
+        }
 
-        Comment comment = commentMapper.mapToDocument(request, user, review, null);
+        Comment comment = commentMapper.mapToDocument(request, userId);
         Comment savedComment = commentRepo.save(comment);
 
-        // إنشاء إشعار إذا كان المستخدم مختلفًا عن صاحب المراجعة
-        if (!review.getUser().getId().equals(userId)) {
+        if (!review.getUser().equals(userId)) {
             String message = user.getUsername() + " commented on your review.";
-            String bookId = review.getBook() != null ? review.getBook().getId() : null;
+            String bookId = review.getBook();
             notificationService.createNotificationAsync(
-                    review.getUser().getId(),
+                    review.getUser(),
                     userId,
                     NotificationType.COMMENT_ON_REVIEW,
                     message,
@@ -67,18 +74,24 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentResponse createCommentOnPost(CommentRequest request, String userId) {
         User user = userRepo.getById(userId);
-        Post post = postRepo.getById(request.getReviewId());
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
+        
+        Post post = postRepo.getById(request.getPostId());
+        if (post == null) {
+            throw new NotFoundException("Post not found");
+        }
 
-        Comment comment = commentMapper.mapToDocument(request, user, null, post);
+        Comment comment = commentMapper.mapToDocument(request, userId);
         Comment savedComment = commentRepo.save(comment);
 
-        // إنشاء إشعار إذا كان المستخدم مختلفًا عن صاحب المنشور
-        if (!post.getUser().getId().equals(userId)) {
+        if (!post.getUser().equals(userId)) {
             String message = user.getUsername() + " commented on your post.";
             notificationService.createNotificationAsync(
-                    post.getUser().getId(),
+                    post.getUser(),
                     userId,
-                    NotificationType.COMMENT_ON_REVIEW,
+                    NotificationType.COMMENT_ON_POST,
                     message,
                     post.getId(),
                     savedComment.getId(),
@@ -113,7 +126,6 @@ public class CommentServiceImpl implements CommentService {
                 commentMapper.mapToResponse(comment, null));
     }
 
-
     @Override
     public List<CommentResponse> getCommentsByPostId(String postId) {
         List<Comment> comments = commentRepo.getByPostId(postId);
@@ -121,7 +133,6 @@ public class CommentServiceImpl implements CommentService {
                .map(comment -> commentMapper.mapToResponse(comment, null))
                .collect(Collectors.toList());
     }
-
 
     @Override
     public Page<CommentResponse> getCommentsByPostIdPaged(String postId, int page, int size) {
@@ -143,8 +154,8 @@ public class CommentServiceImpl implements CommentService {
     public CommentResponse update(String id, CommentRequest request, String userId) {
         Comment comment = commentRepo.getByIdAndStatus(id, Status.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Comment not found"));
-        if (!comment.getUser().getId().equals(userId)) {
-            throw new RuntimeException("You can only update your own comments");
+        if (!comment.getUser().equals(userId)) {
+            throw new ForbiddenException("You can only update your own comments");
         }
         commentMapper.updateDocument(comment, request);
         Comment updatedComment = commentRepo.save(comment);
@@ -155,8 +166,8 @@ public class CommentServiceImpl implements CommentService {
     public CommentResponse softDeleteById(String id, String userId) {
         Comment comment = commentRepo.getByIdAndStatus(id, Status.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Comment not found"));
-        if (!comment.getUser().getId().equals(userId)) {
-            throw new RuntimeException("You can only delete your own comments");
+        if (!comment.getUser().equals(userId)) {
+            throw new ForbiddenException("You can only delete your own comments");
         }
         comment.setStatus(Status.DELETED);
         comment.setDeletedAt(LocalDateTime.now());
@@ -168,8 +179,8 @@ public class CommentServiceImpl implements CommentService {
     public MessageResponse hardDeleteById(String id, String userId) {
         Comment comment = commentRepo.getByIdAndStatus(id, Status.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Comment not found"));
-        if (!comment.getUser().getId().equals(userId)) {
-            throw new RuntimeException("You can only delete your own comments");
+        if (!comment.getUser().equals(userId)) {
+            throw new ForbiddenException("You can only delete your own comments");
         }
         commentRepo.deleteById(id);
         return MessageResponse.builder().message("Comment deleted successfully").build();
@@ -183,17 +194,22 @@ public class CommentServiceImpl implements CommentService {
         if (user == null) {
             throw new NotFoundException("User not found");
         }
-        comment.getLikedBy().add(user);
-        comment.setLikeCount(comment.getLikeCount() + 1);
+        
+        if (comment.getLikedBy() == null) {
+            comment.setLikedBy(new HashSet<>());
+        }
+        
+        comment.getLikedBy().add(userId);
+        comment.setLikeCount(comment.getLikedBy().size());
         Comment updatedComment = commentRepo.save(comment);
 
-        // إنشاء إشعار إذا كان المستخدم مختلفًا عن صاحب التعليق
-        if (!comment.getUser().getId().equals(userId)) {
+
+        if (!comment.getUser().equals(userId)) {
             String message = user.getUsername() + " liked your comment.";
-            String reviewId = comment.getReview() != null ? comment.getReview().getId() : null;
-            String postId = comment.getPost()!= null? comment.getPost().getId() : null;
+            String reviewId = comment.getReview();
+            String postId = comment.getPost();
             notificationService.createNotificationAsync(
-                    comment.getUser().getId(),
+                    comment.getUser(),
                     userId,
                     NotificationType.LIKE_COMMENT,
                     message,
@@ -206,7 +222,4 @@ public class CommentServiceImpl implements CommentService {
 
         return commentMapper.mapToResponse(updatedComment, userId);
     }
-
-
-
 }

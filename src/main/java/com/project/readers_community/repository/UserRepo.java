@@ -19,7 +19,11 @@ public interface UserRepo {
 
     Optional<User> getByUsername(String username);
 
+    Optional<User> getByEmail(String email);
+
     Optional<User> getByUsernameIfPresent(String username);
+
+    Optional<User> getByEmailIfPresent(String email);
 
     List<User> getAll();
 
@@ -35,10 +39,7 @@ public interface UserRepo {
 
     void addBookToCurrentlyReadingList(String userId, String bookId);
 
-
-
     void deleteById(String id);
 
     void delete(User user);
 }
-

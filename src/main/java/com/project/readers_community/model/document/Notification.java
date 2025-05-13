@@ -16,32 +16,27 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class Notification {
+
     @Id
     private String id;
 
-    @DBRef
-    private User recipient; // المستخدم الذي سيتلقى الإشعار
+    private String recipient;
 
-    @DBRef
-    private User triggerUser; // المستخدم الذي أثار الإشعار
+    private String triggerUser;
 
-    private NotificationType type; // نوع الإشعار
+    private NotificationType type;
 
-    private String message; // نص الإشعار
+    private String message;
 
-    @DBRef
-    private Review review; // المراجعة المرتبطة (إن وجدت)
+    private String review;
 
-    @DBRef
-    private Comment comment; // التعليق المرتبط (إن وجد)
+    private String comment;
 
-    @DBRef
-    private Book book; // الكتاب المرتبط (إن وجد)
+    private String book;
 
-    @DBRef
-    private Post post; // المنشور المرتبط (إن وجد، مثل إعجاب بمنشور)
+    private String post;
 
-    private boolean isRead; // حالة الإشعار (مقروء أم غير مقروء)
+    private boolean isRead;
 
     private LocalDateTime createdAt;
 

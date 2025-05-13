@@ -32,8 +32,7 @@ public class BookRequest {
     @NotNull(message = "category is required.")
     @NotEmpty(message = "category must be not empty.")
     @NotBlank(message = "category must be not blank.")
-    private String categoryId;
-
+    private String category;
 
     private String coverImageUrl;
 

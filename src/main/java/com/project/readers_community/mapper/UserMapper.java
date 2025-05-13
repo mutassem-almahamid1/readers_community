@@ -14,10 +14,12 @@ public class UserMapper {
 
     public User mapToDocument(UserRequestSignIn request) {
         return User.builder()
-                .username(request.getUsername())
+                .fullName(request.getFullName().trim())
+                .username(request.getUsername().trim())
+                .email(request.getEmail().trim())
                 .password(request.getPassword())
-                .profilePicture(request.getProfilePicture())
-                .bio(request.getBio())
+                .profilePicture(request.getProfilePicture() != null ? request.getProfilePicture().trim() : null)
+                .bio(request.getBio() != null ? request.getBio().trim() : null)
                 .role(request.getRole())
                 .status(Status.ACTIVE)
                 .createdAt(LocalDateTime.now())
@@ -26,15 +28,15 @@ public class UserMapper {
 
     public User mapToDocument(UserRequestLogin request) {
         return User.builder()
-                .username(request.getUsername())
+                .email(request.getEmail().trim())
                 .password(request.getPassword())
-                .createdAt(LocalDateTime.now())
                 .build();
     }
 
     public UserResponse mapToResponse(User document) {
         return UserResponse.builder()
                 .id(document.getId())
+                .fullName(document.getFullName())
                 .username(document.getUsername())
                 .profilePicture(document.getProfilePicture())
                 .bio(document.getBio())

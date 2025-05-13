@@ -22,8 +22,11 @@ public class User {
 
     @Id
     private String id;
+    private String fullName;
     @Indexed(unique = true)
     private String username;
+    @Indexed(unique = true)
+    private String email;
     private String password;
     private String profilePicture;
     private String bio;

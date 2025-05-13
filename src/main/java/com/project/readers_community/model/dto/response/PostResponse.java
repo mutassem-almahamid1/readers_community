@@ -25,7 +25,7 @@ public class PostResponse {
     private int rating;
     private int likeCount;
     private boolean likedByCurrentUser;
-    private List<CommentResponse> comments;
+    private List<String> comments;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;

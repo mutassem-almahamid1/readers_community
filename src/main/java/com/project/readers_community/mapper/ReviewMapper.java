@@ -7,6 +7,8 @@ import com.project.readers_community.model.document.User;
 import com.project.readers_community.model.dto.request.ReviewRequest;
 import com.project.readers_community.model.dto.response.CommentResponse;
 import com.project.readers_community.model.dto.response.ReviewResponse;
+import com.project.readers_community.repository.UserRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -17,10 +19,13 @@ import java.util.stream.Collectors;
 @Component
 public class ReviewMapper {
 
-    public Review mapToDocument(ReviewRequest request, User user, Book book) {
+    @Autowired
+    private UserRepo userRepo;
+
+    public Review mapToDocument(ReviewRequest request, String userId) {
         return Review.builder()
-                .user(user)
-                .book(book)
+                .user(userId)
+                .book(request.getBookId())
                 .content(request.getContent() != null ? request.getContent().trim() : null)
                 .rating(request.getRating())
                 .status(Status.ACTIVE)
@@ -30,33 +35,29 @@ public class ReviewMapper {
                 .build();
     }
 
-    public ReviewResponse mapToResponse(Review review, String userId) {
-        boolean likedByCurrentUser = review.getLikedBy() != null && userId != null &&
-                review.getLikedBy().stream().anyMatch(user -> user.getId().equals(userId));
+    public ReviewResponse mapToResponse(Review review, String currentUserId) {
+        User user = userRepo.getById(review.getUser());
 
+        boolean likedByCurrentUser = review.getLikedBy() != null && currentUserId != null &&
+                review.getLikedBy().contains(currentUserId);
 
         return ReviewResponse.builder()
                 .id(review.getId())
+                .userId(review.getUser())
+                .username(user != null ? user.getUsername() : null)
+                .bookId(review.getBook())
                 .content(review.getContent())
                 .rating(review.getRating())
-                .username(review.getUser() != null ? review.getUser().getUsername() : null)
-                .bookId(review.getBook() != null ? review.getBook().getId() : null)
-                .createdAt(review.getCreatedAt())
                 .likeCount(review.getLikedBy() != null ? review.getLikedBy().size() : 0)
                 .likedByCurrentUser(likedByCurrentUser)
-                .comments(review.getComments() != null ? review.getComments().stream()
-                        .map(comment -> CommentResponse.builder()
-                                .id(comment.getId())
-                                .content(comment.getContent())
-                                .username(comment.getUser() != null ? comment.getUser().getUsername() : null)
-                                .createdAt(comment.getCreatedAt())
-                                .build())
-                        .collect(Collectors.toList()) : new ArrayList<>())
+                .commentsId(review.getComments())
+                .status(review.getStatus())
+                .createdAt(review.getCreatedAt())
                 .build();
     }
 
-    public void updateDocument(Review review, ReviewRequest request, Book book) {
-        review.setBook(book);
+    public void updateDocument(Review review, ReviewRequest request) {
+        review.setBook(request.getBookId());
         review.setContent(request.getContent() != null ? request.getContent().trim() : null);
         review.setRating(request.getRating());
         review.setUpdatedAt(LocalDateTime.now());

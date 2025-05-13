@@ -8,5 +8,6 @@ public enum NotificationType {
     RATING_ON_BOOK, // تقييم لكتاب
     LIKE_POST, // إعجاب بمنشور
     LIKE_REVIEW,
+    COMMENT_ON_POST,
 
 }

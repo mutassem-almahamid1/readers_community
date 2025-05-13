@@ -1,5 +1,7 @@
 package com.project.readers_community.service.impl;
 
+import com.project.readers_community.handelException.exception.BadReqException;
+import com.project.readers_community.handelException.exception.ForbiddenException;
 import com.project.readers_community.handelException.exception.NotFoundException;
 import com.project.readers_community.model.common.MessageResponse;
 import com.project.readers_community.model.document.Book;
@@ -56,19 +58,19 @@ public class ReviewServiceImpl implements ReviewService {
             throw new NotFoundException("Book not found");
         }
 
-        Review review = reviewMapper.mapToDocument(request, user, book);
+        Review review = reviewMapper.mapToDocument(request, userId);
         Review savedReview = reviewRepo.save(review);
 
-        updateBookReviewStats(book);
+        updateBookReviewStats(review.getBook());
         PostRequest postRequest = new PostRequest(review.getId());
         postServiceImpl.create(postRequest, userId);
 
         // إنشاء إشعار إذا كان المستخدم مختلفًا عن صاحب الكتاب
-        if (!book.getAddedBy().getId().equals(userId)) {
+        if (!book.getAddedBy().equals(userId)) {
             String message = user.getUsername() + "Reviewed your book.";
-            String bookId = review.getBook() != null ? review.getBook().getId() : null;
+            String bookId = review.getBook() ;
             notificationService.createNotificationAsync(
-                    review.getUser().getId(),
+                    review.getUser(),
                     userId,
                     NotificationType.REVIEW_ON_BOOK,
                     message,
@@ -167,14 +169,14 @@ public class ReviewServiceImpl implements ReviewService {
             throw new NotFoundException("User not found");
         }
 
-        review.getLikedBy().add(user);
+        review.getLikedBy().add(userId);
         Review updatedReview = reviewRepo.save(review);
 
-        if (!review.getUser().getId().equals(userId)) {
+        if (!review.getUser().equals(userId)) {
             String message = user.getUsername() + " liked your review.";
-            String bookId = review.getBook() != null ? review.getBook().getId() : null;
+            String bookId = review.getBook() ;
             notificationService.createNotificationAsync(
-                    review.getUser().getId(),
+                    review.getUser(),
                     userId,
                     NotificationType.LIKE_REVIEW,
                     message,
@@ -195,8 +197,8 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepo.getByIdIfPresent(id)
                 .orElseThrow(() -> new NotFoundException("Review not found"));
 
-        if (!review.getUser().getId().equals(userId)) {
-            throw new RuntimeException("You can only update your own reviews");
+        if (!review.getUser().equals(userId)) {
+            throw new ForbiddenException("You can only update your own reviews");
         }
 
         Book book = bookRepo.getById(request.getBookId());
@@ -204,10 +206,10 @@ public class ReviewServiceImpl implements ReviewService {
             throw new NotFoundException("Book not found");
         }
 
-        reviewMapper.updateDocument(review, request, book);
+        reviewMapper.updateDocument(review, request);
         Review updatedReview = reviewRepo.save(review);
 
-        updateBookReviewStats(book);
+        updateBookReviewStats(review.getBook());
 
         return reviewMapper.mapToResponse(updatedReview, userId);
     }
@@ -217,8 +219,8 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepo.getByIdIfPresent(id)
                 .orElseThrow(() -> new NotFoundException("Review not found"));
 
-        if (!review.getUser().getId().equals(userId)) {
-            throw new RuntimeException("You can only delete your own reviews");
+        if (!review.getUser().equals(userId)) {
+            throw new ForbiddenException("You can only delete your own reviews");
         }
 
         review.setStatus(Status.DELETED);
@@ -236,8 +238,8 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepo.getByIdIfPresent(id)
                 .orElseThrow(() -> new NotFoundException("Review not found"));
 
-        if (!review.getUser().getId().equals(userId)) {
-            throw new RuntimeException("You can only delete your own reviews");
+        if (!review.getUser().equals(userId)) {
+            throw new ForbiddenException("You can only delete your own reviews");
         }
 
         reviewRepo.deleteById(id);
@@ -247,13 +249,14 @@ public class ReviewServiceImpl implements ReviewService {
         return MessageResponse.builder().message("Review deleted successfully").build();
     }
 
-    private void updateBookReviewStats(Book book) {
-        List<Review> activeReviews = reviewRepo.findByBookId(book.getId())
+    private void updateBookReviewStats(String bookId) {
+        List<Review> activeReviews = reviewRepo.findByBookId(bookId)
                 .stream()
                 .filter(review -> review.getStatus() == Status.ACTIVE)
                 .collect(Collectors.toList());
 
         int reviewCount = activeReviews.size();
+        Book book = bookRepo.getById(bookId);
         book.setReviewCount(reviewCount);
 
         double avgRating = reviewCount > 0

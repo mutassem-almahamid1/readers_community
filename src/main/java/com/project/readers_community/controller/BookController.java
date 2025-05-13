@@ -28,7 +28,7 @@ public class BookController {
 
     @PostMapping
     public ResponseEntity<BookResponse> createBook(@Valid @RequestBody BookRequest request, @RequestParam String addedByUserName) {
-        return ResponseEntity.ok(service.createByUserName(request, addedByUserName));
+        return ResponseEntity.ok(service.createById(request, addedByUserName));
     }
 
     @GetMapping("/{id}")

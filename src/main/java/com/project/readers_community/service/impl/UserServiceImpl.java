@@ -1,5 +1,8 @@
 package com.project.readers_community.service.impl;
 
+import com.project.readers_community.handelException.exception.BadCredentialsException;
+import com.project.readers_community.handelException.exception.BadReqException;
+import com.project.readers_community.handelException.exception.ConflictException;
 import com.project.readers_community.handelException.exception.NotFoundException;
 import com.project.readers_community.mapper.UserMapper;
 import com.project.readers_community.model.common.MessageResponse;
@@ -37,7 +40,7 @@ public class UserServiceImpl implements UserService {
 public UserResponse signUp(UserRequestSignIn request) {
 
     if (userRepo.getByUsername(request.getUsername().trim()).isPresent()) {
-        throw new RuntimeException("Username is already in use");
+        throw new ConflictException("Username is already in use");
     }
 
     try {
@@ -45,22 +48,22 @@ public UserResponse signUp(UserRequestSignIn request) {
         User user = this.userRepo.save(toDocument);
         return this.userMapper.mapToResponse(user);
     } catch (Exception e) {
-        throw new RuntimeException("Username '" + request.getUsername() + "' is already taken");
+        throw new ConflictException("Username '" + request.getUsername() + "' is already taken");
     }
 }
 
     @Override
     public UserResponse login(UserRequestLogin request) {
-        Optional<User> userOptional = userRepo.getByUsername(request.getUsername());
+        Optional<User> userOptional = userRepo.getByEmail(request.getEmail());
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             if (user.getPassword().equals(request.getPassword())) {
                 return userMapper.mapToResponse(user);
             } else {
-                throw new RuntimeException("Invalid password");
+                throw new BadCredentialsException("Invalid password");
             }
         } else {
-            throw new RuntimeException("User not found");
+            throw new NotFoundException("User not found");
         }
     }
 
@@ -74,14 +77,14 @@ public UserResponse signUp(UserRequestSignIn request) {
     public UserResponse getByIdIfPresent(String id) {
         Optional<User> user = userRepo.getByIdIfPresent(id);
         return user.map(userMapper::mapToResponse)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
     @Override
     public UserResponse getByUsernameIfPresent(String username) {
         Optional<User> user = userRepo.getByUsernameIfPresent(username);
         return user.map(userMapper::mapToResponse)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
 
@@ -89,7 +92,7 @@ public UserResponse signUp(UserRequestSignIn request) {
     public UserResponse getByUsername(String username) {
         Optional<User> user = userRepo.getByUsername(username);
         return user.map(userMapper::mapToResponse)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
 
@@ -123,22 +126,26 @@ public UserResponse signUp(UserRequestSignIn request) {
             throw new NotFoundException("User not found");
         }
 
+        // Don't allow following yourself
+        if (followerId.equals(followingId)) {
+            throw new BadReqException("Cannot follow yourself");
+        }
+
         if (!follower.getFollowing().contains(followingId)) {
             follower.getFollowing().add(followingId);
             following.getFollowers().add(followerId);
 
-            // Create notification when a user follows another user
-            if (notificationService != null) { // Ensure notificationService is not null
+            if (notificationService != null) {
                 String message = follower.getUsername() + " started following you";
                 notificationService.createNotificationAsync(
-                        followingId, // Recipient
-                        followerId,  // Trigger user
+                        followingId,
+                        followerId,
                         NotificationType.FOLLOW,
                         message,
-                        null, // No review
-                        null, // No comment
-                        null, // No book
-                        null  // No post
+                        null,
+                        null,
+                        null,
+                        null
                 );
             }
 

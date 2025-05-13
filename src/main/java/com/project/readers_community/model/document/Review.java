@@ -21,10 +21,10 @@ public class Review {
     private String id;
 
     @DBRef
-    private User user;
+    private String user;
 
     @DBRef
-    private Book book;
+    private String book;
 
     private String content;
 
@@ -40,9 +40,9 @@ public class Review {
 
 
     @Builder.Default
-    private Set<User> likedBy = new HashSet<>(); // المستخدمون الذين أعجبوا بالمراجعة
+    private Set<String> likedBy = new HashSet<>(); // المستخدمون الذين أعجبوا بالمراجعة
     @Builder.Default
-    private List<Comment> comments = new ArrayList<>(); // قائمة التعليقات على المراجعة
+    private List<String> comments = new ArrayList<>(); // قائمة التعليقات على المراجعة
 }
 
 

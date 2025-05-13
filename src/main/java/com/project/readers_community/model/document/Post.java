@@ -18,17 +18,14 @@ import java.util.Set;
 public class Post {
     @Id
     private String id;
-    @DBRef
-    private Review review;
-    @DBRef
-    private User user;
+    private String review;
+    private String user;
     private Status status;
-    private Set<User> likedBy = new HashSet<>();;
+    private Set<String> likedBy = new HashSet<>();
     private String content;
     private int rating;
-    private List<Comment> comments = new ArrayList<>();;
+    private List<String> comments = new ArrayList<>();
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
-
 }

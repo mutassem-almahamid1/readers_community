@@ -17,6 +17,7 @@ import java.util.List;
 @Builder
 public class UserResponse {
     private String id;
+    private String fullName;
     private String username;
     private String profilePicture;
     private String bio;

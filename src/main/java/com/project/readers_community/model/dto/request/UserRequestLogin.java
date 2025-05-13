@@ -1,9 +1,6 @@
 package com.project.readers_community.model.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,11 +12,10 @@ import lombok.NoArgsConstructor;
 public class UserRequestLogin {
 
 
-    @NotBlank(message = "Username is required")
-    @NotNull(message = "Username is required")
-    @NotEmpty(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
-    private String username;
+    @NotBlank(message = "Email is required")
+    @Size(min = 7, max = 50, message = "Email must be between 3 and 50 characters")
+    @Email(message = "Email should be valid")
+    private String email;
 
     @NotBlank(message = "Password is required")
     @NotNull(message = "Password is required")

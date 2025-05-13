@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -22,19 +21,19 @@ public class Comment {
     @Id
     private String id;
 
-    @DBRef
-    private User user;
 
-    @DBRef
-    private Review review;
+    private String user;
 
-    @DBRef
-    private Post post;
+
+    private String review;
+
+
+    private String post;
 
     private String content;
 
-    @DBRef
-    private Set<User> likedBy = new HashSet<>();
+
+    private Set<String> likedBy = new HashSet<>();
 
     private int likeCount;
 

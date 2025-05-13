@@ -65,7 +65,7 @@ public class BookServiceImpl implements BookService {
                             .coverImage(volumeInfo.getImageLinks() != null ? volumeInfo.getImageLinks().getThumbnail() : null)
                             .createdAt(LocalDateTime.now())
                             .status(Status.ACTIVE)
-                            .category(categoryServiceImpl.getByNameForImport(category))
+                            .category(category)
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -82,10 +82,8 @@ public class BookServiceImpl implements BookService {
 
 
     @Override
-    public BookResponse createByUserName(BookRequest request, String addedByUserName) {
-        Category category = categoryRepo.getById(request.getCategoryId());
-        Optional<User> addedBy = userRepo.getByUsername(addedByUserName);
-        Book book = bookMapper.mapToDocument(request, category, addedBy.orElse(null));
+    public BookResponse createById(BookRequest request, String addedById) {
+        Book book = bookMapper.mapToDocument(request, addedById);
         Book savedBook = bookRepo.save(book);
         return bookMapper.mapToResponse(savedBook);
     }
@@ -124,9 +122,8 @@ public class BookServiceImpl implements BookService {
         book.setAuthor(request.getAuthor().trim());
         book.setDescription(request.getDescription() != null ? request.getDescription().trim() : null);
         book.setCoverImage(request.getCoverImageUrl() != null ? request.getCoverImageUrl().trim() : null);
-        if (request.getCategoryId() != null && !request.getCategoryId().equals(book.getCategory().getId())) {
-            Category category = categoryRepo.getById(request.getCategoryId());
-            book.setCategory(category);
+        if (request.getCategory() != null && !request.getCategory().equals(book.getCategory())) {
+            book.setCategory(request.getCategory());
         }
         book.setUpdatedAt(LocalDateTime.now());
         Book updatedBook = bookRepo.save(book);

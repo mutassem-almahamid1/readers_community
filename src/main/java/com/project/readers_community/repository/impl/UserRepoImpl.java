@@ -59,6 +59,16 @@ public class UserRepoImpl implements UserRepo {
     }
 
     @Override
+    public Optional<User> getByEmail(String email) {
+        return repoMongo.findByEmail(email);
+    }
+
+    @Override
+    public Optional<User> getByEmailIfPresent(String email) {
+        return repoMongo.findByEmailAndStatus(email, Status.ACTIVE);
+    }
+
+    @Override
     public List<User> getAll() {
         return repoMongo.findAllByStatus(Status.ACTIVE);
     }
@@ -87,6 +97,7 @@ public class UserRepoImpl implements UserRepo {
             user.getFinishedBooks().add(bookId);
             book.setReaderCount(book.getReaderCount() + 1);
             repoMongo.save(user);
+            bookRepo.save(book);
         }
     }
 
