@@ -15,8 +15,8 @@ public interface PostRepoMongo extends MongoRepository<Post, String> {
     Optional<Post> findByIdAndStatus(String id, Status status);
     List<Post> findAllByStatus(Status status);
     Page<Post> findAllByStatus(Status status, PageRequest pageRequest);
-    List<Post> findAllByUserIdAndStatus(String userId, Status status);
-    Page<Post> findAllByUserIdAndStatus(String userId, Status status, PageRequest pageRequest);
-    List<Post> findAllByReviewIdAndStatus(String reviewId, Status status);
-    Page<Post> findAllByReviewIdAndStatus(String reviewId, Status status, PageRequest pageRequest);
+    List<Post> findAllByUserAndStatus(String user, Status status);
+    Page<Post> findAllByUserAndStatus(String user, Status status, PageRequest pageRequest);
+    List<Post> findAllByReviewAndStatus(String review, Status status);
+    Page<Post> findAllByReviewAndStatus(String review, Status status, PageRequest pageRequest);
 }

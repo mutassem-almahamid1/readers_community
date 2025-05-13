@@ -26,6 +26,8 @@ public class NotificationServiceImpl implements NotificationService {
     private UserRepo userRepo;
     @Autowired
     private NotificationMapper notificationMapper;
+    @Autowired
+    private WebSocketNotificationService webSocketNotificationService;
 
     @Async
     @Override
@@ -36,7 +38,6 @@ public class NotificationServiceImpl implements NotificationService {
         if (userRepo.getById(recipientId) == null || userRepo.getById(triggerUserId) == null) {
             return;
         }
-
 
         NotificationRequest request = new NotificationRequest();
         request.setRecipientId(recipientId);
@@ -49,7 +50,14 @@ public class NotificationServiceImpl implements NotificationService {
         request.setPostId(postId);
 
         // Create the notification
-        create(request);
+        NotificationResponse notification = create(request);
+        
+        // Send real-time notification via WebSocket
+        webSocketNotificationService.sendNotification(recipientId, notification);
+        
+        // Update unread count
+        long unreadCount = notificationRepo.getUnreadByRecipientId(recipientId).size();
+        webSocketNotificationService.sendNotificationCount(recipientId, unreadCount);
     }
 
     @Override
@@ -136,6 +144,12 @@ public class NotificationServiceImpl implements NotificationService {
                 .orElseThrow(() -> new NotFoundException("Notification not found"));
         notification.setRead(true);
         Notification updatedNotification = notificationRepo.save(notification);
+        
+        // Update unread count via WebSocket
+        String recipientId = notification.getRecipient();
+        long unreadCount = notificationRepo.getUnreadByRecipientId(recipientId).size();
+        webSocketNotificationService.sendNotificationCount(recipientId, unreadCount);
+        
         return notificationMapper.mapToResponse(updatedNotification);
     }
 }

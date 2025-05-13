@@ -36,27 +36,27 @@ public class CommentRepoImpl implements CommentRepo {
 
     @Override
     public List<Comment> getByReviewId(String reviewId) {
-        return commentRepoMongo.findAllByReviewIdAndStatus(reviewId, Status.ACTIVE);
+        return commentRepoMongo.findAllByReviewAndStatus(reviewId, Status.ACTIVE);
     }
 
     @Override
     public Page<Comment> getByReviewIdPaged(String reviewId, PageRequest pageRequest) {
-        return commentRepoMongo.findAllByReviewIdAndStatus(reviewId, Status.ACTIVE, pageRequest);
+        return commentRepoMongo.findAllByReviewAndStatus(reviewId, Status.ACTIVE, pageRequest);
     }
 
     @Override
     public List<Comment> getByPostId(String postId) {
-      return commentRepoMongo.findAllByPostIdAndStatus(postId, Status.ACTIVE);
+      return commentRepoMongo.findAllByPostAndStatus(postId, Status.ACTIVE);
     }
 
     @Override
     public Page<Comment> getByPostIdPaged(String postId, PageRequest pageRequest) {
-        return commentRepoMongo.findAllByPostIdAndStatus(postId, Status.ACTIVE, pageRequest);
+        return commentRepoMongo.findAllByPostAndStatus(postId, Status.ACTIVE, pageRequest);
     }
 
     @Override
     public List<Comment> getByUserId(String userId) {
-        return commentRepoMongo.findAllByUserIdAndStatus(userId, Status.ACTIVE);
+        return commentRepoMongo.findAllByUserAndStatus(userId, Status.ACTIVE);
     }
 
     @Override

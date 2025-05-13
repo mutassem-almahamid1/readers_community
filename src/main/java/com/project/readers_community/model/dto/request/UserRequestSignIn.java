@@ -34,6 +34,6 @@ public class UserRequestSignIn {
 
     private String bio;
 
-    @NotBlank( message = "Role is required")
+    @NotNull(message = "Role is required")
     private Roles role;
 }

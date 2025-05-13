@@ -91,7 +91,7 @@ public List<Book> findTrendingBooksForCurrentMonth(int limit) {
 
 @Override
 public List<Book> findTopBooksByCategories(List<String> categoryIds, int limit) {
-    List<Book> books = repoMongo.findTopByStatusAndCategoryIdInOrderByAvgRatingDescReviewCountDesc(Status.ACTIVE, categoryIds);
+    List<Book> books = repoMongo.findTopByStatusAndCategoryInOrderByAvgRatingDescReviewCountDesc(Status.ACTIVE, categoryIds);
     return books.size() > limit ? books.subList(0, limit) : books;
 }
 }

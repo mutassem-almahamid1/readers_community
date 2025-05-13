@@ -29,17 +29,17 @@ public class NotificationRepoImpl implements NotificationRepo {
 
     @Override
     public List<Notification> getByRecipientId(String recipientId) {
-        return notificationRepoMongo.findByRecipientId(recipientId);
+        return notificationRepoMongo.findByRecipient(recipientId);
     }
 
     @Override
     public Page<Notification> getByRecipientId(String recipientId, PageRequest pageRequest) {
-        return notificationRepoMongo.findByRecipientId(recipientId, pageRequest);
+        return notificationRepoMongo.findByRecipient(recipientId, pageRequest);
     }
 
     @Override
     public List<Notification> getUnreadByRecipientId(String recipientId) {
-        return notificationRepoMongo.findByRecipientIdAndIsRead(recipientId, false);
+        return notificationRepoMongo.findByRecipientAndIsRead(recipientId, false);
     }
 
     @Override

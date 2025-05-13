@@ -24,7 +24,6 @@ public class ReviewRepoImpl implements ReviewRepo {
         return repoMongo.save(review);
     }
 
-
     @Override
     public Optional<Review> getByIdIfPresent(String id) {
         return repoMongo.findByIdAndStatus(id, Status.ACTIVE);
@@ -58,22 +57,21 @@ public class ReviewRepoImpl implements ReviewRepo {
 
     @Override
     public List<Review> findByBookId(String bookId) {
-        return repoMongo.findAllByBookIdAndStatus(bookId, Status.ACTIVE);
+        return repoMongo.findAllByBookAndStatus(bookId, Status.ACTIVE);
     }
 
     @Override
     public Page<Review> findByBookIdPage(String bookId, PageRequest pageRequest) {
-        return repoMongo.findAllByBookIdAndStatus(bookId, Status.ACTIVE, pageRequest);
+        return repoMongo.findAllByBookAndStatus(bookId, Status.ACTIVE, pageRequest);
     }
 
     @Override
     public List<Review> findByUserId(String userId) {
-        return repoMongo.findAllByUserIdAndStatus(userId, Status.ACTIVE);
+        return repoMongo.findAllByUserAndStatus(userId, Status.ACTIVE);
     }
 
     @Override
     public Page<Review> findByUserIdPage(String userId, PageRequest pageRequest) {
-        return repoMongo.findAllByUserIdAndStatus(userId, Status.ACTIVE, pageRequest);
+        return repoMongo.findAllByUserAndStatus(userId, Status.ACTIVE, pageRequest);
     }
-
 }

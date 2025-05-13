@@ -13,9 +13,9 @@ import java.util.Optional;
 @Repository
 public interface CommentRepoMongo extends MongoRepository<Comment, String> {
     Optional<Comment> findByIdAndStatus(String id, Status status);
-    List<Comment> findAllByReviewIdAndStatus(String reviewId, Status status);
-    Page<Comment> findAllByReviewIdAndStatus(String reviewId,Status status, PageRequest pageRequest);
-    List<Comment> findAllByPostIdAndStatus(String postId, Status status);
-    Page<Comment> findAllByPostIdAndStatus(String postId,Status status, PageRequest pageRequest);
-    List<Comment> findAllByUserIdAndStatus(String userId, Status status);
+    List<Comment> findAllByReviewAndStatus(String review, Status status);
+    Page<Comment> findAllByReviewAndStatus(String review, Status status, PageRequest pageRequest);
+    List<Comment> findAllByPostAndStatus(String post, Status status);
+    Page<Comment> findAllByPostAndStatus(String post, Status status, PageRequest pageRequest);
+    List<Comment> findAllByUserAndStatus(String user, Status status);
 }

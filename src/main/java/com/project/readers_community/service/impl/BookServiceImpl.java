@@ -174,13 +174,15 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<BookResponse> getPersonalizedBookSuggestions(String userId, int limit) {
         User user = userRepo.getById(userId);
-        List<String> readCategoryIds = user.getFinishedBooks();
 
-        if (readCategoryIds.isEmpty()) {
+        // Use finishedBooks directly as they are already the category values (strings)
+        List<String> readCategories = user.getFinishedBooks();
+
+        if (readCategories.isEmpty()) {
             return getBookSuggestions(limit);
         }
 
-        List<Book> suggestedBooks = bookRepo.findTopBooksByCategories(readCategoryIds, limit);
+        List<Book> suggestedBooks = bookRepo.findTopBooksByCategories(readCategories, limit);
         return suggestedBooks.stream()
                 .map(bookMapper::mapToResponse)
                 .collect(Collectors.toList());

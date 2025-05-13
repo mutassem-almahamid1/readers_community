@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface NotificationRepoMongo extends MongoRepository<Notification, String> {
-    List<Notification> findByRecipientIdAndIsRead(String recipientId, boolean isRead);
-    Page<Notification> findByRecipientId(String recipientId, PageRequest pageRequest);
-    List<Notification> findByRecipientId(String recipientId);
+    List<Notification> findByRecipientAndIsRead(String recipient, boolean isRead);
+    Page<Notification> findByRecipient(String recipient, PageRequest pageRequest);
+    List<Notification> findByRecipient(String recipient);
 }
