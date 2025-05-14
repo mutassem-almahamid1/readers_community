@@ -29,7 +29,7 @@ public interface ReviewService {
 
     ReviewResponse likeReview(String id, String userId);
 
-    ReviewResponse update(String id, UpdateReviewRequest request, String userId);
+    MessageResponse update(String id, UpdateReviewRequest request, String userId);
 
     MessageResponse softDeleteById(String id, String userId);
 

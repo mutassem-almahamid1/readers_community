@@ -23,9 +23,9 @@ public interface UserService {
 
     Page<UserResponse> getByAllPage(int page, int size);
 
-    UserResponse update(String id, UserRequestSignIn request);
+    MessageResponse update(String id, UserRequestSignIn request);
 
-    UserResponse softDeleteById(String id);
+    MessageResponse softDeleteById(String id);
 
     MessageResponse hardDeleteById(String id);
 
@@ -43,9 +43,9 @@ public interface UserService {
 
     MessageResponse addBookToFinishedList(String userId, String bookId);
 
-    void addBookToWantToReadList(String userId, String bookId);
+    MessageResponse addBookToWantToReadList(String userId, String bookId);
 
-    void addBookToCurrentlyReadingList(String userId, String bookId);
+    MessageResponse addBookToCurrentlyReadingList(String userId, String bookId);
 
     MessageResponse followUser(String followerId, String followingId);
 

@@ -21,9 +21,9 @@ public interface CategoryService {
 
     Page<CategoryResponse> getByAllPage(int page, int size);
 
-    CategoryResponse update(String id, CategoryRequest request);
+    MessageResponse update(String id, CategoryRequest request);
 
-    CategoryResponse softDeleteById(String id);
+    MessageResponse softDeleteById(String id);
 
     MessageResponse hardDeleteById(String id);
 }

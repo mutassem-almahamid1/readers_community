@@ -25,9 +25,9 @@ public interface CommentService {
 
    List<CommentResponse> getByUserId(String userId);
 
-   CommentResponse update(String id, UpdateCommentRequest request, String userId);
+   MessageResponse update(String id, UpdateCommentRequest request, String userId);
 
-    MessageResponse softDeleteById(String id, String userId);
+   MessageResponse softDeleteById(String id, String userId);
 
    MessageResponse hardDeleteById(String id, String userId);
 

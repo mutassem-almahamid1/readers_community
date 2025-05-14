@@ -65,24 +65,23 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryResponse update(String id, CategoryRequest request) {
+    public MessageResponse update(String id, CategoryRequest request) {
         Category category = this.categoryRepo.getById(id);
         category.setName(request.getName().trim());
         category.setDescription(request.getDescription().trim());
         category.setImgUrl(request.getImgUrl());
         category.setUpdatedAt(LocalDateTime.now());
         Category categorySaved = this.categoryRepo.save(category);
-        return CategoryMapper.mapToResponse(categorySaved);
+        return MessageResponse.builder().message("Category Updated successfully.").build();
     }
 
     @Override
-    public CategoryResponse softDeleteById(String id) {
+    public MessageResponse softDeleteById(String id) {
         Category category = this.categoryRepo.getById(id);
         category.setStatus(Status.DELETED);
         category.setDeletedAt(LocalDateTime.now());
         Category categorySaved = this.categoryRepo.save(category);
-        return CategoryMapper.mapToResponse(categorySaved);
-    }
+        return MessageResponse.builder().message("Category deleted successfully.").build();    }
 
     @Override
     public MessageResponse hardDeleteById(String id) {

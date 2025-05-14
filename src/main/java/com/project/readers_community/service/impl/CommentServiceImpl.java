@@ -146,14 +146,14 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentResponse update(String id, UpdateCommentRequest request, String userId) {
+    public MessageResponse update(String id, UpdateCommentRequest request, String userId) {
         Comment comment = commentRepo.getByIdAndStatus(id, Status.ACTIVE);
         if (!comment.getUser().equals(userId)) {
             throw new BadReqException("You can only update your own comments");
         }
         CommentMapper.updateDocument(comment, request);
         Comment updatedComment = commentRepo.save(comment);
-        return CommentMapper.mapToResponse(updatedComment);
+        return AssistantHelper.toMessageResponse("Comment updated successfully");
     }
 
     @Override

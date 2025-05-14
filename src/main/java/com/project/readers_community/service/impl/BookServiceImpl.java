@@ -109,7 +109,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BookResponse update(String id, BookRequest request) {
+    public MessageResponse update(String id, BookRequest request) {
         Book book = bookRepo.getById(id);
         book.setTitle(request.getTitle().trim());
         book.setAuthor(request.getAuthor().trim());
@@ -120,16 +120,16 @@ public class BookServiceImpl implements BookService {
         }
         book.setUpdatedAt(LocalDateTime.now());
         Book updatedBook = bookRepo.save(book);
-        return BookMapper.mapToResponse(updatedBook);
+        return  MessageResponse.build().message("Book updated successfully.").build();
     }
 
     @Override
-    public BookResponse softDeleteById(String id) {
+    public MessageResponse softDeleteById(String id) {
         Book book = bookRepo.getById(id);
         book.setStatus(Status.DELETED);
         book.setDeletedAt(LocalDateTime.now());
         Book updatedBook = bookRepo.save(book);
-        return BookMapper.mapToResponse(updatedBook);
+        return MessageResponse.build().message("Book deleted successfully.").build();
     }
 
     @Override
@@ -182,11 +182,12 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void updateBookReviewAndRating(String bookId, int reviewCount, double ratingTotal) {
+    public MessageResponse updateBookReviewAndRating(String bookId, int reviewCount, double ratingTotal) {
         Book book = bookRepo.getById(bookId);
         book.setReviewCount(reviewCount);
         book.setAvgRating(reviewCount > 0 ? (ratingTotal / reviewCount) : 0);
         bookRepo.save(book);
+         MessageResponse.build().message("Review updated successfully.").build();
     }
 
 

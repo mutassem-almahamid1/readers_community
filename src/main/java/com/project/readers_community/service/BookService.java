@@ -21,9 +21,9 @@ public interface BookService {
 
     Page<BookResponse> getByAllPage(int page, int size);
 
-    BookResponse update(String id, BookRequest request);
+    MessageResponse update(String id, BookRequest request);
 
-    BookResponse softDeleteById(String id);
+    MessageResponse softDeleteById(String id);
 
     MessageResponse hardDeleteById(String id);
 
@@ -37,5 +37,5 @@ public interface BookService {
 
     List<BookResponse> getPersonalizedBookSuggestions(String userId, int limit);
 
-    void updateBookReviewAndRating(String bookId, int reviewCount, double ratingTotal);
+    MessageResponse updateBookReviewAndRating(String bookId, int reviewCount, double ratingTotal);
 }

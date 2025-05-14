@@ -165,7 +165,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public ReviewResponse update(String id, UpdateReviewRequest request, String userId) {
+    public MessageResponse update(String id, UpdateReviewRequest request, String userId) {
         Review review = reviewRepo.getById(id);
 
         if (!review.getUser().equals(userId)) {
@@ -177,7 +177,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         updateBookReviewStats(review.getBook());
 
-        return ReviewMapper.mapToResponse(updatedReview);
+        return AssistantHelper.toMessageResponse("Review Updated successfully");
     }
 
     @Override

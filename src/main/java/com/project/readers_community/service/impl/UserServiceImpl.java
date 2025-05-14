@@ -204,29 +204,29 @@ public UserResponse signUp(UserRequestSignIn request) {
     }
 
     @Override
-    public UserResponse update(String id, UserRequestSignIn request) {
+    public MessageResponse update(String id, UserRequestSignIn request) {
         User user = userRepo.getById(id);
         user.setUsername(request.getUsername());
         user.setPassword(request.getPassword());
         user.setProfilePicture(request.getProfilePicture());
         user.setBio(request.getBio());
         userRepo.save(user);
-        return UserMapper.mapToResponse(userRepo.save(user));
+        return new MessageResponse("User updated successfuly.")
     }
 
     @Override
-    public UserResponse softDeleteById(String id) {
+    public MessageResponse softDeleteById(String id) {
         User user = userRepo.getById(id);
         user.setStatus(Status.DELETED);
         userRepo.save(user);
-        return UserMapper.mapToResponse(userRepo.save(user));
+        return new MessageResponse("User deleted successfully.");
     }
 
     @Override
     public MessageResponse hardDeleteById(String id) {
         User user = userRepo.getById(id);
         userRepo.delete(user);
-        return new MessageResponse("User deleted successfully");
+        return new MessageResponse("User deleted successfully.");
     }
 
 
