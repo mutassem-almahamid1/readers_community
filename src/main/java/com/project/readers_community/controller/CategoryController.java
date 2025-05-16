@@ -45,12 +45,12 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CategoryResponse> updateCategory(@PathVariable String id, @Valid @RequestBody CategoryRequest request) {
+    public ResponseEntity<MessageResponse> updateCategory(@PathVariable String id, @Valid @RequestBody CategoryRequest request) {
         return ResponseEntity.ok(this.service.update(id, request));
     }
 
     @DeleteMapping("/soft/{id}")
-    public ResponseEntity<CategoryResponse> softDeleteCategoryById(@PathVariable String id) {
+    public ResponseEntity<MessageResponse> softDeleteCategoryById(@PathVariable String id) {
         return ResponseEntity.ok(this.service.softDeleteById(id));
     }
 

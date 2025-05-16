@@ -15,11 +15,11 @@ import java.util.List;
 public class UserMapper {
     public static User mapToDocument(UserRequestSignIn request) {
         return User.builder()
-                .fullName(request.getFullName().trim())
-                .username(request.getUsername().trim())
-                .email(request.getEmail().trim())
+                .fullName(AssistantHelper.trimString(request.getFullName()))
+                .username(AssistantHelper.trimString(request.getUsername()))
+                .email(AssistantHelper.trimString(request.getEmail()))
                 .password(request.getPassword())
-                .profilePicture(request.getProfilePicture() != null ? request.getProfilePicture().trim() : null)
+                .profilePicture(AssistantHelper.trimString(request.getProfilePicture()))
                 .coverPicture(AssistantHelper.trimString(request.getCoverPicture()))
                 .bio(request.getBio() != null ? request.getBio().trim() : null)
                 .role(Roles.USER)

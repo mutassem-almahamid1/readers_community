@@ -1,5 +1,6 @@
 package com.project.readers_community.mapper;
 
+import com.project.readers_community.mapper.helper.AssistantHelper;
 import com.project.readers_community.model.document.Book;
 import com.project.readers_community.model.document.Category;
 import com.project.readers_community.model.dto.response.BookResponseWithDetails;
@@ -19,12 +20,12 @@ import java.time.LocalDateTime;
 public class BookMapper {
     public static Book mapToDocument(BookRequest request, String addedBy) {
         return Book.builder()
-                .title(request.getTitle().trim())
-                .author(request.getAuthor().trim())
-                .description(request.getDescription() != null ? request.getDescription().trim() : null)
-                .category(request.getCategory() != null ? request.getCategory().trim() : null)
-                .coverImage(request.getCoverImageUrl() != null ? request.getCoverImageUrl().trim() : null)
-                .addedBy(addedBy.trim())
+                .title(AssistantHelper.trimString(request.getTitle()))
+                .author(AssistantHelper.trimString(request.getAuthor()))
+                .description(AssistantHelper.trimString(request.getDescription()))
+                .category(AssistantHelper.trimString(request.getCategory()))
+                .coverImage(AssistantHelper.trimString(request.getCoverImageUrl()))
+                .addedBy(AssistantHelper.trimString(addedBy))
                 .status(Status.ACTIVE)
                 .createdAt(LocalDateTime.now())
                 .build();

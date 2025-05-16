@@ -23,9 +23,7 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @PostMapping("/create")
-    public ResponseEntity<ReviewResponse> createReview(
-            @RequestBody ReviewRequest request,
-            @RequestParam String userId) {
+    public ResponseEntity<ReviewResponse> createReview(@RequestBody ReviewRequest request, @RequestParam String userId) {
         ReviewResponse response = reviewService.create(request, userId);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -43,31 +41,22 @@ public class ReviewController {
     }
 
     @GetMapping("/paged/allReviews")
-    public ResponseEntity<Page<ReviewResponse>> getAllReviewsPaged(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<ReviewResponse>> getAllReviewsPaged(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         Page<ReviewResponse> response = reviewService.getAllPage(page, size);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/paged/book/{bookId}")
-    public ResponseEntity<Page<ReviewResponse>> getReviewsByBookIdPaged(
-            @PathVariable String bookId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<ReviewResponse>> getReviewsByBookIdPaged(@PathVariable String bookId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         Page<ReviewResponse> response = reviewService.getByBookIdPage(bookId, page, size);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/paged/user/{userId}")
-    public ResponseEntity<Page<ReviewResponse>> getReviewsByUserIdPaged(
-            @PathVariable String userId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<ReviewResponse>> getReviewsByUserIdPaged(@PathVariable String userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         Page<ReviewResponse> response = reviewService.getByUserIdPage(userId, page, size);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
 
 
     @GetMapping("/book/{bookId}")
@@ -83,36 +72,26 @@ public class ReviewController {
     }
 
     @PostMapping("/{id}/like")
-    public ResponseEntity<ReviewResponse> likeReview(
-            @PathVariable String id,
-            @RequestParam String userId) {
+    public ResponseEntity<ReviewResponse> likeReview(@PathVariable String id, @RequestParam String userId) {
         ReviewResponse response = reviewService.likeReview(id, userId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 
-
     @PutMapping("/{id}")
-    public ResponseEntity<ReviewResponse> updateReview(
-            @PathVariable String id,
-            @RequestBody UpdateReviewRequest request,
-            @RequestParam String userId) {
-        ReviewResponse response = reviewService.update(id, request, userId);
+    public ResponseEntity<MessageResponse> updateReview(@PathVariable String id, @RequestBody UpdateReviewRequest request, @RequestParam String userId) {
+        MessageResponse response = reviewService.update(id, request, userId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}/soft")
-    public ResponseEntity<MessageResponse> softDeleteReview(
-            @PathVariable String id,
-            @RequestParam String userId) {
+    public ResponseEntity<MessageResponse> softDeleteReview(@PathVariable String id, @RequestParam String userId) {
         MessageResponse response = reviewService.softDeleteById(id, userId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}/hard")
-    public ResponseEntity<MessageResponse> hardDeleteReview(
-            @PathVariable String id,
-            @RequestParam String userId) {
+    public ResponseEntity<MessageResponse> hardDeleteReview(@PathVariable String id, @RequestParam String userId) {
         MessageResponse response = reviewService.hardDeleteById(id, userId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

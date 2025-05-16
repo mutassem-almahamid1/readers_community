@@ -211,7 +211,7 @@ public UserResponse signUp(UserRequestSignIn request) {
         user.setProfilePicture(request.getProfilePicture());
         user.setBio(request.getBio());
         userRepo.save(user);
-        return new MessageResponse("User updated successfuly.")
+        return new MessageResponse("User updated successfully.");
     }
 
     @Override
@@ -245,13 +245,34 @@ public UserResponse signUp(UserRequestSignIn request) {
     }
 
     @Override
-    public void addBookToWantToReadList(String userId, String bookId) {
-        return;
+    public MessageResponse addBookToWantToReadList(String userId, String bookId) {
+
+        User user = this.userRepo.getById(userId);
+        this.bookService.getById(bookId);
+        boolean isAdded = false;
+        if (user.getWantToReadBooks().contains(bookId)){
+            user.getWantToReadBooks().remove(bookId);
+        } else {
+            isAdded = true;
+            user.getWantToReadBooks().add(bookId);
+        }
+        return AssistantHelper.toMessageResponse(isAdded ? "Added Successfully." : "Removed Successfully.");
+
     }
 
     @Override
-    public void addBookToCurrentlyReadingList(String userId, String bookId) {
-        return;
+    public MessageResponse addBookToCurrentlyReadingList(String userId, String bookId) {
+        User user = this.userRepo.getById(userId);
+        this.bookService.getById(bookId);
+        boolean isAdded = false;
+        if (user.getCurrentlyReadingBooks().contains(bookId)){
+            user.getCurrentlyReadingBooks().remove(bookId);
+        } else {
+            isAdded = true;
+            user.getCurrentlyReadingBooks().add(bookId);
+        }
+        return AssistantHelper.toMessageResponse(isAdded ? "Added Successfully." : "Removed Successfully.");
+
     }
 
 

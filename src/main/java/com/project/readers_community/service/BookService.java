@@ -38,4 +38,5 @@ public interface BookService {
     List<BookResponse> getPersonalizedBookSuggestions(String userId, int limit);
 
     MessageResponse updateBookReviewAndRating(String bookId, int reviewCount, double ratingTotal);
+
 }

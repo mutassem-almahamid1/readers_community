@@ -1,6 +1,7 @@
 package com.project.readers_community.service.impl;
 
 import com.project.readers_community.mapper.BookMapper;
+import com.project.readers_community.mapper.helper.AssistantHelper;
 import com.project.readers_community.model.common.MessageResponse;
 import com.project.readers_community.model.document.Book;
 import com.project.readers_community.model.enums.Status;
@@ -120,7 +121,7 @@ public class BookServiceImpl implements BookService {
         }
         book.setUpdatedAt(LocalDateTime.now());
         Book updatedBook = bookRepo.save(book);
-        return  MessageResponse.build().message("Book updated successfully.").build();
+        return AssistantHelper.toMessageResponse("Book updated successfully.");
     }
 
     @Override
@@ -129,14 +130,14 @@ public class BookServiceImpl implements BookService {
         book.setStatus(Status.DELETED);
         book.setDeletedAt(LocalDateTime.now());
         Book updatedBook = bookRepo.save(book);
-        return MessageResponse.build().message("Book deleted successfully.").build();
+        return AssistantHelper.toMessageResponse("Book deleted successfully.");
     }
 
     @Override
     public MessageResponse hardDeleteById(String id) {
         Book book = bookRepo.getById(id);
         bookRepo.deleteById(id);
-        return MessageResponse.builder().message("Book deleted successfully").build();
+        return AssistantHelper.toMessageResponse("Book deleted successfully.");
     }
 
     @Override
@@ -187,7 +188,7 @@ public class BookServiceImpl implements BookService {
         book.setReviewCount(reviewCount);
         book.setAvgRating(reviewCount > 0 ? (ratingTotal / reviewCount) : 0);
         bookRepo.save(book);
-         MessageResponse.build().message("Review updated successfully.").build();
+        return AssistantHelper.toMessageResponse("Review updated successfully.");
     }
 
 

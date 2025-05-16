@@ -11,14 +11,9 @@ import com.project.readers_community.model.dto.request.UpdateReviewRequest;
 import com.project.readers_community.model.dto.response.BookResponse;
 import com.project.readers_community.model.dto.response.UserResponse;
 import com.project.readers_community.model.enums.Status;
-import com.project.readers_community.model.document.User;
-import com.project.readers_community.model.dto.request.PostRequest;
 import com.project.readers_community.model.dto.request.ReviewRequest;
 import com.project.readers_community.model.dto.response.ReviewResponse;
-import com.project.readers_community.model.enums.NotificationType;
-import com.project.readers_community.repository.BookRepo;
 import com.project.readers_community.repository.ReviewRepo;
-import com.project.readers_community.repository.UserRepo;
 import com.project.readers_community.service.BookService;
 import com.project.readers_community.service.NotificationService;
 import com.project.readers_community.mapper.ReviewMapper;
@@ -41,8 +36,7 @@ public class ReviewServiceImpl implements ReviewService {
     private BookService bookService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private PostServiceImpl postServiceImpl;
+
     @Autowired
     private NotificationService notificationService;
 

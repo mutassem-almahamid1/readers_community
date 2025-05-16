@@ -1,5 +1,6 @@
 package com.project.readers_community.service.impl;
 
+import com.project.readers_community.mapper.helper.AssistantHelper;
 import com.project.readers_community.model.enums.Status;
 import com.project.readers_community.mapper.CategoryMapper;
 import com.project.readers_community.model.common.MessageResponse;
@@ -72,7 +73,7 @@ public class CategoryServiceImpl implements CategoryService {
         category.setImgUrl(request.getImgUrl());
         category.setUpdatedAt(LocalDateTime.now());
         Category categorySaved = this.categoryRepo.save(category);
-        return MessageResponse.builder().message("Category Updated successfully.").build();
+        return AssistantHelper.toMessageResponse("Category updated successfully.");
     }
 
     @Override
@@ -81,12 +82,13 @@ public class CategoryServiceImpl implements CategoryService {
         category.setStatus(Status.DELETED);
         category.setDeletedAt(LocalDateTime.now());
         Category categorySaved = this.categoryRepo.save(category);
-        return MessageResponse.builder().message("Category deleted successfully.").build();    }
+        return AssistantHelper.toMessageResponse("Category deleted successfully.");
+    }
 
     @Override
     public MessageResponse hardDeleteById(String id) {
         Category category = this.categoryRepo.getById(id);
         this.categoryRepo.deleteById(category.getId());
-        return MessageResponse.builder().message("Category deleted successfully.").build();
+        return AssistantHelper.toMessageResponse("Category deleted successfully.");
     }
 }

@@ -28,13 +28,6 @@ public class CommentController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-//    @PostMapping("/post")
-//    public ResponseEntity<CommentResponse> createCommentOnPost(
-//            @RequestBody CommentRequest request,
-//            @RequestParam String userId) {
-//        CommentResponse response = commentService.createCommentOnPost(request, userId);
-//        return new ResponseEntity<>(response, HttpStatus.CREATED);
-//    }
 
     @GetMapping("/{id}")
     public ResponseEntity<CommentResponse> getCommentById(@PathVariable String id) {
@@ -81,12 +74,11 @@ public class CommentController {
     }
 
     @PutMapping("/{id}/edit")
-    public ResponseEntity<CommentResponse> editComment(
+    public ResponseEntity<MessageResponse> editComment(
             @PathVariable String id,
             @RequestBody UpdateCommentRequest request,
             @RequestParam String userId) {
-        CommentResponse response = commentService.update(id, request, userId);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok(this.commentService.update(id, request, userId));
     }
 
 
@@ -103,7 +95,6 @@ public class CommentController {
             @RequestParam String userId) {
         return new ResponseEntity<>(commentService.hardDeleteById(id, userId), HttpStatus.OK);
     }
-
 
 
 }

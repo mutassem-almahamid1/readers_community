@@ -76,12 +76,12 @@ public class BookController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BookResponse> updateBook(@PathVariable String id, @Valid @RequestBody BookRequest request) {
+    public ResponseEntity<MessageResponse> updateBook(@PathVariable String id, @Valid @RequestBody BookRequest request) {
         return ResponseEntity.ok(service.update(id, request));
     }
 
     @DeleteMapping("/soft/{id}")
-    public ResponseEntity<BookResponse> softDeleteBookById(@PathVariable String id) {
+    public ResponseEntity<MessageResponse> softDeleteBookById(@PathVariable String id) {
         return ResponseEntity.ok(service.softDeleteById(id));
     }
 

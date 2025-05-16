@@ -62,12 +62,12 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable String id, @Valid @RequestBody UserRequestSignIn request) {
+    public ResponseEntity<MessageResponse> updateUser(@PathVariable String id, @Valid @RequestBody UserRequestSignIn request) {
         return ResponseEntity.ok(this.service.update(id, request));
     }
 
     @DeleteMapping("/soft/{id}")
-    public ResponseEntity<UserResponse> softDeleteUserById(@PathVariable String id) {
+    public ResponseEntity<MessageResponse> softDeleteUserById(@PathVariable String id) {
         return ResponseEntity.ok(this.service.softDeleteById(id));
     }
 
@@ -98,15 +98,6 @@ public class UserController {
             @PathVariable String followingId) {
         return new ResponseEntity<>(service.followUser(followerId, followingId), HttpStatus.OK);
     }
-
-//    @DeleteMapping("/{followerId}/unfollow/{followingId}")
-//    public ResponseEntity<MessageResponse> unfollowUser(
-//            @PathVariable String followerId,
-//            @PathVariable String followingId) {
-//        service.unfollowUser(followerId, followingId);
-//        return new ResponseEntity<>(new MessageResponse("User unfollowed successfully"), HttpStatus.OK);
-//    }
-
 
 
     @PostMapping("/{userId}/books/finished")
