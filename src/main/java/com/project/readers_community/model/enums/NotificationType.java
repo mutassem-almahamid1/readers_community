@@ -1,12 +1,12 @@
 package com.project.readers_community.model.enums;
 
 public enum NotificationType {
-    FOLLOW, // متابعة مستخدم
-    LIKE_COMMENT, // إعجاب بتعليق
-    COMMENT_ON_REVIEW, // تعليق على مراجعة
-    REVIEW_ON_BOOK, // مراجعة لكتاب
-    RATING_ON_BOOK, // تقييم لكتاب
-    LIKE_POST, // إعجاب بمنشور
+    FOLLOW,
+    LIKE_COMMENT,
+    COMMENT_ON_REVIEW,
+    REVIEW_ON_BOOK,
+    RATING_ON_BOOK,
+    LIKE_POST,
     LIKE_REVIEW,
     COMMENT_ON_POST,
 

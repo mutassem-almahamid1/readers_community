@@ -31,5 +31,5 @@ public interface CommentService {
 
    MessageResponse hardDeleteById(String id, String userId);
 
-   CommentResponse likeComment(String id, String userId);
+   MessageResponse likeComment(String id, String userId);
 }

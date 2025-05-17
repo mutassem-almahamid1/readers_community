@@ -21,7 +21,7 @@ public interface BookRepoMongo extends MongoRepository<Book, String> {
 
     Page<Book> findAllByStatus(Status status, PageRequest pageRequest);
 
-    Optional<Book> findAllByCategory(String category);
+    List<Book> findAllByCategory(String category);
 
     List<Book> findTopByStatusOrderByAvgRatingDescReviewCountDesc(Status status);
 
@@ -29,4 +29,6 @@ public interface BookRepoMongo extends MongoRepository<Book, String> {
 
     List<Book> findTopByStatusAndCategoryInOrderByAvgRatingDescReviewCountDesc(
             Status status, List<String> categories);
+
+    List<Book> findAllByIdInAndStatus(List<String> ids, Status status);
 }

@@ -31,11 +31,10 @@ public interface BookService {
 
     List<Book> searchBooksByCategory(String category);
 
-    List<BookResponse> getBookSuggestions(int limit);
-
-    List<BookResponse> getTrendingBooks(int limit);
-
-    List<BookResponse> getPersonalizedBookSuggestions(String userId, int limit);
+    List<BookResponse> getTopRatedBooks();
+    List<BookResponse> getPersonalizedRecommendations(String userId);
+    List<BookResponse> getTrendingBooksThisMonth();
+    List<BookResponse> getFriendRecommendations(String userId);
 
     MessageResponse updateBookReviewAndRating(String bookId, int reviewCount, double ratingTotal);
 

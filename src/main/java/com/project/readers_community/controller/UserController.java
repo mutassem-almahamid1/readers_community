@@ -104,7 +104,6 @@ public class UserController {
     public ResponseEntity<MessageResponse> addBookToFinishedList(
             @PathVariable String userId,
             @RequestParam String bookId) {
-        service.addBookToFinishedList(userId, bookId);
         return ResponseEntity.ok(service.addBookToFinishedList(userId, bookId));
     }
 
@@ -112,16 +111,14 @@ public class UserController {
     public ResponseEntity<MessageResponse> addBookToWantToReadList(
             @PathVariable String userId,
             @RequestParam String bookId) {
-        service.addBookToWantToReadList(userId, bookId);
-        return ResponseEntity.ok(new MessageResponse("Book added to want to read list successfully"));
+        return ResponseEntity.ok(service.addBookToWantToReadList(userId, bookId));
     }
 
     @PostMapping("/{userId}/books/currently-reading")
     public ResponseEntity<MessageResponse> addBookToCurrentlyReadingList(
             @PathVariable String userId,
             @RequestParam String bookId) {
-        service.addBookToCurrentlyReadingList(userId, bookId);
-        return ResponseEntity.ok(new MessageResponse("Book added to currently reading list successfully"));
+        return ResponseEntity.ok(service.addBookToCurrentlyReadingList(userId, bookId));
     }
 
     @GetMapping("/{id}/following")

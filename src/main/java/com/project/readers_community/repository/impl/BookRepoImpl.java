@@ -2,6 +2,7 @@ package com.project.readers_community.repository.impl;
 
 import com.project.readers_community.handelException.exception.NotFoundException;
 import com.project.readers_community.model.document.Book;
+import com.project.readers_community.model.document.User;
 import com.project.readers_community.model.enums.Status;
 import com.project.readers_community.repository.BookRepo;
 import com.project.readers_community.repository.mongo.BookRepoMongo;
@@ -46,6 +47,11 @@ public class BookRepoImpl implements BookRepo {
     }
 
     @Override
+    public List<Book> getAllByIdIn(List<String> ids) {
+        return repoMongo.findAllByIdInAndStatus(ids, Status.ACTIVE);
+    }
+
+    @Override
     public Book getByTitle(String name) {
         return repoMongo.findByTitleAndStatus(name, Status.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Book not found"));
@@ -72,7 +78,7 @@ public class BookRepoImpl implements BookRepo {
     }
 
     @Override
-    public Optional<Book> getAllByCategory(String category) {
+    public List<Book> getAllByCategory(String category) {
          return repoMongo.findAllByCategory(category);
     }
 

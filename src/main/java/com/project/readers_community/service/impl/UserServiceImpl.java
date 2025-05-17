@@ -21,8 +21,8 @@ import com.project.readers_community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,37 +39,48 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
-@Override
-public UserResponse signUp(UserRequestSignIn request) {
-    try {
-        User toDocument = UserMapper.mapToDocument(request);
-        User user = this.userRepo.save(toDocument);
-        return UserMapper.mapToResponse(user);
-    } catch (DuplicateKeyException ex) {
-        String message = ex.getMessage();
+    @Override
+    public UserResponse signUp(UserRequestSignIn request) {
+        try {
+            Optional<User> existingUsername = userRepo.getByUsernameIgnoreStatus(request.getUsername());
+            if (existingUsername.isPresent()) {
+                throw new ConflictException("Username '" + request.getUsername() + "' is already in use");
+            }
 
-        if (message.contains("username")) {
-            throw new ConflictException("Username '" + request.getUsername() + "' is already in use");
-        } else if (message.contains("email")) {
-            throw new ConflictException("Email '" + request.getEmail() + "' is already in use");
-        } else {
-            throw new ConflictException("Username or Email is already in use");
+            Optional<User> existingEmail = userRepo.getByEmailIgnoreStatus(request.getEmail());
+            if (existingEmail.isPresent()) {
+                throw new ConflictException("Email '" + request.getEmail() + "' is already in use");
+            }
+
+            request.setPassword(passwordEncoder.encode(request.getPassword()));
+            User toDocument = UserMapper.mapToDocument(request);
+            User user = this.userRepo.save(toDocument);
+            return UserMapper.mapToResponse(user);
+            }
+        catch (DuplicateKeyException ex) {
+            String message = ex.getMessage();
+            if (message.contains("username")) {
+                throw new ConflictException("Username '" + request.getUsername() + "' is already in use");
+            } else if (message.contains("email")) {
+                throw new ConflictException("Email '" + request.getEmail() + "' is already in use");
+            } else {
+                throw new ConflictException("Username or Email is already in use");
+            }
         }
-
-    } catch (Exception e) {
-        throw new ConflictException("Unexpected error occurred while signing up");
     }
-}
+
 
     @Override
     public UserResponse login(UserRequestLogin request) {
         User user = userRepo.getByEmail(request.getEmail());
-        if (user.getStatus() == Status.BLOCKED){
+        if (user.getStatus() == Status.BLOCKED) {
             throw new BadReqException("");
         }
 
-        if (!user.getPassword().equals(request.getPassword().trim())) {
+        if (!passwordEncoder.matches(request.getPassword().trim(), user.getPassword())) {
             throw new BadCredentialsException("Invalid password");
         }
 
@@ -78,7 +89,7 @@ public UserResponse signUp(UserRequestSignIn request) {
 
     @Override
     public UserResponse getById(String id) {
-       User user = userRepo.getById(id);
+        User user = userRepo.getById(id);
         return UserMapper.mapToResponse(user);
     }
 
@@ -108,10 +119,10 @@ public UserResponse signUp(UserRequestSignIn request) {
     public List<UserResponse> getAllFollowingById(String id) {
         User user = this.userRepo.getById(id);
         List<User> users = userRepo.getAllByIdIn(user.getFollowing());
-       return users
-               .stream()
-               .map(UserMapper::mapToResponse)
-               .collect(Collectors.toList());
+        return users
+                .stream()
+                .map(UserMapper::mapToResponse)
+                .collect(Collectors.toList());
     }
 
 
@@ -119,10 +130,10 @@ public UserResponse signUp(UserRequestSignIn request) {
     public List<UserResponse> getAllFollowersById(String id) {
         User user = this.userRepo.getById(id);
         List<User> users = userRepo.getAllByIdIn(user.getFollowers());
-       return users
-               .stream()
-               .map(UserMapper::mapToResponse)
-               .collect(Collectors.toList());
+        return users
+                .stream()
+                .map(UserMapper::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -189,18 +200,18 @@ public UserResponse signUp(UserRequestSignIn request) {
     @Override
     public List<UserResponse> getByAll() {
         List<User> users = userRepo.getAll();
-       return users
-               .stream()
-               .map(UserMapper::mapToResponse)
-               .collect(Collectors.toList());
+        return users
+                .stream()
+                .map(UserMapper::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
     public Page<UserResponse> getByAllPage(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<User> userPage = userRepo.getAllPage(pageRequest);
-       return userPage
-               .map(UserMapper::mapToResponse);
+        return userPage
+                .map(UserMapper::mapToResponse);
     }
 
     @Override
@@ -235,7 +246,7 @@ public UserResponse signUp(UserRequestSignIn request) {
         User user = this.userRepo.getById(userId);
         this.bookService.getById(bookId);
         boolean isAdded = false;
-        if (user.getFinishedBooks().contains(bookId)){
+        if (user.getFinishedBooks().contains(bookId)) {
             user.getFinishedBooks().remove(bookId);
         } else {
             isAdded = true;
@@ -250,7 +261,7 @@ public UserResponse signUp(UserRequestSignIn request) {
         User user = this.userRepo.getById(userId);
         this.bookService.getById(bookId);
         boolean isAdded = false;
-        if (user.getWantToReadBooks().contains(bookId)){
+        if (user.getWantToReadBooks().contains(bookId)) {
             user.getWantToReadBooks().remove(bookId);
         } else {
             isAdded = true;
@@ -265,7 +276,7 @@ public UserResponse signUp(UserRequestSignIn request) {
         User user = this.userRepo.getById(userId);
         this.bookService.getById(bookId);
         boolean isAdded = false;
-        if (user.getCurrentlyReadingBooks().contains(bookId)){
+        if (user.getCurrentlyReadingBooks().contains(bookId)) {
             user.getCurrentlyReadingBooks().remove(bookId);
         } else {
             isAdded = true;
@@ -279,8 +290,8 @@ public UserResponse signUp(UserRequestSignIn request) {
     ///  switch to book service ///
     @Override
     public List<String> getWantToReadBooks(String userId) {
-       User user = userRepo.getById(userId);
-       user.getWantToReadBooks();
+        User user = userRepo.getById(userId);
+        user.getWantToReadBooks();
         return user.getWantToReadBooks() != null ? user.getWantToReadBooks() : List.of();
     }
 

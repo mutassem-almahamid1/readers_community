@@ -1,6 +1,7 @@
 package com.project.readers_community.repository;
 
 import com.project.readers_community.model.document.Book;
+import com.project.readers_community.model.document.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
@@ -18,7 +19,8 @@ public interface BookRepo {
 
     Book getById(String id);
 
-//    Book getByName(String name);
+    List<Book> getAllByIdIn(List<String> ids);
+
 
     Book getByTitle(String name);
 
@@ -30,7 +32,7 @@ public interface BookRepo {
 
     void delete(Book book);
 
-    Optional<Book> getAllByCategory(String category);
+    List<Book> getAllByCategory(String category);
 
     List<Book> findTopBooksByRatingAndReviews(int limit);
 

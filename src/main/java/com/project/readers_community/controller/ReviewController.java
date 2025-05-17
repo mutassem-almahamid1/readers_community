@@ -7,6 +7,7 @@ import com.project.readers_community.model.dto.request.UpdateReviewRequest;
 import com.project.readers_community.model.dto.response.CommentResponse;
 import com.project.readers_community.model.dto.response.ReviewResponse;
 import com.project.readers_community.service.ReviewService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,7 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @PostMapping("/create")
-    public ResponseEntity<ReviewResponse> createReview(@RequestBody ReviewRequest request, @RequestParam String userId) {
+    public ResponseEntity<ReviewResponse> createReview(@Valid @RequestBody ReviewRequest request, @RequestParam String userId) {
         ReviewResponse response = reviewService.create(request, userId);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -79,7 +80,7 @@ public class ReviewController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<MessageResponse> updateReview(@PathVariable String id, @RequestBody UpdateReviewRequest request, @RequestParam String userId) {
+    public ResponseEntity<MessageResponse> updateReview(@PathVariable String id,@Valid @RequestBody UpdateReviewRequest request, @RequestParam String userId) {
         MessageResponse response = reviewService.update(id, request, userId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
