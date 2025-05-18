@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
         if (userRepo.getByEmailIfPresent(toDocument.getEmail())) {
             throw new ConflictException("Email is already in use");
         }
-        
+
         toDocument.setPassword(passwordEncoder.encode(toDocument.getPassword()));
         User user = this.userRepo.save(toDocument);
         return UserMapper.mapToResponse(user);

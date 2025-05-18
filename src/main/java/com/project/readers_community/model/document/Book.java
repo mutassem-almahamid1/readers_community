@@ -28,7 +28,9 @@ public class Book {
     private String coverImage;
 
 //    private List<String> reviews = new ArrayList<>();
+    @Builder.Default
     private int reviewCount = 0;
+    @Builder.Default
     private double avgRating = 0.0;
     private int readerCount ;
     private String addedBy;

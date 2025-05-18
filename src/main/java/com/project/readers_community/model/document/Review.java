@@ -24,6 +24,7 @@ public class Review {
     private String book;
     private String content;  // optional
     private int rating;  // required
+    @Builder.Default
     private Set<String> likedBy = new HashSet<>(); // المستخدمون الذين أعجبوا بالمراجعة
     private int likeCount;
 

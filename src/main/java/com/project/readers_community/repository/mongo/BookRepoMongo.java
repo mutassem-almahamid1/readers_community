@@ -31,6 +31,4 @@ public interface BookRepoMongo extends MongoRepository<Book, String> {
 
     List<Book> findTopByStatusAndCategoryInOrderByAvgRatingDescReviewCountDesc(
             Status status, List<String> categories);
-
-    List<Book> findAllByIdInAndStatus(List<String> ids, Status status);
 }

@@ -34,10 +34,15 @@ public class User {
     private String bio;
     private Roles role;
 
+    @Builder.Default
     private List<String> wantToReadBooks = new ArrayList<>();
+    @Builder.Default
     private List<String> currentlyReadingBooks = new ArrayList<>();
+    @Builder.Default
     private List<String> finishedBooks = new ArrayList<>();
+    @Builder.Default
     private List<String> followers = new ArrayList<>();
+    @Builder.Default
     private List<String> following = new ArrayList<>();
 
     private String refreshToken;

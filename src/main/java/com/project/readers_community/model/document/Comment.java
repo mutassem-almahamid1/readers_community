@@ -24,6 +24,7 @@ public class Comment {
     private String review;
 //    private String post;
     private String content;
+    @Builder.Default
     private Set<String> likedBy = new HashSet<>();
     private int likeCount;
 
