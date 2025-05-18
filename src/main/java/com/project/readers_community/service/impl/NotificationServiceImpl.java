@@ -10,6 +10,7 @@ import com.project.readers_community.repository.NotificationRepo;
 import com.project.readers_community.repository.UserRepo;
 import com.project.readers_community.mapper.NotificationMapper;
 import com.project.readers_community.service.NotificationService;
+import com.project.readers_community.service.WebSocketNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -54,11 +55,11 @@ public class NotificationServiceImpl implements NotificationService {
         NotificationResponse notification = create(request);
         
         // Send real-time notification via WebSocket
-        webSocketNotificationService.sendNotification(recipientId, notification);
+//        webSocketNotificationService.sendNotification(recipientId, notification);
         
         // Update unread count
         long unreadCount = notificationRepo.getUnreadByRecipientId(recipientId).size();
-        webSocketNotificationService.sendNotificationCount(recipientId, unreadCount);
+//        webSocketNotificationService.sendNotificationCount(recipientId, unreadCount);
     }
 
     @Override
@@ -149,7 +150,7 @@ public class NotificationServiceImpl implements NotificationService {
         // Update unread count via WebSocket
         String recipientId = notification.getRecipient();
         long unreadCount = notificationRepo.getUnreadByRecipientId(recipientId).size();
-        webSocketNotificationService.sendNotificationCount(recipientId, unreadCount);
+//        webSocketNotificationService.sendNotificationCount(recipientId, unreadCount);
         
         return notificationMapper.mapToResponse(updatedNotification);
     }

@@ -21,7 +21,6 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,8 +74,8 @@ public class BookServiceImpl implements BookService {
 
 
     @Override
-    public BookResponse create(BookRequest request, String addedById) {
-        Book book = BookMapper.mapToDocument(request, addedById);
+    public BookResponse create(BookRequest request) {
+        Book book = BookMapper.mapToDocument(request);
         this.categoryService.getById(book.getCategory());
         Book savedBook = bookRepo.save(book);
         return BookMapper.mapToResponse(savedBook);
@@ -103,6 +102,14 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public List<BookResponse> getByAllByIdIn(List<String> ids) {
+        List<Book> books = bookRepo.getAllIdIn(ids);
+        return books.stream()
+                .map(BookMapper::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Page<BookResponse> getByAllPage(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<Book> books = bookRepo.getAllPage(pageRequest);
@@ -117,6 +124,7 @@ public class BookServiceImpl implements BookService {
         book.setDescription(request.getDescription() != null ? request.getDescription().trim() : null);
         book.setCoverImage(request.getCoverImageUrl() != null ? request.getCoverImageUrl().trim() : null);
         if (request.getCategory() != null && !request.getCategory().equals(book.getCategory())) {
+            this.categoryService.getById(request.getCategory());
             book.setCategory(request.getCategory());
         }
         book.setUpdatedAt(LocalDateTime.now());
@@ -134,6 +142,17 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public MessageResponse softDeleteByCategoryId(String id) {
+        List<Book> books = bookRepo.getAllByCategory(id);
+        books.forEach(book -> {
+            book.setStatus(Status.DELETED);
+            book.setDeletedAt(LocalDateTime.now());
+        });
+        bookRepo.saveAll(books);
+        return AssistantHelper.toMessageResponse("Books deleted successfully.");
+    }
+
+    @Override
     public MessageResponse hardDeleteById(String id) {
         Book book = bookRepo.getById(id);
         bookRepo.deleteById(id);
@@ -142,7 +161,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public List<BookResponse> getByCategory(String category) {
-        Optional<Book> books=bookRepo.getAllByCategory(category);
+        List<Book> books = bookRepo.getAllByCategory(category);
         return books.stream()
                 .map(BookMapper::mapToResponse)
                 .collect(Collectors.toList());

@@ -30,6 +30,9 @@ public class UserResponse {
     private List<String> finishedBooks;
     private List<String> followers;
     private List<String> following;
+    private Integer readingBookCount;
+    private Integer followersCount;
+    private Integer followingCount;
     private Status status;
     private LocalDateTime createdAt;
 }

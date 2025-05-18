@@ -25,9 +25,13 @@ public interface UserRepo {
 
     User getByEmail(String email);
 
-    Optional<User> getByUsernameIfPresent(String username);
+    User getByIdAndStatusNotDeleted(String id);
 
-    Optional<User> getByEmailIfPresent(String email);
+    boolean getByUsernameIfPresent(String username);
+
+    User getByRefreashToken(String refreshToken);
+
+    boolean getByEmailIfPresent(String email);
 
     List<User> getAll();
 

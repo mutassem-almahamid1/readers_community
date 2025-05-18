@@ -12,7 +12,6 @@ import com.project.readers_community.model.dto.response.CommentResponse;
 import com.project.readers_community.model.enums.NotificationType;
 import com.project.readers_community.model.enums.Status;
 import com.project.readers_community.repository.CommentRepo;
-import com.project.readers_community.repository.PostRepo;
 import com.project.readers_community.repository.ReviewRepo;
 import com.project.readers_community.repository.UserRepo;
 import com.project.readers_community.service.CommentService;

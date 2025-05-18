@@ -30,7 +30,9 @@ public interface BookRepo {
 
     void delete(Book book);
 
-    Optional<Book> getAllByCategory(String category);
+    List<Book> getAllByCategory(String category);
+
+    List<Book> getAllIdIn(List<String> ids);
 
     List<Book> findTopBooksByRatingAndReviews(int limit);
 

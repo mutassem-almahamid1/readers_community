@@ -72,8 +72,13 @@ public class BookRepoImpl implements BookRepo {
     }
 
     @Override
-    public Optional<Book> getAllByCategory(String category) {
+    public List<Book> getAllByCategory(String category) {
          return repoMongo.findAllByCategory(category);
+    }
+
+    @Override
+    public List<Book> getAllIdIn(List<String> ids) {
+        return repoMongo.findAllByIdInAndStatus(ids, Status.ACTIVE);
     }
 
     @Override

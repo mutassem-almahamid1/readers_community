@@ -27,8 +27,8 @@ public class BookController {
     }
 
     @PostMapping
-    public ResponseEntity<BookResponse> createBook(@Valid @RequestBody BookRequest request, @RequestParam String addedByUserName) {
-        return ResponseEntity.ok(service.create(request, addedByUserName));
+    public ResponseEntity<BookResponse> createBook(@Valid @RequestBody BookRequest request) {
+        return ResponseEntity.ok(service.create(request));
     }
 
     @GetMapping("/{id}")
@@ -85,9 +85,9 @@ public class BookController {
         return ResponseEntity.ok(service.softDeleteById(id));
     }
 
-    @DeleteMapping("/hard/{id}")
-    public ResponseEntity<MessageResponse> hardDeleteBookById(@PathVariable String id) {
-        return ResponseEntity.ok(service.hardDeleteById(id));
-    }
+//    @DeleteMapping("/hard/{id}")
+//    public ResponseEntity<MessageResponse> hardDeleteBookById(@PathVariable String id) {
+//        return ResponseEntity.ok(service.hardDeleteById(id));
+//    }
 }
 

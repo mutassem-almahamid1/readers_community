@@ -17,11 +17,13 @@ public interface BookRepoMongo extends MongoRepository<Book, String> {
 
     Optional<Book> findByTitleAndStatus(String name, Status status);
 
+    List<Book> findAllByIdInAndStatus(List<String> ids, Status status);
+
     List<Book> findAllByStatus(Status status);
 
     Page<Book> findAllByStatus(Status status, PageRequest pageRequest);
 
-    Optional<Book> findAllByCategory(String category);
+    List<Book> findAllByCategory(String category);
 
     List<Book> findTopByStatusOrderByAvgRatingDescReviewCountDesc(Status status);
 

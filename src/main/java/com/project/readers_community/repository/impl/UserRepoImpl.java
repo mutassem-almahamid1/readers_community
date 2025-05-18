@@ -1,10 +1,8 @@
 package com.project.readers_community.repository.impl;
 
 import com.project.readers_community.handelException.exception.NotFoundException;
-import com.project.readers_community.model.document.Book;
 import com.project.readers_community.model.enums.Status;
 import com.project.readers_community.model.document.User;
-import com.project.readers_community.repository.BookRepo;
 import com.project.readers_community.repository.UserRepo;
 import com.project.readers_community.repository.mongo.UserRepoMongo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +46,14 @@ public class UserRepoImpl implements UserRepo {
     }
 
     @Override
-    public Optional<User> getByUsernameIfPresent(String username) {
-        return repoMongo.findByUsernameAndStatus(username, Status.ACTIVE);
+    public User getByIdAndStatusNotDeleted(String id) {
+        return repoMongo.findByIdAndStatusNot(id, Status.DELETED)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+    }
+
+    @Override
+    public boolean getByUsernameIfPresent(String username) {
+        return repoMongo.findByUsernameAndStatus(username, Status.ACTIVE).isPresent();
     }
 
     @Override
@@ -75,8 +79,14 @@ public class UserRepoImpl implements UserRepo {
     }
 
     @Override
-    public Optional<User> getByEmailIfPresent(String email) {
-        return repoMongo.findByEmailAndStatus(email, Status.ACTIVE);
+    public User getByRefreashToken(String refreshToken) {
+        return repoMongo.findByRefreshTokenAndStatus(refreshToken, Status.ACTIVE)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+    }
+
+    @Override
+    public boolean getByEmailIfPresent(String email) {
+        return repoMongo.findByEmailAndStatus(email, Status.ACTIVE).isPresent();
     }
 
     @Override

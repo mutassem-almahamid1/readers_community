@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.mongodb.repository.Update;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class CategoryController {
     private CategoryService service;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CategoryResponse> createCategory(@Valid @RequestBody CategoryRequest request) {
         return ResponseEntity.ok(this.service.create(request));
     }
@@ -54,8 +56,8 @@ public class CategoryController {
         return ResponseEntity.ok(this.service.softDeleteById(id));
     }
 
-    @DeleteMapping("/hard/{id}")
-    public ResponseEntity<MessageResponse> hardDeleteCategoryById(@PathVariable String id) {
-        return ResponseEntity.ok(this.service.hardDeleteById(id));
-    }
+//    @DeleteMapping("/hard/{id}")
+//    public ResponseEntity<MessageResponse> hardDeleteCategoryById(@PathVariable String id) {
+//        return ResponseEntity.ok(this.service.hardDeleteById(id));
+//    }
 }

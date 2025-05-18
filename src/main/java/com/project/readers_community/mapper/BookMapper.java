@@ -18,14 +18,13 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 
 public class BookMapper {
-    public static Book mapToDocument(BookRequest request, String addedBy) {
+    public static Book mapToDocument(BookRequest request) {
         return Book.builder()
                 .title(AssistantHelper.trimString(request.getTitle()))
                 .author(AssistantHelper.trimString(request.getAuthor()))
                 .description(AssistantHelper.trimString(request.getDescription()))
                 .category(AssistantHelper.trimString(request.getCategory()))
                 .coverImage(AssistantHelper.trimString(request.getCoverImageUrl()))
-                .addedBy(AssistantHelper.trimString(addedBy))
                 .status(Status.ACTIVE)
                 .createdAt(LocalDateTime.now())
                 .build();

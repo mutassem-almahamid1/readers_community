@@ -8,6 +8,7 @@ import com.project.readers_community.model.document.Category;
 import com.project.readers_community.model.dto.request.CategoryRequest;
 import com.project.readers_community.model.dto.response.CategoryResponse;
 import com.project.readers_community.repository.CategoryRepo;
+import com.project.readers_community.service.BookService;
 import com.project.readers_community.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,9 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private CategoryRepo categoryRepo;
+
+    @Autowired
+    private BookService bookService;
 
     @Override
     public CategoryResponse create(CategoryRequest request) {
@@ -82,6 +86,7 @@ public class CategoryServiceImpl implements CategoryService {
         category.setStatus(Status.DELETED);
         category.setDeletedAt(LocalDateTime.now());
         Category categorySaved = this.categoryRepo.save(category);
+        this.bookService.softDeleteByCategoryId(categorySaved.getId());
         return AssistantHelper.toMessageResponse("Category deleted successfully.");
     }
 

@@ -15,6 +15,8 @@ public interface UserRepoMongo extends MongoRepository<User, String> {
 
     Optional<User> findByIdAndStatus(String id, Status status);
 
+    Optional<User> findByIdAndStatusNot(String id, Status status);
+
     Optional<User> findByUsername(String username);
 
     Optional<User> findByEmail(String email);
@@ -36,4 +38,6 @@ public interface UserRepoMongo extends MongoRepository<User, String> {
     List<User> findAllFollowingById(String id);
 
     List<User> findAllFollowersById(String id);
+
+    Optional<User> findByRefreshTokenAndStatus(String refreshToken, Status status);
 }

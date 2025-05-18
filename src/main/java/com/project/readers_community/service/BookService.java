@@ -11,7 +11,7 @@ import java.util.List;
 public interface BookService {
     Book save(Book book);
 
-    BookResponse create(BookRequest request, String addedById);
+    BookResponse create(BookRequest request);
 
     BookResponse getById(String id);
 
@@ -19,11 +19,15 @@ public interface BookService {
 
     List<BookResponse> getByAll();
 
+    List<BookResponse> getByAllByIdIn(List<String> ids);
+
     Page<BookResponse> getByAllPage(int page, int size);
 
     MessageResponse update(String id, BookRequest request);
 
     MessageResponse softDeleteById(String id);
+
+    MessageResponse softDeleteByCategoryId(String id);
 
     MessageResponse hardDeleteById(String id);
 

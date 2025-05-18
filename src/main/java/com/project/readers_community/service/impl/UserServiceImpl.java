@@ -1,17 +1,15 @@
 package com.project.readers_community.service.impl;
 
-import com.mongodb.DuplicateKeyException;
-import com.project.readers_community.handelException.exception.BadCredentialsException;
 import com.project.readers_community.handelException.exception.BadReqException;
 import com.project.readers_community.handelException.exception.ConflictException;
 import com.project.readers_community.handelException.exception.NotFoundException;
 import com.project.readers_community.mapper.UserMapper;
 import com.project.readers_community.mapper.helper.AssistantHelper;
 import com.project.readers_community.model.common.MessageResponse;
-import com.project.readers_community.model.enums.NotificationType;
+import com.project.readers_community.model.dto.request.UpdateUserRequest;
+import com.project.readers_community.model.dto.response.BookResponse;
 import com.project.readers_community.model.enums.Status;
 import com.project.readers_community.model.document.User;
-import com.project.readers_community.model.dto.request.UserRequestLogin;
 import com.project.readers_community.model.dto.request.UserRequestSignIn;
 import com.project.readers_community.model.dto.response.UserResponse;
 import com.project.readers_community.repository.UserRepo;
@@ -21,15 +19,15 @@ import com.project.readers_community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
-
     @Autowired
     private UserRepo userRepo;
 
@@ -39,62 +37,69 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-@Override
-public UserResponse signUp(UserRequestSignIn request) {
-    try {
-        User toDocument = UserMapper.mapToDocument(request);
-        User user = this.userRepo.save(toDocument);
-        return UserMapper.mapToResponse(user);
-    } catch (DuplicateKeyException ex) {
-        String message = ex.getMessage();
-
-        if (message.contains("username")) {
-            throw new ConflictException("Username '" + request.getUsername() + "' is already in use");
-        } else if (message.contains("email")) {
-            throw new ConflictException("Email '" + request.getEmail() + "' is already in use");
-        } else {
-            throw new ConflictException("Username or Email is already in use");
-        }
-
-    } catch (Exception e) {
-        throw new ConflictException("Unexpected error occurred while signing up");
-    }
-}
 
     @Override
-    public UserResponse login(UserRequestLogin request) {
-        User user = userRepo.getByEmail(request.getEmail());
-        if (user.getStatus() == Status.BLOCKED){
-            throw new BadReqException("");
+    public UserResponse signUp(UserRequestSignIn request) {
+        User toDocument = UserMapper.mapToDocument(request);
+        // Check if username is already taken
+        if (userRepo.getByUsernameIfPresent(toDocument.getUsername())) {
+            throw new ConflictException("Username is already taken");
         }
 
-        if (!user.getPassword().equals(request.getPassword().trim())) {
-            throw new BadCredentialsException("Invalid password");
+        // Check if email is already in use
+        if (userRepo.getByEmailIfPresent(toDocument.getEmail())) {
+            throw new ConflictException("Email is already in use");
         }
-
+        toDocument.setPassword(passwordEncoder.encode(toDocument.getPassword()));
+        User user = this.userRepo.save(toDocument);
         return UserMapper.mapToResponse(user);
     }
+
+//    @Override
+//    public UserResponse login(UserRequestLogin request) {
+//        User user = userRepo.getByEmail(request.getEmail());
+//        if (user.getStatus() == Status.BLOCKED){
+//            throw new BadReqException("");
+//        }
+//
+//        if (!user.getPassword().equals(request.getPassword().trim())) {
+//            throw new BadCredentialsException("Invalid password");
+//        }
+//
+//        return UserMapper.mapToResponse(user);
+//    }
 
     @Override
     public UserResponse getById(String id) {
-       User user = userRepo.getById(id);
+        User user = userRepo.getById(id);
         return UserMapper.mapToResponse(user);
     }
 
     @Override
-    public UserResponse getByIdIfPresent(String id) {
-        Optional<User> user = userRepo.getByIdIfPresent(id);
-        return user.map(UserMapper::mapToResponse)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+    public MessageResponse updateStatus(String id, Status status) {
+        User user = userRepo.getByIdAndStatusNotDeleted(id);
+        user.setStatus(status);
+        user.setUpdatedAt(LocalDateTime.now());
+        this.userRepo.save(user);
+        return AssistantHelper.toMessageResponse("Updated Successfully.");
     }
 
-    @Override
-    public UserResponse getByUsernameIfPresent(String username) {
-        Optional<User> user = userRepo.getByUsernameIfPresent(username);
-        return user.map(UserMapper::mapToResponse)
-                .orElseThrow(() -> new NotFoundException("User not found"));
-    }
+//    @Override
+//    public UserResponse getByIdIfPresent(String id) {
+//        Optional<User> user = userRepo.getByIdIfPresent(id);
+//        return user.map(UserMapper::mapToResponse)
+//                .orElseThrow(() -> new NotFoundException("User not found"));
+//    }
+
+//    @Override
+//    public UserResponse getByUsernameIfPresent(String username) {
+//        Optional<User> user = userRepo.getByUsernameIfPresent(username);
+//        return user.map(UserMapper::mapToResponse)
+//                .orElseThrow(() -> new NotFoundException("User not found"));
+//    }
 
 
     @Override
@@ -204,11 +209,12 @@ public UserResponse signUp(UserRequestSignIn request) {
     }
 
     @Override
-    public MessageResponse update(String id, UserRequestSignIn request) {
+    public MessageResponse update(String id, UpdateUserRequest request) {
         User user = userRepo.getById(id);
-        user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
+        user.setUsername(request.getUsername().trim());
+        user.setFullName(request.getFullName().trim());
         user.setProfilePicture(request.getProfilePicture());
+        user.setCoverPicture(request.getCoverPicture());
         user.setBio(request.getBio());
         userRepo.save(user);
         return new MessageResponse("User updated successfully.");
@@ -246,7 +252,6 @@ public UserResponse signUp(UserRequestSignIn request) {
 
     @Override
     public MessageResponse addBookToWantToReadList(String userId, String bookId) {
-
         User user = this.userRepo.getById(userId);
         this.bookService.getById(bookId);
         boolean isAdded = false;
@@ -257,7 +262,6 @@ public UserResponse signUp(UserRequestSignIn request) {
             user.getWantToReadBooks().add(bookId);
         }
         return AssistantHelper.toMessageResponse(isAdded ? "Added Successfully." : "Removed Successfully.");
-
     }
 
     @Override
@@ -278,22 +282,21 @@ public UserResponse signUp(UserRequestSignIn request) {
 
     ///  switch to book service ///
     @Override
-    public List<String> getWantToReadBooks(String userId) {
-       User user = userRepo.getById(userId);
-       user.getWantToReadBooks();
-        return user.getWantToReadBooks() != null ? user.getWantToReadBooks() : List.of();
+    public List<BookResponse> getWantToReadBooks(String userId) {
+        User user = userRepo.getById(userId);
+        return this.bookService.getByAllByIdIn(user.getWantToReadBooks());
     }
 
     @Override
-    public List<String> getFinishedBooks(String userId) {
+    public List<BookResponse> getFinishedBooks(String userId) {
         User user = userRepo.getById(userId);
-        return user.getFinishedBooks() != null ? user.getFinishedBooks() : List.of();
+        return this.bookService.getByAllByIdIn(user.getFinishedBooks());
     }
 
     @Override
-    public List<String> getCurrentlyReadingBooks(String userId) {
+    public List<BookResponse> getCurrentlyReadingBooks(String userId) {
         User user = userRepo.getById(userId);
-        return user.getCurrentlyReadingBooks() != null ? user.getCurrentlyReadingBooks() : List.of();
+        return this.bookService.getByAllByIdIn(user.getWantToReadBooks());
     }
     /// end ///
 
