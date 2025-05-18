@@ -5,5 +5,5 @@ import java.util.List;
 public enum Roles {
     USER,
     ADMIN,
-    AUTHOR,
+
 }

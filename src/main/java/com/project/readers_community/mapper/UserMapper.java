@@ -18,7 +18,7 @@ public class UserMapper {
         return User.builder()
                 .fullName(AssistantHelper.trimString(request.getFullName()))
                 .username(AssistantHelper.trimString(request.getUsername()))
-                .email(AssistantHelper.trimString(request.getEmail()))
+                .email(request.getEmail())
                 .password(request.getPassword())
                 .profilePicture(AssistantHelper.trimString(request.getProfilePicture()))
                 .coverPicture(AssistantHelper.trimString(request.getCoverPicture()))

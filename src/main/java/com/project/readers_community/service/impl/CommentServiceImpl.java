@@ -9,11 +9,12 @@ import com.project.readers_community.model.document.*;
 import com.project.readers_community.model.dto.request.CommentRequest;
 import com.project.readers_community.model.dto.request.UpdateCommentRequest;
 import com.project.readers_community.model.dto.response.CommentResponse;
-import com.project.readers_community.model.enums.NotificationType;
 import com.project.readers_community.model.enums.Status;
 import com.project.readers_community.repository.CommentRepo;
+
 import com.project.readers_community.repository.ReviewRepo;
 import com.project.readers_community.repository.UserRepo;
+
 import com.project.readers_community.service.CommentService;
 import com.project.readers_community.service.NotificationService;
 import com.project.readers_community.mapper.CommentMapper;
@@ -35,8 +36,6 @@ public class CommentServiceImpl implements CommentService {
     private CommentRepo commentRepo;
     @Autowired
     private ReviewService reviewService;
-//    @Autowired
-//    private PostRepo postRepo;
     @Autowired
     private UserService userService;
     @Autowired
@@ -67,38 +66,6 @@ public class CommentServiceImpl implements CommentService {
         return CommentMapper.mapToResponse(savedComment);
     }
 
-//    @Override
-//    public CommentResponse createCommentOnPost(CommentRequest request, String userId) {
-//        User user = userRepo.getById(userId);
-//        if (user == null) {
-//            throw new NotFoundException("User not found");
-//        }
-//
-//        Post post = postRepo.getById(request.getPostId());
-//        if (post == null) {
-//            throw new NotFoundException("Post not found");
-//        }
-//
-//        Comment comment = commentMapper.mapToDocument(request, userId);
-//        Comment savedComment = commentRepo.save(comment);
-//
-//        if (!post.getUser().equals(userId)) {
-//            String message = user.getUsername() + " commented on your post.";
-//            notificationService.createNotificationAsync(
-//                    post.getUser(),
-//                    userId,
-//                    NotificationType.COMMENT_ON_POST,
-//                    message,
-//                    post.getId(),
-//                    savedComment.getId(),
-//                    null,
-//                    null
-//            );
-//        }
-//
-//        return commentMapper.mapToResponse(savedComment, userId);
-//    }
-
     @Override
     public CommentResponse getCommentById(String id) {
         Comment comment = commentRepo.getByIdAndStatus(id, Status.ACTIVE);
@@ -120,21 +87,6 @@ public class CommentServiceImpl implements CommentService {
         return comments.map(CommentMapper::mapToResponse);
     }
 
-//    @Override
-//    public List<CommentResponse> getCommentsByPostId(String postId) {
-//        List<Comment> comments = commentRepo.getByPostId(postId);
-//        return comments.stream()
-//               .map(comment -> commentMapper.mapToResponse(comment, null))
-//               .collect(Collectors.toList());
-//    }
-//
-//    @Override
-//    public Page<CommentResponse> getCommentsByPostIdPaged(String postId, int page, int size) {
-//        PageRequest pageRequest = PageRequest.of(page, size);
-//        Page<Comment> comments = commentRepo.getByPostIdPaged(postId, pageRequest);
-//        return comments.map(comment ->
-//                commentMapper.mapToResponse(comment, null));
-//    }
 
     @Override
     public List<CommentResponse> getByUserId(String userId) {
@@ -178,7 +130,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentResponse likeComment(String id, String userId) {
+    public MessageResponse likeComment(String id, String userId) {
         Comment comment = commentRepo.getByIdAndStatus(id, Status.ACTIVE);
         userService.getById(userId);
         
@@ -212,6 +164,6 @@ public class CommentServiceImpl implements CommentService {
 //            );
 //        }
 
-        return CommentMapper.mapToResponse(updatedComment);
+        return AssistantHelper.toMessageResponse("Comment liked successfully");
     }
 }

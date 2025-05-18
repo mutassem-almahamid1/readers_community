@@ -5,6 +5,7 @@ import com.project.readers_community.model.dto.request.CommentRequest;
 import com.project.readers_community.model.dto.request.UpdateCommentRequest;
 import com.project.readers_community.model.dto.response.CommentResponse;
 import com.project.readers_community.service.CommentService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,7 @@ public class CommentController {
 
     @PostMapping("/review")
     public ResponseEntity<CommentResponse> createCommentOnReview(
-            @RequestBody CommentRequest request,
+            @Valid @RequestBody CommentRequest request,
             @RequestParam String userId) {
         CommentResponse response = commentService.createCommentOnReview(request, userId);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -66,11 +67,10 @@ public class CommentController {
 //    }
 
     @PostMapping("/{id}/like")
-    public ResponseEntity<CommentResponse> likeComment(
+    public ResponseEntity<MessageResponse> likeComment(
             @PathVariable String id,
             @RequestParam String userId) {
-        CommentResponse response = commentService.likeComment(id, userId);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok(this.commentService.likeComment(id, userId));
     }
 
     @PutMapping("/{id}/edit")
@@ -86,14 +86,14 @@ public class CommentController {
     public ResponseEntity<MessageResponse> softDeleteComment(
             @PathVariable String id,
             @RequestParam String userId) {
-        return new ResponseEntity<>(commentService.softDeleteById(id, userId), HttpStatus.OK);
+        return  ResponseEntity.ok(commentService.softDeleteById(id, userId));
     }
 
     @DeleteMapping("/{id}/hard")
     public ResponseEntity<MessageResponse> hardDeleteComment(
             @PathVariable String id,
             @RequestParam String userId) {
-        return new ResponseEntity<>(commentService.hardDeleteById(id, userId), HttpStatus.OK);
+        return  ResponseEntity.ok(commentService.hardDeleteById(id, userId));
     }
 
 

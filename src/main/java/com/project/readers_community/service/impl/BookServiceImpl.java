@@ -19,8 +19,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+
 import java.util.Arrays;
 import java.util.List;
+
+import java.time.YearMonth;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -168,40 +172,6 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookResponse> getBookSuggestions(int limit) {
-        List<Book> books = bookRepo.findTopBooksByRatingAndReviews(limit);
-        return books.stream()
-                .map(BookMapper::mapToResponse)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<BookResponse> getTrendingBooks(int limit) {
-        List<Book> books = bookRepo.findTrendingBooksForCurrentMonth(limit);
-        return books.stream()
-                .map(BookMapper::mapToResponse)
-                .collect(Collectors.toList());
-    }
-
-
-    @Override
-    public List<BookResponse> getPersonalizedBookSuggestions(String userId, int limit) {
-        User user = userRepo.getById(userId);
-
-        // Use finishedBooks directly as they are already the category values (strings)
-        List<String> readCategories = user.getFinishedBooks();
-
-        if (readCategories.isEmpty()) {
-            return getBookSuggestions(limit);
-        }
-
-        List<Book> suggestedBooks = bookRepo.findTopBooksByCategories(readCategories, limit);
-        return suggestedBooks.stream()
-                .map(BookMapper::mapToResponse)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public MessageResponse updateBookReviewAndRating(String bookId, int reviewCount, double ratingTotal) {
         Book book = bookRepo.getById(bookId);
         book.setReviewCount(reviewCount);
@@ -210,19 +180,116 @@ public class BookServiceImpl implements BookService {
         return AssistantHelper.toMessageResponse("Review updated successfully.");
     }
 
+    @Override
+    public List<BookResponse> getTopRatedBooks() {
+        // هذا مثال بسيط، قد تحتاج إلى منطق أكثر تعقيدًا للتقييم
+        // على سبيل المثال، يمكنك استخدام صيغة تجمع بين التقييم وعدد القراء وعدد المراجعات
+        List<Book> books = bookRepo.getAll();
+        return books.stream()
+                .sorted(Comparator.comparing(Book::getAvgRating, Comparator.nullsLast(Comparator.reverseOrder()))
+                        .thenComparing(Book::getReaderCount, Comparator.nullsLast(Comparator.reverseOrder()))
+                        .thenComparing(Book::getReviewCount, Comparator.nullsLast(Comparator.reverseOrder())))
+                .map(BookMapper::mapToResponse)
+                .collect(Collectors.toList());
+    }
 
+    @Override
+    public List<BookResponse> getPersonalizedRecommendations(String userId) {
+        User user = userRepo.getById(userId);
+        List<String> finishedBookIds = user.getFinishedBooks();
 
+        if (finishedBookIds == null || finishedBookIds.isEmpty()) {
+            return getTopRatedBooks(); // إذا لم يقرأ المستخدم أي كتب، أرجع أفضل الكتب
+        }
 
+        Set<String> readBookCategories = new HashSet<>();
+        for (String bookId : finishedBookIds) {
+            Book book = bookRepo.getByIdIfPresent(bookId).orElse(null);
+            if (book != null && book.getCategory() != null) {
+                readBookCategories.add(book.getCategory());
+            }
+        }
 
+        if (readBookCategories.isEmpty()) {
+            return getTopRatedBooks(); // إذا لم يتم العثور على فئات، أرجع أفضل الكتب
+        }
 
+        List<Book> recommendedBooks = new ArrayList<>();
+        for (String categoryId : readBookCategories) {
+            // ابحث عن الكتب في هذه الفئة التي لم يقرأها المستخدم بعد
+            // قد تحتاج إلى دالة مخصصة في BookRepo لهذا الغرض
+            List<Book> booksInCategory = bookRepo.getAllByCategory(categoryId);
+            for (Book book : booksInCategory) {
+                if (!finishedBookIds.contains(book.getId())) {
+                    recommendedBooks.add(book);
+                }
+            }
+        }
 
+        // إزالة التكرارات وفرز النتائج (مثلاً حسب التقييم)
+        return recommendedBooks.stream()
+                .distinct()
+                .sorted(Comparator.comparing(Book::getAvgRating, Comparator.nullsLast(Comparator.reverseOrder())))
+                .map(BookMapper::mapToResponse)
+                .collect(Collectors.toList());
+    }
 
+    @Override
+    public List<BookResponse> getTrendingBooksThisMonth() {
+        // يتطلب هذا منطقًا لتحديد "الرواج".
+        // أحد الطرق هو البحث عن المراجعات التي تم إنشاؤها هذا الشهر.
+        LocalDateTime startOfMonth = YearMonth.now().atDay(1).atStartOfDay();
+        LocalDateTime endOfMonth = YearMonth.now().atEndOfMonth().atTime(23, 59, 59);
 
+        // قد تحتاج إلى دالة مخصصة في ReviewRepo للحصول على المراجعات ضمن نطاق زمني
+        // List<Review> reviewsThisMonth = reviewRepo.findAllByCreatedAtBetweenAndStatus(startOfMonth, endOfMonth, Status.ACTIVE);
+        // ثم قم بتجميع الكتب من هذه المراجعات وفرزها حسب عدد المراجعات أو أي معيار آخر.
 
+        // تنفيذ مبسط مؤقت: إرجاع الكتب الأعلى تقييمًا كعنصر نائب
+        // يجب استبدال هذا بمنطق التتبع الفعلي
+        List<Book> books = bookRepo.getAll();
+        return books.stream()
+                .sorted(Comparator.comparing(Book::getReviewCount, Comparator.nullsLast(Comparator.reverseOrder()))
+                        .thenComparing(Book::getAvgRating, Comparator.nullsLast(Comparator.reverseOrder())))
+                .limit(10) // على سبيل المثال، أفضل 10 كتب رائجة
+                .map(BookMapper::mapToResponse)
+                .collect(Collectors.toList());
+    }
 
+    @Override
+    public List<BookResponse> getFriendRecommendations(String userId) {
+        User currentUser = userRepo.getById(userId);
+        List<String> friendIds = currentUser.getFollowing();
 
+        if (friendIds == null || friendIds.isEmpty()) {
+            return new ArrayList<>(); // لا يوجد أصدقاء، لا توجد توصيات
+        }
 
-    /// /// // /////////////////////////////////////////////
+        Set<String> recommendedBookIds = new HashSet<>();
+        for (String friendId : friendIds) {
+            User friend = userRepo.getByIdIfPresent(friendId).orElse(null);
+            if (friend != null && friend.getFinishedBooks() != null) {
+                recommendedBookIds.addAll(friend.getFinishedBooks());
+            }
+        }
+
+        // إزالة الكتب التي قرأها المستخدم الحالي بالفعل
+        if (currentUser.getFinishedBooks() != null) {
+            recommendedBookIds.removeAll(currentUser.getFinishedBooks());
+        }
+
+        if (recommendedBookIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Book> recommendedBooks = bookRepo.getAllByIdIn(new ArrayList<>(recommendedBookIds));
+
+        // يمكنك فرز هذه الكتب بناءً على عدد الأصدقاء الذين قرأوها أو تقييمها العام
+        return recommendedBooks.stream()
+                .sorted(Comparator.comparing(Book::getAvgRating, Comparator.nullsLast(Comparator.reverseOrder())))
+                .map(BookMapper::mapToResponse)
+                .collect(Collectors.toList());
+    }
 
     private static class BookApiResponse {
         private Item[] items;
@@ -255,8 +322,6 @@ public class BookServiceImpl implements BookService {
         public String getTitle() {
             return title;
         }
-
-
 
         public String[] getAuthors() {
             return authors;

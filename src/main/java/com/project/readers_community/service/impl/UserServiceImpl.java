@@ -53,6 +53,7 @@ public class UserServiceImpl implements UserService {
         if (userRepo.getByEmailIfPresent(toDocument.getEmail())) {
             throw new ConflictException("Email is already in use");
         }
+        
         toDocument.setPassword(passwordEncoder.encode(toDocument.getPassword()));
         User user = this.userRepo.save(toDocument);
         return UserMapper.mapToResponse(user);
@@ -113,10 +114,10 @@ public class UserServiceImpl implements UserService {
     public List<UserResponse> getAllFollowingById(String id) {
         User user = this.userRepo.getById(id);
         List<User> users = userRepo.getAllByIdIn(user.getFollowing());
-       return users
-               .stream()
-               .map(UserMapper::mapToResponse)
-               .collect(Collectors.toList());
+        return users
+                .stream()
+                .map(UserMapper::mapToResponse)
+                .collect(Collectors.toList());
     }
 
 
@@ -124,10 +125,10 @@ public class UserServiceImpl implements UserService {
     public List<UserResponse> getAllFollowersById(String id) {
         User user = this.userRepo.getById(id);
         List<User> users = userRepo.getAllByIdIn(user.getFollowers());
-       return users
-               .stream()
-               .map(UserMapper::mapToResponse)
-               .collect(Collectors.toList());
+        return users
+                .stream()
+                .map(UserMapper::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -194,18 +195,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserResponse> getByAll() {
         List<User> users = userRepo.getAll();
-       return users
-               .stream()
-               .map(UserMapper::mapToResponse)
-               .collect(Collectors.toList());
+        return users
+                .stream()
+                .map(UserMapper::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
     public Page<UserResponse> getByAllPage(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<User> userPage = userRepo.getAllPage(pageRequest);
-       return userPage
-               .map(UserMapper::mapToResponse);
+        return userPage
+                .map(UserMapper::mapToResponse);
     }
 
     @Override
@@ -241,7 +242,7 @@ public class UserServiceImpl implements UserService {
         User user = this.userRepo.getById(userId);
         this.bookService.getById(bookId);
         boolean isAdded = false;
-        if (user.getFinishedBooks().contains(bookId)){
+        if (user.getFinishedBooks().contains(bookId)) {
             user.getFinishedBooks().remove(bookId);
         } else {
             isAdded = true;
@@ -255,7 +256,7 @@ public class UserServiceImpl implements UserService {
         User user = this.userRepo.getById(userId);
         this.bookService.getById(bookId);
         boolean isAdded = false;
-        if (user.getWantToReadBooks().contains(bookId)){
+        if (user.getWantToReadBooks().contains(bookId)) {
             user.getWantToReadBooks().remove(bookId);
         } else {
             isAdded = true;
@@ -269,7 +270,7 @@ public class UserServiceImpl implements UserService {
         User user = this.userRepo.getById(userId);
         this.bookService.getById(bookId);
         boolean isAdded = false;
-        if (user.getCurrentlyReadingBooks().contains(bookId)){
+        if (user.getCurrentlyReadingBooks().contains(bookId)) {
             user.getCurrentlyReadingBooks().remove(bookId);
         } else {
             isAdded = true;

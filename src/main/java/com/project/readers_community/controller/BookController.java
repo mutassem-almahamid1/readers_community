@@ -11,8 +11,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
+
+
 
 @RestController
 @RequestMapping("/api/v1/book")
@@ -51,23 +53,30 @@ public class BookController {
         return ResponseEntity.ok(service.getByCategory(category));
     }
 
-    @GetMapping("/suggestions")
-    public ResponseEntity<List<BookResponse>> getBookSuggestions(
-            @RequestParam(defaultValue = "10") int limit) {
-        return ResponseEntity.ok(service.getBookSuggestions(limit));
+
+
+    @GetMapping("/top-rated")
+    public ResponseEntity<List<BookResponse>> getTopRatedBooks() {
+        List<BookResponse> books = service.getTopRatedBooks();
+        return ResponseEntity.ok(books);
     }
 
-    @GetMapping("/trending")
-    public ResponseEntity<List<BookResponse>> getTrendingBooks(
-            @RequestParam(defaultValue = "10") int limit) {
-        return ResponseEntity.ok(service.getTrendingBooks(limit));
+    @GetMapping("/personalized-recommendations")
+    public ResponseEntity<List<BookResponse>> getPersonalizedRecommendations(@RequestParam String userId) {
+        List<BookResponse> books = service.getPersonalizedRecommendations(userId);
+        return ResponseEntity.ok(books);
     }
 
-    @GetMapping("/personalized-suggestions")
-    public ResponseEntity<List<BookResponse>> getPersonalizedBookSuggestions(
-            @RequestParam String userId,
-            @RequestParam(defaultValue = "10") int limit) {
-        return ResponseEntity.ok(service.getPersonalizedBookSuggestions(userId, limit));
+    @GetMapping("/trending-this-month")
+    public ResponseEntity<List<BookResponse>> getTrendingBooksThisMonth() {
+        List<BookResponse> books = service.getTrendingBooksThisMonth();
+        return ResponseEntity.ok(books);
+    }
+
+    @GetMapping("/friend-recommendations")
+    public ResponseEntity<List<BookResponse>> getFriendRecommendations(@RequestParam String userId) {
+        List<BookResponse> books = service.getFriendRecommendations(userId);
+        return ResponseEntity.ok(books);
     }
 
     @GetMapping("/page")
