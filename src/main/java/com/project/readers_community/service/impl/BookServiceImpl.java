@@ -4,6 +4,7 @@ import com.project.readers_community.mapper.BookMapper;
 import com.project.readers_community.mapper.helper.AssistantHelper;
 import com.project.readers_community.model.common.MessageResponse;
 import com.project.readers_community.model.document.Book;
+import com.project.readers_community.model.dto.request.SearchBookRequest;
 import com.project.readers_community.model.enums.Status;
 import com.project.readers_community.model.document.User;
 import com.project.readers_community.model.dto.request.BookRequest;
@@ -12,9 +13,15 @@ import com.project.readers_community.repository.BookRepo;
 import com.project.readers_community.repository.UserRepo;
 import com.project.readers_community.service.BookService;
 import com.project.readers_community.service.CategoryService;
+import com.project.readers_community.service.ReviewService;
+import com.project.readers_community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -34,9 +41,15 @@ public class BookServiceImpl implements BookService {
     @Autowired
     private UserRepo userRepo;
     @Autowired
+    private UserService userService;
+    @Autowired
+    private ReviewService reviewService;
+    @Autowired
     private RestTemplate restTemplate;
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     private final String apiKey = "AIzaSyCCybPucK-_tphMJf6fowwNaLLFw-FY7sE";
     private final String baseUrl = "https://www.googleapis.com/books/v1/volumes";
@@ -106,6 +119,67 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public List<BookResponse> getByNameContainingIgnoreCase(String name) {
+        List<Book> books = this.bookRepo.getByNameContainingIgnoreCase(name);
+        return books
+                .stream()
+                .map(BookMapper::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<BookResponse> getByNameContainingIgnoreCase(String name, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Book> books = this.bookRepo.getByNameContainingIgnoreCase(name, pageRequest);
+        return books
+                .map(BookMapper::mapToResponse);
+    }
+
+    @Override
+    public List<BookResponse> search(SearchBookRequest request) {
+        Query query = buildQuery(request);
+        List<Book> books = this.mongoTemplate.find(query, Book.class);
+       return books.stream().map(BookMapper::mapToResponse).toList();
+    }
+
+    @Override
+    public Page<BookResponse> searchPage(SearchBookRequest request, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Query query = buildQuery(request);
+
+        long total = this.mongoTemplate.count(query, Book.class);
+        query.with(pageRequest);
+        List<Book> paginatedBook = this.mongoTemplate.find(query, Book.class);
+
+        List<BookResponse> bookResponses = paginatedBook.stream().map(BookMapper::mapToResponse).toList();
+
+        return new PageImpl<>(bookResponses, pageRequest, total);
+    }
+
+    private Query buildQuery(SearchBookRequest request){
+        Query query = new Query();
+
+        if (request.getName() != null) {
+            query.addCriteria(new Criteria().orOperator(
+                    Criteria.where("title").regex(".*" + request.getName().trim() + ".*", "i"),
+                    Criteria.where("author").regex(".*" + request.getName().trim() + ".*", "i")
+            ));
+        }
+
+        if (request.getCategoryIds() != null ) {
+            query.addCriteria(Criteria.where("category").in(request.getCategoryIds()));
+        }
+
+        if (request.getRate() != null ) {
+            query.addCriteria(Criteria.where("avgRating").gte(request.getRate()));
+        }
+
+        query.addCriteria(Criteria.where("status").is(Status.ACTIVE));
+
+        return query;
+    }
+
+    @Override
     public List<BookResponse> getByAllByIdIn(List<String> ids) {
         List<Book> books = bookRepo.getAllIdIn(ids);
         return books.stream()
@@ -142,6 +216,8 @@ public class BookServiceImpl implements BookService {
         book.setStatus(Status.DELETED);
         book.setDeletedAt(LocalDateTime.now());
         Book updatedBook = bookRepo.save(book);
+        this.userService.deleteBookFromAllUsers(book.getId());
+        this.reviewService.softDeleteByBookId(book.getId());
         return AssistantHelper.toMessageResponse("Book deleted successfully.");
     }
 
@@ -151,6 +227,8 @@ public class BookServiceImpl implements BookService {
         books.forEach(book -> {
             book.setStatus(Status.DELETED);
             book.setDeletedAt(LocalDateTime.now());
+            this.userService.deleteBookFromAllUsers(book.getId());
+            this.reviewService.softDeleteByBookId(book.getId());
         });
         bookRepo.saveAll(books);
         return AssistantHelper.toMessageResponse("Books deleted successfully.");
@@ -186,9 +264,10 @@ public class BookServiceImpl implements BookService {
         // على سبيل المثال، يمكنك استخدام صيغة تجمع بين التقييم وعدد القراء وعدد المراجعات
         List<Book> books = bookRepo.getAll();
         return books.stream()
-                .sorted(Comparator.comparing(Book::getAvgRating, Comparator.nullsLast(Comparator.reverseOrder()))
-                        .thenComparing(Book::getReaderCount, Comparator.nullsLast(Comparator.reverseOrder()))
-                        .thenComparing(Book::getReviewCount, Comparator.nullsLast(Comparator.reverseOrder())))
+                .sorted(Comparator.comparing(Book::getReaderCount, Comparator.nullsLast(Comparator.naturalOrder())).reversed()
+                        .thenComparing(Book::getAvgRating, Comparator.nullsLast(Comparator.naturalOrder())).reversed()
+                        .thenComparing(Book::getReviewCount, Comparator.nullsLast(Comparator.naturalOrder())).reversed()
+                )
                 .map(BookMapper::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -229,7 +308,11 @@ public class BookServiceImpl implements BookService {
         // إزالة التكرارات وفرز النتائج (مثلاً حسب التقييم)
         return recommendedBooks.stream()
                 .distinct()
-                .sorted(Comparator.comparing(Book::getAvgRating, Comparator.nullsLast(Comparator.reverseOrder())))
+                .sorted(Comparator.comparing(Book::getReaderCount, Comparator.nullsLast(Comparator.naturalOrder())).reversed()
+                        .thenComparing(Book::getAvgRating, Comparator.nullsLast(Comparator.naturalOrder())).reversed()
+                        .thenComparing(Book::getReviewCount, Comparator.nullsLast(Comparator.naturalOrder())).reversed()
+                )
+//                .limit(10)
                 .map(BookMapper::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -249,9 +332,11 @@ public class BookServiceImpl implements BookService {
         // يجب استبدال هذا بمنطق التتبع الفعلي
         List<Book> books = bookRepo.getAll();
         return books.stream()
-                .sorted(Comparator.comparing(Book::getReviewCount, Comparator.nullsLast(Comparator.reverseOrder()))
-                        .thenComparing(Book::getAvgRating, Comparator.nullsLast(Comparator.reverseOrder())))
-                .limit(10) // على سبيل المثال، أفضل 10 كتب رائجة
+                .sorted(Comparator.comparing(Book::getReaderCount, Comparator.nullsLast(Comparator.naturalOrder())).reversed()
+                        .thenComparing(Book::getAvgRating, Comparator.nullsLast(Comparator.naturalOrder())).reversed()
+                        .thenComparing(Book::getReviewCount, Comparator.nullsLast(Comparator.naturalOrder())).reversed()
+                )
+//                .limit(10) // على سبيل المثال، أفضل 10 كتب رائجة
                 .map(BookMapper::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -262,7 +347,7 @@ public class BookServiceImpl implements BookService {
         List<String> friendIds = currentUser.getFollowing();
 
         if (friendIds == null || friendIds.isEmpty()) {
-            return new ArrayList<>(); // لا يوجد أصدقاء، لا توجد توصيات
+            return getTopRatedBooks(); // لا يوجد أصدقاء، لا توجد توصيات
         }
 
         Set<String> recommendedBookIds = new HashSet<>();
@@ -275,18 +360,22 @@ public class BookServiceImpl implements BookService {
 
         // إزالة الكتب التي قرأها المستخدم الحالي بالفعل
         if (currentUser.getFinishedBooks() != null) {
-            recommendedBookIds.removeAll(currentUser.getFinishedBooks());
+            currentUser.getFinishedBooks().forEach(recommendedBookIds::remove);
         }
 
         if (recommendedBookIds.isEmpty()) {
-            return new ArrayList<>();
+            return getTopRatedBooks();
         }
 
         List<Book> recommendedBooks = bookRepo.getAllByIdIn(new ArrayList<>(recommendedBookIds));
 
         // يمكنك فرز هذه الكتب بناءً على عدد الأصدقاء الذين قرأوها أو تقييمها العام
         return recommendedBooks.stream()
-                .sorted(Comparator.comparing(Book::getAvgRating, Comparator.nullsLast(Comparator.reverseOrder())))
+                .sorted(Comparator.comparing(Book::getReaderCount, Comparator.nullsLast(Comparator.naturalOrder())).reversed()
+                        .thenComparing(Book::getAvgRating, Comparator.nullsLast(Comparator.naturalOrder())).reversed()
+                        .thenComparing(Book::getReviewCount, Comparator.nullsLast(Comparator.naturalOrder())).reversed()
+                )
+//                .limit(10)
                 .map(BookMapper::mapToResponse)
                 .collect(Collectors.toList());
     }

@@ -19,6 +19,10 @@ public interface UserRepo {
 
     User getByUsername(String username);
 
+    List<User> getByNameContainingIgnoreCase(String name);
+
+    Page<User> getByNameContainingIgnoreCase(String name, PageRequest pageRequest);
+
     Optional<User> getByUsernameIgnoreStatus(String username);
 
     Optional<User> getByEmailIgnoreStatus(String email);
@@ -48,6 +52,8 @@ public interface UserRepo {
 //    void addBookToWantToReadList(String userId, String bookId);
 //
 //    void addBookToCurrentlyReadingList(String userId, String bookId);
+
+    List<User> getAllByIdNotIn(List<String> ids);
 
     void deleteById(String id);
 

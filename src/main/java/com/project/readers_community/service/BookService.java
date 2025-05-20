@@ -3,7 +3,9 @@ package com.project.readers_community.service;
 import com.project.readers_community.model.common.MessageResponse;
 import com.project.readers_community.model.document.Book;
 import com.project.readers_community.model.dto.request.BookRequest;
+import com.project.readers_community.model.dto.request.SearchBookRequest;
 import com.project.readers_community.model.dto.response.BookResponse;
+import com.project.readers_community.model.dto.response.CategoryResponse;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -18,6 +20,14 @@ public interface BookService {
     BookResponse getByTitle(String name);
 
     List<BookResponse> getByAll();
+
+    List<BookResponse> getByNameContainingIgnoreCase(String name);
+
+    Page<BookResponse> getByNameContainingIgnoreCase(String name, int page, int size);
+
+    List<BookResponse> search(SearchBookRequest request);
+
+    Page<BookResponse> searchPage(SearchBookRequest request, int page, int size);
 
     List<BookResponse> getByAllByIdIn(List<String> ids);
 
@@ -36,8 +46,11 @@ public interface BookService {
     List<Book> searchBooksByCategory(String category);
 
     List<BookResponse> getTopRatedBooks();
+
     List<BookResponse> getPersonalizedRecommendations(String userId);
+
     List<BookResponse> getTrendingBooksThisMonth();
+
     List<BookResponse> getFriendRecommendations(String userId);
 
     MessageResponse updateBookReviewAndRating(String bookId, int reviewCount, double ratingTotal);

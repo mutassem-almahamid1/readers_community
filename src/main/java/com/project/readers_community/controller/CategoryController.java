@@ -31,9 +31,20 @@ public class CategoryController {
         return ResponseEntity.ok(this.service.getById(id));
     }
 
-    @GetMapping("{name}")
-    public ResponseEntity<CategoryResponse> getCategoryByName(@PathVariable String name) {
-        return ResponseEntity.ok(this.service.getByName(name));
+    @GetMapping("/name")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<CategoryResponse>> getCategoryByName(@RequestParam String name) {
+        return ResponseEntity.ok(this.service.getByNameContainingIgnoreCase(name));
+    }
+
+    @GetMapping("/name/page")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<CategoryResponse>> getCategoryByName(
+            @RequestParam String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(this.service.getByNameContainingIgnoreCase(name, page, size));
     }
 
     @GetMapping
@@ -47,11 +58,13 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> updateCategory(@PathVariable String id, @Valid @RequestBody CategoryRequest request) {
         return ResponseEntity.ok(this.service.update(id, request));
     }
 
     @DeleteMapping("/soft/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> softDeleteCategoryById(@PathVariable String id) {
         return ResponseEntity.ok(this.service.softDeleteById(id));
     }

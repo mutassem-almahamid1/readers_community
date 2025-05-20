@@ -1,6 +1,8 @@
 package com.project.readers_community.controller;
 
+import com.project.readers_community.model.common.MessageResponse;
 import com.project.readers_community.model.dto.response.NotificationResponse;
+import com.project.readers_community.model.enums.NotificationType;
 import com.project.readers_community.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -10,36 +12,43 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/notifications")
+@RequestMapping("/api/notification")
 public class NotificationController {
 
     @Autowired
     private NotificationService notificationService;
 
-    @GetMapping("/{recipientId}")
-    public ResponseEntity<List<NotificationResponse>> getNotifications(@PathVariable String recipientId) {
-        List<NotificationResponse> notifications = notificationService.getByRecipientId(recipientId);
+    @GetMapping("/{recipientId}/all")
+    public ResponseEntity<List<NotificationResponse>> getNotifications(@PathVariable String recipientId, @RequestParam(required = false) NotificationType type) {
+        List<NotificationResponse> notifications = notificationService.getByRecipientId(recipientId, type);
         return ResponseEntity.ok(notifications);
     }
 
     @GetMapping("/{recipientId}/paged")
     public ResponseEntity<Page<NotificationResponse>> getNotificationsPaged(
             @PathVariable String recipientId,
+            @RequestParam(required = false) NotificationType type,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Page<NotificationResponse> notifications = notificationService.getByRecipientIdPaged(recipientId, page, size);
+        Page<NotificationResponse> notifications = notificationService.getByRecipientIdPaged(recipientId, type, page, size);
         return ResponseEntity.ok(notifications);
     }
 
-    @GetMapping("/{recipientId}/unread")
-    public ResponseEntity<List<NotificationResponse>> getUnreadNotifications(@PathVariable String recipientId) {
-        List<NotificationResponse> unreadNotifications = notificationService.getUnreadByRecipientId(recipientId);
-        return ResponseEntity.ok(unreadNotifications);
+    @GetMapping("/{id}")
+    public ResponseEntity<NotificationResponse> getNotificationsById(@PathVariable String id) {
+        NotificationResponse notifications = notificationService.getById(id);
+        return ResponseEntity.ok(notifications);
     }
 
     @PatchMapping("/{id}/read")
-    public ResponseEntity<NotificationResponse> markAsRead(@PathVariable String id) {
-        NotificationResponse updatedNotification = notificationService.markAsRead(id);
+    public ResponseEntity<MessageResponse> markAsRead(@PathVariable String id) {
+        MessageResponse updatedNotification = notificationService.markAsRead(id);
+        return ResponseEntity.ok(updatedNotification);
+    }
+
+    @PatchMapping("/{recipientId}/read-all")
+    public ResponseEntity<MessageResponse> markAsReadByRecipientId(@PathVariable String recipientId) {
+        MessageResponse updatedNotification = notificationService.markAsReadByRecipientId(recipientId);
         return ResponseEntity.ok(updatedNotification);
     }
 

@@ -13,17 +13,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v1/user")
 public class UserController {
     @Autowired
     private UserService service;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> create(@Valid @RequestBody UserRequestSignIn request) {
         return ResponseEntity.ok(this.service.signUp(request));
     }
@@ -44,9 +46,20 @@ public class UserController {
 //        return ResponseEntity.ok(this.service.getByIdIfPresent(id));
 //    }
 
-    @GetMapping("/users/{username}")
-    public ResponseEntity<UserResponse> getUserByUsername(@PathVariable String username) {
-        return ResponseEntity.ok(this.service.getByUsername(username));
+    @GetMapping("/name")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<UserResponse>> getAllByName(@RequestParam String name) {
+        return ResponseEntity.ok(this.service.getAllByName(name));
+    }
+
+    @GetMapping("/name/page")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<UserResponse>> getByNamePage(
+            @RequestParam String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(this.service.getByNamePage(name, page, size));
     }
 
 //    @GetMapping("/users/{username}/if-present")
@@ -55,31 +68,37 @@ public class UserController {
 //    }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserResponse>> getAllUser() {
         return ResponseEntity.ok(this.service.getByAll());
     }
 
     @GetMapping("/page")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserResponse>> getAllUserByPage(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(this.service.getByAllPage(page, size));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> updateUser(@PathVariable String id, @Valid @RequestBody UpdateUserRequest request) {
         return ResponseEntity.ok(this.service.update(id, request));
     }
 
     @PatchMapping("/active/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> active(@PathVariable String id) {
         return ResponseEntity.ok(this.service.updateStatus(id, Status.ACTIVE));
     }
 
     @PatchMapping("/block/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> block(@PathVariable String id) {
         return ResponseEntity.ok(this.service.updateStatus(id, Status.BLOCKED));
     }
 
     @DeleteMapping("/soft/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> softDeleteUserById(@PathVariable String id) {
         return ResponseEntity.ok(this.service.softDeleteById(id));
     }
@@ -105,11 +124,11 @@ public class UserController {
     }
 
 
-    @PostMapping("/{followerId}/follow-unfollow/{followingId}")
+    @PostMapping("/{userId}/follow-unfollow/{followingId}")
     public ResponseEntity<MessageResponse> followUser(
-            @PathVariable String followerId,
+            @PathVariable String userId,
             @PathVariable String followingId) {
-        return new ResponseEntity<>(service.followUser(followerId, followingId), HttpStatus.OK);
+        return new ResponseEntity<>(service.followUser(userId, followingId), HttpStatus.OK);
     }
 
 

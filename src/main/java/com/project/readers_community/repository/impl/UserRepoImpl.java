@@ -63,6 +63,16 @@ public class UserRepoImpl implements UserRepo {
     }
 
     @Override
+    public List<User> getByNameContainingIgnoreCase(String name) {
+        return repoMongo.findByFullNameContainingIgnoreCaseAndStatus(name, Status.ACTIVE);
+    }
+
+    @Override
+    public Page<User> getByNameContainingIgnoreCase(String name, PageRequest pageRequest) {
+        return repoMongo.findByFullNameContainingIgnoreCaseAndStatus(name, Status.ACTIVE, pageRequest);
+    }
+
+    @Override
     public Optional<User> getByUsernameIgnoreStatus(String username) {
         return repoMongo.findByUsername(username);
     }
@@ -102,6 +112,11 @@ public class UserRepoImpl implements UserRepo {
     @Override
     public List<User> getAllByIdIn(List<String> ids) {
         return repoMongo.findAllByIdInAndStatus(ids, Status.ACTIVE);
+    }
+
+    @Override
+    public List<User> getAllByIdNotIn(List<String> ids) {
+        return repoMongo.findAllByIdNotInAndStatus(ids, Status.ACTIVE);
     }
 
 //    @Override

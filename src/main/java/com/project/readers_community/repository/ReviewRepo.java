@@ -11,6 +11,8 @@ public interface ReviewRepo {
 
     Review save(Review review);
 
+    List<Review> saveAll(List<Review> review);
+
     Optional<Review> getByIdIfPresent(String id);
 
     Review getById(String id);
@@ -30,4 +32,8 @@ public interface ReviewRepo {
     List<Review> findByUserId(String userId);
 
     Page<Review> findByUserIdPage(String userId, PageRequest pageRequest);
+
+    Page<Review> findAllByUserInAndStatus(List<String> users, PageRequest pageRequest);
+
+    List<Review> getAllByIdIn(List<String> ids);
 }

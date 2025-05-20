@@ -6,8 +6,11 @@ import com.project.readers_community.handelException.exception.NotFoundException
 import com.project.readers_community.mapper.UserMapper;
 import com.project.readers_community.mapper.helper.AssistantHelper;
 import com.project.readers_community.model.common.MessageResponse;
+import com.project.readers_community.model.dto.request.NotificationRequest;
 import com.project.readers_community.model.dto.request.UpdateUserRequest;
 import com.project.readers_community.model.dto.response.BookResponse;
+import com.project.readers_community.model.dto.response.NotificationResponse;
+import com.project.readers_community.model.enums.NotificationType;
 import com.project.readers_community.model.enums.Status;
 import com.project.readers_community.model.document.User;
 import com.project.readers_community.model.dto.request.UserRequestSignIn;
@@ -16,6 +19,7 @@ import com.project.readers_community.repository.UserRepo;
 import com.project.readers_community.service.BookService;
 import com.project.readers_community.service.NotificationService;
 import com.project.readers_community.service.UserService;
+import com.project.readers_community.service.WebSocketNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,6 +43,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private WebSocketNotificationService webSocketNotificationService;
 
 
     @Override
@@ -109,6 +116,37 @@ public class UserServiceImpl implements UserService {
         return UserMapper.mapToResponse(user);
     }
 
+    @Override
+    public List<UserResponse> getAllByName(String name) {
+        List<User> users = this.userRepo.getByNameContainingIgnoreCase(name);
+        return users
+                .stream()
+                .map(UserMapper::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<UserResponse> getByNamePage(String name, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<User> userPage = userRepo.getByNameContainingIgnoreCase(name, pageRequest);
+        return userPage
+                .map(UserMapper::mapToResponse);
+    }
+
+    @Override
+    public List<UserResponse> getAllByIdIn(List<String> ids) {
+        List<User> users = this.userRepo.getAllByIdIn(ids);
+        return users
+                .stream()
+                .map(UserMapper::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> getAllByIdNotIn(List<String> ids) {
+        List<User> users = this.userRepo.getAllByIdNotIn(ids);
+        return users.stream().map(User::getId).toList();
+    }
 
     @Override
     public List<UserResponse> getAllFollowingById(String id) {
@@ -145,22 +183,18 @@ public class UserServiceImpl implements UserService {
             follower.getFollowing().add(followingId);
             following.getFollowers().add(followerId);
 
-//            if (notificationService != null) {
-//                String message = follower.getUsername() + " started following you";
-//                notificationService.createNotificationAsync(
-//                        followingId,
-//                        followerId,
-//                        NotificationType.FOLLOW,
-//                        message,
-//                        null,
-//                        null,
-//                        null,
-//                        null
-//                );
-//            }
-
             userRepo.save(follower);
             userRepo.save(following);
+
+            NotificationResponse notificationResponse = notificationService.create(NotificationRequest.builder()
+                    .recipientId(followingId)
+                    .triggerUserId(followerId)
+                    .message(follower.getUsername() + " started following you")
+                    .type(NotificationType.FOLLOW)
+                    .build());
+
+            this.webSocketNotificationService.notifyNewNotification(notificationResponse, followingId);
+
             return AssistantHelper.toMessageResponse("Following Successfully.");
         } else {
             follower.getFollowing().remove(followingId);
@@ -300,5 +334,16 @@ public class UserServiceImpl implements UserService {
         return this.bookService.getByAllByIdIn(user.getWantToReadBooks());
     }
     /// end ///
+
+    @Override
+    public void deleteBookFromAllUsers(String bookId) {
+        List<User> users = userRepo.getAll();
+        users.forEach(user -> {
+            user.getFinishedBooks().remove(bookId);
+            user.getCurrentlyReadingBooks().remove(bookId);
+            user.getWantToReadBooks().remove(bookId);
+        });
+        this.userRepo.saveAll(users);
+    }
 
 }

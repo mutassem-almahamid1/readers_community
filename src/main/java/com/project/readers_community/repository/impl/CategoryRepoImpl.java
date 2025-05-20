@@ -54,6 +54,16 @@ public class CategoryRepoImpl implements CategoryRepo {
     }
 
     @Override
+    public List<Category> getByNameContainingIgnoreCase(String name) {
+        return repoMongo.findByNameContainingIgnoreCaseAndStatus(name, Status.ACTIVE);
+    }
+
+    @Override
+    public Page<Category> getByNameContainingIgnoreCase(String name, PageRequest pageRequest) {
+        return repoMongo.findByNameContainingIgnoreCaseAndStatus(name, Status.ACTIVE, pageRequest);
+    }
+
+    @Override
     public List<Category> getAll() {
         return repoMongo.findAllByStatus(Status.ACTIVE);
     }

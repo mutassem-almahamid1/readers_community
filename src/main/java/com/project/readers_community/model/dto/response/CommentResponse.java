@@ -16,17 +16,11 @@ import java.util.Set;
 public class CommentResponse {
     private String id;
     private String userId;
-//    private String username;
-//    private String userProfilePicture;
+    private UserResponse user;
     private String reviewId;
-//    private String postId;
     private String content;
     private Set<String> likedByUserIds;
     private int likeCount;
-//    private boolean likedByCurrentUser;
     private Status status;
     private LocalDateTime createdAt;
-//    private LocalDateTime updatedAt;
-//    private LocalDateTime deletedAt;
-
 }

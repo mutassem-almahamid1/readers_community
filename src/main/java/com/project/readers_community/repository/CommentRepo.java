@@ -11,6 +11,8 @@ import java.util.Optional;
 public interface CommentRepo {
     Comment save(Comment comment);
 
+    List<Comment> saveAll(List<Comment> comments);
+
     Comment getById(String id);
 
     Optional<Comment> getByIdAndStatusIfPresent(String id, Status status);
@@ -26,6 +28,8 @@ public interface CommentRepo {
 //    Page<Comment> getByPostIdPaged(String postId, PageRequest pageRequest);
 
     List<Comment> getByUserId(String userId);
+
+    List<Comment> getAllByIdIn(List<String> ids);
 
     void deleteById(String id);
 }

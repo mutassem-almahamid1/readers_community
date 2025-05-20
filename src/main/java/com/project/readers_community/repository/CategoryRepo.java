@@ -22,6 +22,10 @@ public interface CategoryRepo {
 
     Category getById(String id);
 
+    List<Category> getByNameContainingIgnoreCase(String name);
+
+    Page<Category> getByNameContainingIgnoreCase(String name, PageRequest pageRequest);
+
     List<Category> getAll();
 
     Page<Category> getAllPage(PageRequest pageRequest);

@@ -10,18 +10,22 @@ import java.util.List;
 
 public interface NotificationService {
     NotificationResponse create(NotificationRequest request);
-    NotificationResponse getById(String id);
-    List<NotificationResponse> getByRecipientId(String recipientId);
-    Page<NotificationResponse> getByRecipientIdPaged(String recipientId, int page, int size);
-    List<NotificationResponse> getUnreadByRecipientId(String recipientId);
-    NotificationResponse update(String id, NotificationRequest request);
-    NotificationResponse softDeleteById(String id);
-    MessageResponse hardDeleteById(String id);
-    NotificationResponse markAsRead(String id);
 
-    void createNotificationAsync(String recipientId, String triggerUserId,
-                                 NotificationType type, String message,
-                                 String reviewId, String commentId, String bookId, String postId);
+    NotificationResponse getById(String id);
+
+    List<NotificationResponse> getByRecipientId(String recipientId, NotificationType type);
+
+    Page<NotificationResponse> getByRecipientIdPaged(String recipientId, NotificationType type, int page, int size);
+
+    MessageResponse hardDeleteById(String id);
+
+    MessageResponse markAsRead(String id);
+
+    MessageResponse markAsReadByRecipientId(String recipientId);
+
+//    void createNotificationAsync(String recipientId, String triggerUserId,
+//                                 NotificationType type, String message,
+//                                 String reviewId, String commentId, String bookId);
 
 
 }

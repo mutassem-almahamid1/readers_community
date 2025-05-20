@@ -15,16 +15,16 @@ import java.time.LocalDateTime;
 public class NotificationResponse {
     private String id;
     private String recipientId;
-    private String recipientUsername;
     private String triggerUserId;
-    private String triggerUsername;
-    private String triggerUserProfilePicture;
+    private UserResponse triggerUser;
     private NotificationType type;
     private String message;
     private String reviewId;
+    private ReviewResponse review;
     private String commentId;
+    private CommentResponse comment;
     private String bookId;
-    private String postId;
+    private BookResponse book;
     private boolean isRead;
     private LocalDateTime createdAt;
 }

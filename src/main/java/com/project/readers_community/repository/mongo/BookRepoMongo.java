@@ -1,6 +1,7 @@
 package com.project.readers_community.repository.mongo;
 
 import com.project.readers_community.model.document.Book;
+import com.project.readers_community.model.document.Category;
 import com.project.readers_community.model.enums.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +23,10 @@ public interface BookRepoMongo extends MongoRepository<Book, String> {
     List<Book> findAllByStatus(Status status);
 
     Page<Book> findAllByStatus(Status status, PageRequest pageRequest);
+
+    List<Book> findByTitleContainingIgnoreCaseAndStatus(String name, Status status);
+
+    Page<Book> findByTitleContainingIgnoreCaseAndStatus(String name, Status status, PageRequest pageRequest);
 
     List<Book> findAllByCategory(String category);
 

@@ -15,20 +15,18 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/comments")
+@RequestMapping("/api/comment")
 public class CommentController {
-
     @Autowired
     private CommentService commentService;
 
-    @PostMapping("/review")
+    @PostMapping
     public ResponseEntity<CommentResponse> createCommentOnReview(
             @Valid @RequestBody CommentRequest request,
             @RequestParam String userId) {
         CommentResponse response = commentService.createCommentOnReview(request, userId);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<CommentResponse> getCommentById(@PathVariable String id) {
@@ -73,13 +71,13 @@ public class CommentController {
         return ResponseEntity.ok(this.commentService.likeComment(id, userId));
     }
 
-    @PutMapping("/{id}/edit")
-    public ResponseEntity<MessageResponse> editComment(
-            @PathVariable String id,
-            @RequestBody UpdateCommentRequest request,
-            @RequestParam String userId) {
-        return ResponseEntity.ok(this.commentService.update(id, request, userId));
-    }
+//    @PutMapping("/{id}/edit")
+//    public ResponseEntity<MessageResponse> editComment(
+//            @PathVariable String id,
+//            @RequestBody UpdateCommentRequest request,
+//            @RequestParam String userId) {
+//        return ResponseEntity.ok(this.commentService.update(id, request, userId));
+//    }
 
 
     @DeleteMapping("/{id}/soft")
@@ -89,12 +87,12 @@ public class CommentController {
         return  ResponseEntity.ok(commentService.softDeleteById(id, userId));
     }
 
-    @DeleteMapping("/{id}/hard")
-    public ResponseEntity<MessageResponse> hardDeleteComment(
-            @PathVariable String id,
-            @RequestParam String userId) {
-        return  ResponseEntity.ok(commentService.hardDeleteById(id, userId));
-    }
+//    @DeleteMapping("/{id}/hard")
+//    public ResponseEntity<MessageResponse> hardDeleteComment(
+//            @PathVariable String id,
+//            @RequestParam String userId) {
+//        return  ResponseEntity.ok(commentService.hardDeleteById(id, userId));
+//    }
 
 
 }

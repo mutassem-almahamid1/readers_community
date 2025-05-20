@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/reviews")
+@RequestMapping("/api/review")
 public class ReviewController {
 
     @Autowired
@@ -59,6 +59,15 @@ public class ReviewController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/timeline/{userId}")
+    public ResponseEntity<Page<ReviewResponse>> timeline(
+            @PathVariable String userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<ReviewResponse> response = reviewService.timeline(userId, page, size);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
     @GetMapping("/book/{bookId}")
     public ResponseEntity<List<ReviewResponse>> getReviewsByBookId(@PathVariable String bookId) {
@@ -72,12 +81,11 @@ public class ReviewController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/{id}/like")
+    @PostMapping("/{id}/like-unlike")
     public ResponseEntity<ReviewResponse> likeReview(@PathVariable String id, @RequestParam String userId) {
         ReviewResponse response = reviewService.likeReview(id, userId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
 
     @PutMapping("/{id}")
     public ResponseEntity<MessageResponse> updateReview(@PathVariable String id,@Valid @RequestBody UpdateReviewRequest request, @RequestParam String userId) {
@@ -91,9 +99,9 @@ public class ReviewController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}/hard")
-    public ResponseEntity<MessageResponse> hardDeleteReview(@PathVariable String id, @RequestParam String userId) {
-        MessageResponse response = reviewService.hardDeleteById(id, userId);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+//    @DeleteMapping("/{id}/hard")
+//    public ResponseEntity<MessageResponse> hardDeleteReview(@PathVariable String id, @RequestParam String userId) {
+//        MessageResponse response = reviewService.hardDeleteById(id, userId);
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
 }

@@ -24,6 +24,11 @@ public class CommentRepoImpl implements CommentRepo {
     }
 
     @Override
+    public List<Comment> saveAll(List<Comment> comments) {
+        return commentRepoMongo.saveAll(comments);
+    }
+
+    @Override
     public Comment getById(String id) {
         return commentRepoMongo.findById(id)
                 .orElseThrow(() -> new NotFoundException("Comment not found"));
@@ -63,6 +68,11 @@ public class CommentRepoImpl implements CommentRepo {
     @Override
     public List<Comment> getByUserId(String userId) {
         return commentRepoMongo.findAllByUserAndStatus(userId, Status.ACTIVE);
+    }
+
+    @Override
+    public List<Comment> getAllByIdIn(List<String> ids) {
+        return commentRepoMongo.findAllByIdInAndStatus(ids, Status.ACTIVE);
     }
 
     @Override

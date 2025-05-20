@@ -27,11 +27,17 @@ public interface ReviewService {
 
     Page<ReviewResponse> getByUserIdPage(String userId, int page, int size);
 
+    List<ReviewResponse> getByAllByIdIn(List<String> ids);
+
+    Page<ReviewResponse> timeline(String userId, int page, int size);
+
     ReviewResponse likeReview(String id, String userId);
 
     MessageResponse update(String id, UpdateReviewRequest request, String userId);
 
     MessageResponse softDeleteById(String id, String userId);
+
+    MessageResponse softDeleteByBookId(String bookId);
 
     MessageResponse hardDeleteById(String id, String userId);
 }

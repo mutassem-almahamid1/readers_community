@@ -2,6 +2,7 @@ package com.project.readers_community.repository.impl;
 
 import com.project.readers_community.handelException.exception.NotFoundException;
 import com.project.readers_community.model.document.Notification;
+import com.project.readers_community.model.enums.NotificationType;
 import com.project.readers_community.repository.NotificationRepo;
 import com.project.readers_community.repository.mongo.NotificationRepoMongo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,11 @@ public class NotificationRepoImpl implements NotificationRepo {
     }
 
     @Override
+    public List<Notification> saveAll(List<Notification> notifications) {
+        return notificationRepoMongo.saveAll(notifications);
+    }
+
+    @Override
     public Optional<Notification> getById(String id) {
         return notificationRepoMongo.findById(id);
     }
@@ -33,8 +39,18 @@ public class NotificationRepoImpl implements NotificationRepo {
     }
 
     @Override
+    public List<Notification> getByRecipientIdAndType(String recipientId, NotificationType type) {
+        return notificationRepoMongo.findByRecipientAndType(recipientId, type);
+    }
+
+    @Override
     public Page<Notification> getByRecipientId(String recipientId, PageRequest pageRequest) {
         return notificationRepoMongo.findByRecipient(recipientId, pageRequest);
+    }
+
+    @Override
+    public Page<Notification> getByRecipientIdAndType(String recipientId, NotificationType type, PageRequest pageRequest) {
+        return notificationRepoMongo.findByRecipientAndType(recipientId, type, pageRequest);
     }
 
     @Override

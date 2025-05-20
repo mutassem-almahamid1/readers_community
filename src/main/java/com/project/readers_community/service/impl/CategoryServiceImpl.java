@@ -48,6 +48,23 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public List<CategoryResponse> getByNameContainingIgnoreCase(String name) {
+        List<Category> categories = this.categoryRepo.getByNameContainingIgnoreCase(name);
+        return categories
+                .stream()
+                .map(CategoryMapper::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<CategoryResponse> getByNameContainingIgnoreCase(String name, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Category> categories = this.categoryRepo.getByNameContainingIgnoreCase(name, pageRequest);
+        return categories
+                .map(CategoryMapper::mapToResponse);
+    }
+
+    @Override
     public Category getByNameForImport(String name) {
         return this.categoryRepo.getByName(name);
     }

@@ -2,7 +2,6 @@ package com.project.readers_community.repository.impl;
 
 import com.project.readers_community.handelException.exception.NotFoundException;
 import com.project.readers_community.model.document.Book;
-import com.project.readers_community.model.document.User;
 import com.project.readers_community.model.enums.Status;
 import com.project.readers_community.repository.BookRepo;
 import com.project.readers_community.repository.mongo.BookRepoMongo;
@@ -60,6 +59,16 @@ public class BookRepoImpl implements BookRepo {
     @Override
     public List<Book> getAll() {
         return repoMongo.findAllByStatus(Status.ACTIVE);
+    }
+
+    @Override
+    public List<Book> getByNameContainingIgnoreCase(String name) {
+        return repoMongo.findByTitleContainingIgnoreCaseAndStatus(name, Status.ACTIVE);
+    }
+
+    @Override
+    public Page<Book> getByNameContainingIgnoreCase(String name, PageRequest pageRequest) {
+        return repoMongo.findByTitleContainingIgnoreCaseAndStatus(name, Status.ACTIVE, pageRequest);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.project.readers_community.repository.mongo;
 
 import com.project.readers_community.model.document.Comment;
+import com.project.readers_community.model.document.Review;
 import com.project.readers_community.model.enums.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,9 +14,15 @@ import java.util.Optional;
 @Repository
 public interface CommentRepoMongo extends MongoRepository<Comment, String> {
     Optional<Comment> findByIdAndStatus(String id, Status status);
+
     List<Comment> findAllByReviewAndStatus(String review, Status status);
+
     Page<Comment> findAllByReviewAndStatus(String review, Status status, PageRequest pageRequest);
-//    List<Comment> findAllByPostAndStatus(String post, Status status);
+
+    //    List<Comment> findAllByPostAndStatus(String post, Status status);
 //    Page<Comment> findAllByPostAndStatus(String post, Status status, PageRequest pageRequest);
     List<Comment> findAllByUserAndStatus(String user, Status status);
+
+    List<Comment> findAllByIdInAndStatus(List<String> ids, Status status);
+
 }

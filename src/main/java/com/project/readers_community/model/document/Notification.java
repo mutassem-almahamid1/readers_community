@@ -16,32 +16,18 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class Notification {
-
     @Id
     private String id;
-
     private String recipient;
-
     private String triggerUser;
-
+    private String message;
+    private String review;
+    private String comment;
+    private String book;
+    private boolean isRead;
     private NotificationType type;
 
-    private String message;
-
-    private String review;
-
-    private String comment;
-
-    private String book;
-
-    private String post;
-
-    private boolean isRead;
-
     private LocalDateTime createdAt;
-
     private LocalDateTime updatedAt;
-
     private LocalDateTime deletedAt;
-
 }

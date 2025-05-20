@@ -42,6 +42,14 @@ public interface UserService {
 
     UserResponse getByUsername(String username);
 
+    List<UserResponse> getAllByName(String name);
+
+    Page<UserResponse> getByNamePage(String name, int page, int size);
+
+    List<UserResponse> getAllByIdIn(List<String> ids);
+
+    List<String> getAllByIdNotIn(List<String> ids);
+
     List<UserResponse> getAllFollowingById(String id);
 
     List<UserResponse> getAllFollowersById(String id);
@@ -55,4 +63,6 @@ public interface UserService {
     MessageResponse followUser(String followerId, String followingId);
 
     void unfollowUser(String followerId, String followingId);
+
+    void deleteBookFromAllUsers(String bookId);
 }

@@ -26,6 +26,10 @@ public interface BookRepo {
 
     List<Book> getAll();
 
+    List<Book> getByNameContainingIgnoreCase(String name);
+
+    Page<Book> getByNameContainingIgnoreCase(String name, PageRequest pageRequest);
+
     Page<Book> getAllPage(PageRequest pageRequest);
 
     void deleteById(String id);

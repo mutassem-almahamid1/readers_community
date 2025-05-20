@@ -27,6 +27,10 @@ public interface UserRepoMongo extends MongoRepository<User, String> {
 
     Optional<User> findByUsernameAndStatus(String username, Status status);
 
+    List<User> findByFullNameContainingIgnoreCaseAndStatus(String name, Status status);
+
+    Page<User> findByFullNameContainingIgnoreCaseAndStatus(String name, Status status, PageRequest pageRequest);
+
     List<User> findAllByStatusNot(Status status);
 
     Page<User> findAllByStatusNot(Status status, PageRequest pageRequest);
@@ -34,6 +38,8 @@ public interface UserRepoMongo extends MongoRepository<User, String> {
     List<User> findByIdInAndStatus(List<String> ids, Status status);
 
     List<User> findAllByIdInAndStatus(List<String> ids, Status status);
+
+    List<User> findAllByIdNotInAndStatus(List<String> ids, Status status);
 
     List<User> findAllFollowingById(String id);
 

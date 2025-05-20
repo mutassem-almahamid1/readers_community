@@ -15,6 +15,10 @@ public interface CategoryService {
 
     CategoryResponse getByName(String name);
 
+    List<CategoryResponse> getByNameContainingIgnoreCase(String name);
+
+    Page<CategoryResponse> getByNameContainingIgnoreCase(String name, int page, int size);
+
     Category getByNameForImport(String name);
 
     List<CategoryResponse> getByAll();

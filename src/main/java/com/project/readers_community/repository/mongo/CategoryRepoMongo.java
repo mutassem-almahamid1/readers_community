@@ -16,6 +16,10 @@ public interface CategoryRepoMongo extends MongoRepository<Category, String> {
 
     Optional<Category> findByNameAndStatus(String name, Status status);
 
+    List<Category> findByNameContainingIgnoreCaseAndStatus(String name, Status status);
+
+    Page<Category> findByNameContainingIgnoreCaseAndStatus(String name, Status status, PageRequest pageRequest);
+
     List<Category> findAllByStatus(Status status);
 
     Page<Category> findAllByStatus(Status status, PageRequest pageRequest);

@@ -17,15 +17,15 @@ import java.util.Set;
 public class ReviewResponse {
     private String id;
     private String userId;
-//    private String username;
+    private UserResponse user;
     private String bookId;
-//    private String bookTitle;
+    private BookResponse book;
     private String content;
     private int rating;
     private Set<String> likedBy;
+    private Set<UserResponse> likedByUsers;
     private int likeCount;
-//    private boolean likedByCurrentUser; // هل المستخدم الحالي أعجب بالمراجعة
-//    private List<String> commentsId;
+    private List<CommentResponse> comments;
     private Status status;
     private LocalDateTime createdAt;
 }

@@ -23,11 +23,15 @@ public interface CommentService {
 
 //   Page<CommentResponse> getCommentsByPostIdPaged(String postId, int page, int size);
 
+   List<CommentResponse> getByAllByIdIn(List<String> ids);
+
    List<CommentResponse> getByUserId(String userId);
 
    MessageResponse update(String id, UpdateCommentRequest request, String userId);
 
    MessageResponse softDeleteById(String id, String userId);
+
+   MessageResponse softDeleteByReviewId(String reviewId);
 
    MessageResponse hardDeleteById(String id, String userId);
 
